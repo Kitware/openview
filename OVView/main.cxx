@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
   view.setCacheMode(QGraphicsView::CacheNone);
   view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-  view.setSource(QUrl::fromLocalFile("test.qml"));
+  view.setSource(QUrl::fromLocalFile("main.qml"));
   view.show();
   return app.exec();
 }

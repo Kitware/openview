@@ -1,4 +1,5 @@
 import QtQuick 1.0
+import OVView 1.0
 
 Row {
   width: 1000;
@@ -112,11 +113,12 @@ Rectangle {
        }
     }
 
-    Rectangle {
+    OVView {
       width: parent.width - 200;
       height: parent.height - 40;
-      color: "#afa";
+      anchors.fill: parent;
     }
   }
 }
 }
+

@@ -31,3 +31,5 @@ target_link_libraries( ovviewplugin
 
 add_executable(opendemo main.cxx)
 target_link_libraries(opendemo ovviewplugin)
+
+file(COPY qmldir DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
