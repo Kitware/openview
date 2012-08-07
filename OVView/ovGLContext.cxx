@@ -5,7 +5,11 @@ QGLContext *ovGLContext::_instance = NULL;
 QGLContext *ovGLContext::instance()
 {
   if(!_instance)
-    _instance = new QGLContext(QGLFormat());
+    {
+    QGLFormat format;
+    format.setVersion(2, 0);
+    _instance = new QGLContext(format);
+    }
 
   return _instance;
 }

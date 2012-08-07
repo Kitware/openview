@@ -19,6 +19,7 @@ include_directories(${QT_INCLUDES})
 target_link_libraries( ovviewplugin
   vtkGUISupportQtOpenGL
   vtkInteractionStyle
+  vtkIOInfovis
   vtkRenderingCore
   vtkRenderingFreeTypeOpenGL
   vtkRenderingVolumeOpenGL

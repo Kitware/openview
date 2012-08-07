@@ -2,18 +2,18 @@ import QtQuick 1.0
 
 ListModel {
   ListElement {
-    name: "Graph"
+    name: "GRAPH"
   }
   ListElement {
-    name: "Tree"
+    name: "TREE"
   }
   ListElement {
-    name: "Treemap"
+    name: "TREEMAP"
   }
   ListElement {
-    name: "Ring"
+    name: "RING"
   }
   ListElement {
-    name: "Table"
+    name: "TABLE"
   }
 }
