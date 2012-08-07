@@ -12,7 +12,6 @@ macro(copy_file filename)
   list(APPEND files_to_copy ${CMAKE_CURRENT_BINARY_DIR}/${filename})
 endmacro()
 
-copy_file(test.qml)
 copy_file(main.qml)
 copy_file(FileDialog.qml)
 copy_file(ViewModel.qml)
