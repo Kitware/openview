@@ -11,9 +11,9 @@ ListModel {
     name: "TREEMAP"
   }
   ListElement {
-    name: "RING"
+    name: "TABLE"
   }
   ListElement {
-    name: "TABLE"
+    name: "SCATTER"
   }
 }

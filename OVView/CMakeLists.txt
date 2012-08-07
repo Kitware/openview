@@ -17,6 +17,7 @@ add_library( ovviewplugin SHARED
 include_directories(${QT_INCLUDES})
 
 target_link_libraries( ovviewplugin
+  vtkChartsCore
   vtkGUISupportQtOpenGL
   vtkInteractionStyle
   vtkIOInfovis

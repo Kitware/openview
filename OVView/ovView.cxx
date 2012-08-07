@@ -1,32 +1,25 @@
 #include "ovView.h"
 #include "ovGLContext.h"
 
-#include "QVTKInteractor.h"
+#include "vtkAxis.h"
+#include "vtkChartXY.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
-#include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkInteractorObserver.h"
-#include "vtkNew.h"
-#include "vtkPoints.h"
-#include "vtkBlockItem.h"
-#include "vtkTable.h"
-#include "vtkStringArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkIntArray.h"
 #include "vtkDelimitedTextReader.h"
-#include "vtkMath.h"
-#include "vtkIncrementalForceLayout.h"
-
-#include "vtkRandomGraphSource.h"
-#include "vtkGraphLayoutView.h"
-#include "vtkTableToGraph.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkGraphItem.h"
-
-#include "vtkConeSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRendererCollection.h"
+#include "vtkIncrementalForceLayout.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkPlotPoints.h"
+#include "vtkPoints.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTableToGraph.h"
 
 #include <set>
 #include <algorithm>
@@ -35,6 +28,7 @@ ovView::ovView(QGraphicsItem *p)
   : QVTKGraphicsItem(ovGLContext::instance(), p)
 {
   this->View->SetRenderWindow(this->GetRenderWindow());
+  this->ViewType = "GRAPH";
 }
 
 ovView::~ovView()
@@ -187,7 +181,95 @@ void ovView::setTable(vtkTable *table)
         }
       }
     }
-  this->setupGraph();
+  this->setupView();
+}
+
+void ovView::setViewType(QString &viewType)
+{
+  if (this->ViewType != viewType)
+    {
+    this->ViewType = viewType;
+    this->setupView();
+    }
+}
+
+void ovView::setupView()
+{
+  this->View->GetScene()->ClearItems();
+
+  if (this->ViewType == "SCATTER")
+    {
+    setupScatter();
+    }
+  else if (this->ViewType == "GRAPH")
+    {
+    setupGraph();
+    }
+}
+
+void ovView::setupScatter()
+{
+  // Find best pair of columns for x/y
+  vtkIdType numCol = this->Table->GetNumberOfColumns();
+  vtkIdType x = -1;
+  vtkIdType y = -1;
+  double bestScore = 0;
+  for (vtkIdType col1 = 0; col1 < numCol; ++col1)
+    {
+    for (vtkIdType col2 = col1+1; col2 < numCol; ++col2)
+      {
+      int type1 = this->Types[col1];
+      int type2 = this->Types[col2];
+      bool numeric1 = (type1 == CONTINUOUS || type1 == INTEGER_CATEGORY || type1 == INTEGER_DATA);
+      bool numeric2 = (type1 == CONTINUOUS || type1 == INTEGER_CATEGORY || type1 == INTEGER_DATA);
+      if (bestScore < 10 && type1 == CONTINUOUS && type2 == CONTINUOUS)
+        {
+        bestScore = 10;
+        x = col1;
+        y = col2;
+        }
+      else if (bestScore < 8 && (type1 == CONTINUOUS && numeric2 || numeric1 && type2 == CONTINUOUS))
+        {
+        bestScore = 8;
+        x = col1;
+        y = col2;
+        }
+      else if (bestScore < 6 && numeric1 && numeric2)
+        {
+        bestScore = 6;
+        x = col1;
+        y = col2;
+        }
+      else if (bestScore < 1)
+        {
+        bestScore = 1;
+        x = col1;
+        y = col2;
+        }
+      }
+    }
+  std::cerr << "SCATTER chose " << x << ", " << y << " with score " << bestScore << std::endl;
+
+  if (x == -1 || y == -1)
+    {
+    return;
+    }
+
+  vtkNew<vtkChartXY> chart;
+  this->View->GetScene()->AddItem(chart.GetPointer());
+  chart->SetShowLegend(false);
+
+  vtkPlot *points = chart->AddPlot(vtkChart::POINTS);
+  points->SetInputData(this->Table.GetPointer(), x, y);
+  points->SetColor(0, 0, 0, 255);
+  points->SetWidth(1.0);
+  //points->SetIndexedLabels(labels.GetPointer());
+  points->SetTooltipLabelFormat("(%x, %y)");
+  chart->GetAxis(vtkAxis::LEFT)->SetTitle(this->Table->GetColumnName(x));
+  chart->GetAxis(vtkAxis::BOTTOM)->SetTitle(this->Table->GetColumnName(y));
+  vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::CIRCLE);
+  vtkPlotPoints::SafeDownCast(points)->SetMarkerSize(10);
+  points->SetColor(128, 128, 128, 255);
 }
 
 void ovView::setupGraph()
@@ -281,7 +363,7 @@ void ovView::setupGraph()
     return;
     }
 
-  std::cerr << "chose " << source << ", " << target << " with score " << bestScore << std::endl;
+  std::cerr << "GRAPH chose " << source << ", " << target << " with score " << bestScore << std::endl;
 
   vtkNew<vtkTableToGraph> ttg;
   ttg->SetInputData(this->Table.GetPointer());
@@ -289,10 +371,6 @@ void ovView::setupGraph()
   ttg->AddLinkVertex(target.c_str());
   ttg->AddLinkEdge(source.c_str(), target.c_str());
   ttg->Update();
-  //this->Table->Dump(10);
-  //vtkNew<vtkTable> vertexData;
-  //vertexData->SetRowData(ttg->GetOutput()->GetVertexData());
-  //vertexData->Dump(10);
 
   vtkNew<vtkPoints> points;
   vtkIdType numVert = ttg->GetOutput()->GetNumberOfVertices();
@@ -302,8 +380,6 @@ void ovView::setupGraph()
     points->InsertNextPoint(200*cos(angle) + 200, 200*sin(angle) + 200, 0.0);
     }
   ttg->GetOutput()->SetPoints(points.GetPointer());
-
-  this->View->GetScene()->ClearItems();
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);

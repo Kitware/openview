@@ -104,8 +104,10 @@ Row {
             onClicked: {
               parent.focus = true
               var indexedItem = parent.indexAt(mouseX, mouseY)
-              if (indexedItem !== -1)
+              if (indexedItem !== -1) {
                 parent.currentIndex = indexedItem
+                view.viewType = parent.model.get(indexedItem).name;
+              }
             }
           }
         }
