@@ -5,6 +5,8 @@ Row {
   width: 1000;
   height: 1000;
 
+  // ------------------------------------------------------------------
+  // File open dialog
   FileDialog {
     id: openDataDialog
     width: 0
@@ -28,6 +30,8 @@ Row {
       columns: 2
       spacing: 0
 
+      // ------------------------------------------------------------------
+      // Button to add data
       Rectangle {
         width: 200;
         height: 40;
@@ -58,9 +62,12 @@ Row {
       }
 
 
+      // ------------------------------------------------------------------
+      // View list
       Rectangle {
         width: parent.width - 200;
         height: 40;
+        color: "#f5f5f5"
 
         Component {
           id: viewItemDelegate
@@ -104,21 +111,19 @@ Row {
         }
       }
 
+      // ------------------------------------------------------------------
+      // Data list
       Rectangle {
         width: 200
         height: parent.height - 40
         id: dataListRect
-        color: "#eee"
+        color: "#f5f5f5"
 
         Component {
           id: dataItemDelegate
-          Rectangle {
+          Item {
             width: parent.width
             height: 40
-            gradient: Gradient {
-              GradientStop { position: 0.0; color: "#eee" }
-              GradientStop { position: 1.0; color: "#ddd" }
-            }
             Text {
               text: name;
               anchors.fill: parent
@@ -138,8 +143,11 @@ Row {
           id: dataListView
           delegate: dataItemDelegate
           highlight: Rectangle {
-            width: parent.width;
-            color: "#bbb";
+            width: parent.width
+            gradient: Gradient {
+              GradientStop { position: 0.0; color: "#eee" }
+              GradientStop { position: 1.0; color: "#ddd" }
+            }
           }
           MouseArea {
             anchors.fill: parent
@@ -155,6 +163,8 @@ Row {
         }
       }
 
+      // ------------------------------------------------------------------
+      // VTK view
       OVView {
         id: view;
         width: parent.width - 200;

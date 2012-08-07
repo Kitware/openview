@@ -34,14 +34,7 @@
 ovView::ovView(QGraphicsItem *p)
   : QVTKGraphicsItem(ovGLContext::instance(), p)
 {
-  std::cerr << "set render window" << std::endl;
   this->View->SetRenderWindow(this->GetRenderWindow());
-  vtkNew<vtkBlockItem> block;
-  block->SetDimensions(200, 200, 100, 100);
-  vtkNew<vtkContextTransform> trans;
-  trans->SetInteractive(true);
-  trans->AddItem(block.GetPointer());
-  this->View->GetScene()->AddItem(trans.GetPointer());
 }
 
 ovView::~ovView()
