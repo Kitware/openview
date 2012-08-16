@@ -113,6 +113,8 @@ Row {
         }
       }
 
+      // Data list and fields
+
       // ------------------------------------------------------------------
       // Data list
       Rectangle {
@@ -165,14 +167,94 @@ Row {
         }
       }
 
-      // ------------------------------------------------------------------
-      // VTK view
-      OVView {
-        id: view;
-        width: parent.width - 200;
-        height: parent.height - 40;
-        anchors.fill: parent;
-      }
+      /*
+      Rectangle {
+        width: parent.width;
+        height: parent.height;
+        color: "#faf";
+
+        Grid {
+          anchors.fill: parent
+          columns: 2
+          spacing: 0
+
+          Rectangle {
+            width: 200
+            height: 40
+          }
+
+          Rectangle {
+            width: parent.width - 200
+            height: 40
+            color: "#f5f5f5"
+            z: 100
+            ComboBox {
+              z: 100
+            }
+          }
+
+          // ------------------------------------------------------------------
+          // Field list
+          Rectangle {
+            width: 200
+            height: parent.height - 40
+            id: fieldListRect
+            color: "#f5f5f5"
+
+            Component {
+              id: fieldItemDelegate
+              Item {
+                width: parent.width
+                height: 40
+                Text {
+                  text: name;
+                  anchors.fill: parent
+                  anchors.verticalCenter: parent.verticalCenter
+                  anchors.leftMargin: 10
+                  verticalAlignment: Text.AlignVCenter
+                  font.family: "Helvetica"
+                  font.pointSize: 12
+                  font.weight: Font.Bold
+                }
+              }
+            }
+
+            ListView {
+              anchors.fill: parent
+              model: ListModel {}
+              id: fieldListView
+              delegate: fieldItemDelegate
+              highlight: Rectangle {
+                width: parent.width
+                gradient: Gradient {
+                  GradientStop { position: 0.0; color: "#eee" }
+                  GradientStop { position: 1.0; color: "#ddd" }
+                }
+              }
+              MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                  parent.focus = true;
+                  var indexedItem = parent.indexAt(mouseX, mouseY);
+                  if (indexedItem !== -1) {
+                    parent.currentIndex = indexedItem;
+                    view.url = parent.model.get(indexedItem).path;
+                  }
+                }
+              }
+            }
+          }
+*/
+          // ------------------------------------------------------------------
+          // VTK view
+          OVView {
+            id: view;
+            width: parent.width - 200
+            height: parent.height - 40
+            anchors.fill: parent
+          }
+  //      }
+  //    }
     }
   }
 }

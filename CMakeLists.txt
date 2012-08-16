@@ -13,6 +13,7 @@ macro(copy_file filename)
 endmacro()
 
 copy_file(main.qml)
+copy_file(ComboBox.qml)
 copy_file(FileDialog.qml)
 copy_file(ViewModel.qml)
 

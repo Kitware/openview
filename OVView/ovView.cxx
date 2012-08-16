@@ -6,6 +6,7 @@
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDelimitedTextReader.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericOpenGLRenderWindow.h"
@@ -55,7 +56,68 @@ void ovView::setUrl(QUrl &url)
   reader->SetFileName(url.toLocalFile().toLatin1().data());
   reader->SetHaveHeaders(true);
   reader->Update();
-  this->setTable(reader->GetOutput());
+  vtkTable *table = reader->GetOutput();
+
+  // Figure out if it really has headers
+  // Are the column names contained in their own columns?
+  int matchCount = 0;
+  for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
+    {
+    vtkAbstractArray *column = table->GetColumn(col);
+    vtkVariant name(column->GetName());
+    if (column->LookupValue(name) >= 0)
+      {
+      ++matchCount;
+      }
+    }
+  if (matchCount > 0)
+    {
+    reader->SetHaveHeaders(false);
+    reader->Update();
+    table = reader->GetOutput();
+    }
+  this->setTable(table);
+}
+
+QStringList ovView::dataFields()
+{
+  QStringList fields;
+  for (vtkIdType col = 0; col < this->Table->GetNumberOfColumns(); ++col)
+    {
+    fields << this->Table->GetColumn(col)->GetName();
+    }
+  if (this->ViewType == "GRAPH")
+    {
+    fields << "domain" << "label";
+    }
+  return fields;
+}
+
+QStringList ovView::viewAttributes()
+{
+  QStringList attributes;
+  if (this->ViewType == "GRAPH")
+    {
+    attributes << "source" << "target";
+    }
+  else if (this->ViewType == "SCATTER")
+    {
+    attributes << "x" << "y";
+    }
+  return attributes;
+}
+
+int ovView::basicType(int type)
+{
+  if (type == INTEGER_DATA || type == INTEGER_CATEGORY)
+    {
+    return 0;
+    }
+  if (type == STRING_DATA || type == STRING_CATEGORY)
+    {
+    return 1;
+    }
+  return 2;
 }
 
 void ovView::setTable(vtkTable *table)
@@ -157,10 +219,10 @@ void ovView::setTable(vtkTable *table)
     {
     for (vtkIdType col2 = col1+1; col2 < numCol; ++col2)
       {
-      if (this->Types[col1] != this->Types[col2]
-          || this->Types[col1] == INTEGER_DATA
-          || this->Types[col1] == STRING_DATA
-          || this->Types[col1] == CONTINUOUS)
+      int col1BasicType = this->basicType(this->Types[col1]);
+      int col2BasicType = this->basicType(this->Types[col2]);
+      if (col1BasicType != col2BasicType
+          || col1BasicType == 2)
         {
         this->Relationships[col1][col2] = UNRELATED;
         break;
@@ -171,7 +233,7 @@ void ovView::setTable(vtkTable *table)
         domains[col2].begin(), domains[col2].end(),
         std::inserter(isect, isect.begin()));
       int numShared = isect.size();
-      if (numShared > 0.1*numRow)
+      if (numShared > 0.01*numRow)
         {
         this->Relationships[col1][col2] = SHARED_DOMAIN;
         }
@@ -272,6 +334,54 @@ void ovView::setupScatter()
   points->SetColor(128, 128, 128, 255);
 }
 
+class ovGraphItem : public vtkGraphItem
+{
+public:
+  static ovGraphItem *New();
+  vtkTypeMacro(ovGraphItem, vtkGraphItem);
+
+protected:
+  ovGraphItem() {}
+  ~ovGraphItem() {}
+
+  virtual vtkStdString VertexTooltip(vtkIdType vertex);
+  virtual vtkColor4ub VertexColor(vtkIdType vertex);
+
+private:
+  ovGraphItem(const ovGraphItem&); // Not implemented
+  void operator=(const ovGraphItem&); // Not implemented
+};
+
+vtkStandardNewMacro(ovGraphItem);
+
+vtkColor4ub ovGraphItem::VertexColor(vtkIdType vertex)
+{
+  vtkAbstractArray *domainArr = this->GetGraph()->GetVertexData()->GetAbstractArray("domain");
+  if (domainArr)
+    {
+    vtkStdString domain = domainArr->GetVariantValue(vertex).ToString();
+    if (domain == "source")
+      {
+      return vtkColor4ub(128, 128, 255, 255);
+      }
+    else if (domain == "target")
+      {
+      return vtkColor4ub(255, 128, 128, 255);
+      }
+    }
+  return vtkColor4ub(128, 128, 128, 255);
+}
+
+vtkStdString ovGraphItem::VertexTooltip(vtkIdType vertex)
+{
+  vtkAbstractArray *arr = this->GetGraph()->GetVertexData()->GetAbstractArray("label");
+  if (arr)
+    {
+    return arr->GetVariantValue(vertex).ToString();
+    }
+  return "";
+}
+
 void ovView::setupGraph()
 {
   vtkIdType numCol = this->Table->GetNumberOfColumns();
@@ -279,6 +389,7 @@ void ovView::setupGraph()
   std::string target = "";
 
   double bestScore = 0;
+  bool sharedDomain = false;
 
   // Find best pair of columns for source/target
   for (vtkIdType col1 = 0; col1 < numCol; ++col1)
@@ -297,12 +408,14 @@ void ovView::setupGraph()
           bestScore = 10;
           source = this->Table->GetColumn(col1)->GetName();
           target = this->Table->GetColumn(col2)->GetName();
+          sharedDomain = true;
           }
         else if (bestScore < 8)
           {
           bestScore = 8;
           source = this->Table->GetColumn(col1)->GetName();
           target = this->Table->GetColumn(col2)->GetName();
+          sharedDomain = true;
           }
         }
       else
@@ -367,8 +480,16 @@ void ovView::setupGraph()
 
   vtkNew<vtkTableToGraph> ttg;
   ttg->SetInputData(this->Table.GetPointer());
-  ttg->AddLinkVertex(source.c_str());
-  ttg->AddLinkVertex(target.c_str());
+  if (sharedDomain)
+    {
+    ttg->AddLinkVertex(source.c_str(), "domain");
+    ttg->AddLinkVertex(target.c_str(), "domain");
+    }
+  else
+    {
+    ttg->AddLinkVertex(source.c_str(), "source");
+    ttg->AddLinkVertex(target.c_str(), "target");
+    }
   ttg->AddLinkEdge(source.c_str(), target.c_str());
   ttg->Update();
 
@@ -385,7 +506,7 @@ void ovView::setupGraph()
   trans->SetInteractive(true);
   this->View->GetScene()->AddItem(trans.GetPointer());
 
-  vtkNew<vtkGraphItem> graphItem;
+  vtkNew<ovGraphItem> graphItem;
   graphItem->SetGraph(ttg->GetOutput());
   trans->AddItem(graphItem.GetPointer());
 
