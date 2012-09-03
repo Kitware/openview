@@ -1,111 +1,108 @@
 
-import QtQuick 1.0
+import QtQuick 2.0
 
 Rectangle {
-  width:400;
-  height: 400;
-  z: 100
+  id:comboBox
+  property variant items: ListModel{ ListElement{name: "hi"} }
+  property alias selectedItem: chosenItemText.text;
+  property alias selectedIndex: listView.currentIndex;
+  property string label: "Name"
+  signal comboClicked;
+  width: 80;
+  height: parent.height;
+  smooth:true;
 
   Rectangle {
-    id:comboBox
-    property variant items: ["Item 1", "Item 2", "Item 3"]
-    property alias selectedItem: chosenItemText.text;
-    property alias selectedIndex: listView.currentIndex;
-    signal comboClicked;
-    width: 100;
-    height: 30;
-    //z: 100;
-    //smooth:true;
-
-    Rectangle {
-      id:chosenItem
-      radius:4;
-      width:parent.width;
-      height:comboBox.height;
-      color: "lightsteelblue"
-      //smooth:true;
+    id:chosenItem
+    width:parent.width;
+    height:comboBox.height;
+    color: "#ddd"
+    smooth:true;
+    Column {
+      anchors.fill: parent
       Text {
-        anchors.top: parent.top;
-        anchors.left: parent.left;
-        anchors.margins: 8;
+        //verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        text:name;
+        font.family: "Helvetica"
+        font.pointSize: 12
+        smooth:true
+      }
+      Text {
+        //verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
         id:chosenItemText
-        text:comboBox.items[0];
-        font.family: "Arial"
-        font.pointSize: 14;
-        //smooth:true
-        //z: 100
-      }
-
-      MouseArea {
-        anchors.fill: parent;
-        onClicked: {
-          comboBox.state = comboBox.state==="dropDown"?"":"dropDown"
-        }
+        text: selectedIndex >= 0 ? comboBox.items.get(selectedIndex).name : "";
+        font.family: "Helvetica"
+        font.pointSize: 12
+        smooth:true
       }
     }
 
-    Rectangle {
-      id:dropDown
-      width:comboBox.width;
-      height:0;
-      clip:true;
-      radius:4;
-      anchors.top: chosenItem.bottom;
-      anchors.margins: 2;
-      color: "lightgray"
-      //z: 100
-
-      ListView {
-        id:listView
-        height:500;
-        model: comboBox.items
-        currentIndex: 0
-        delegate: Item{
-          width:comboBox.width;
-          height: comboBox.height;
-          //z: 100
-
-          Text {
-            text: modelData
-            anchors.top: parent.top;
-            anchors.left: parent.left;
-            anchors.margins: 5;
-            //z: 100
-          }
-          MouseArea {
-            anchors.fill: parent;
-            onClicked: {
-              comboBox.state = ""
-              var prevSelection = chosenItemText.text
-              chosenItemText.text = modelData
-              if(chosenItemText.text != prevSelection){
-                comboBox.comboClicked();
-              }
-              listView.currentIndex = index;
-            }
-          }
-        }
+    MouseArea {
+      anchors.fill: parent;
+      onClicked: {
+        comboBox.state = comboBox.state==="dropDown"?"":"dropDown"
       }
     }
+  }
 
-    Component {
-      id: highlight
-      Rectangle {
+  Rectangle {
+    id:dropDown
+    width:comboBox.width;
+    height:0;
+    clip:true;
+    anchors.top: chosenItem.bottom;
+    color: "#ddd"
+
+    ListView {
+      id:listView
+      height:500;
+      model: comboBox.items
+      currentIndex: 0
+      delegate: Item {
         width:comboBox.width;
-        height:comboBox.height;
-        color: "red";
-        radius: 4
-        //z: 100
+        height: comboBox.height;
+
+        Text {
+          anchors.fill: parent
+          verticalAlignment: Text.AlignVCenter
+          horizontalAlignment: Text.AlignHCenter
+          font.family: "Helvetica"
+          font.pointSize: 12
+          text: name
+        }
+        MouseArea {
+          anchors.fill: parent;
+          onClicked: {
+            comboBox.state = ""
+            var prevSelection = chosenItemText.text
+            chosenItemText.text = name
+            if(chosenItemText.text != prevSelection){
+              comboBox.comboClicked();
+            }
+            listView.currentIndex = index;
+          }
+        }
       }
     }
+  }
 
-    states: State {
-      name: "dropDown";
-      PropertyChanges { target: dropDown; height:40*comboBox.items.length }
+  Component {
+    id: highlight
+    Rectangle {
+      width:comboBox.width;
+      height:comboBox.height;
+      color: "red";
     }
+  }
 
-    transitions: Transition {
-      NumberAnimation { target: dropDown; properties: "height"; duration: 500 }
-    }
+  states: State {
+    name: "dropDown";
+    PropertyChanges { target: dropDown; height:40*comboBox.items.count }
+  }
+
+  transitions: Transition {
+    NumberAnimation { target: dropDown; properties: "height"; duration: 250 }
   }
 }

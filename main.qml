@@ -1,4 +1,4 @@
-import QtQuick 1.0
+import QtQuick 2.0
 import OVView 1.0
 
 Row {
@@ -20,15 +20,17 @@ Row {
     }
   }
 
-  Rectangle {
-    width: parent.width;
-    height: parent.height;
-    color: "#ffa";
+  Item {
+    width: parent.width
+    height: parent.height
+    //color: "#ffa"
+    //opacity: 1
 
     Grid {
       anchors.fill: parent
       columns: 2
       spacing: 0
+      //opacity: 1
 
       // ------------------------------------------------------------------
       // Button to add data
@@ -68,6 +70,7 @@ Row {
         width: parent.width - 200;
         height: 40;
         color: "#f5f5f5"
+        z: 5
 
         Component {
           id: viewItemDelegate
@@ -99,21 +102,49 @@ Row {
               GradientStop { position: 1.0; color: "#ddd" }
             }
           }
+
+          onCurrentIndexChanged: {
+            view.viewType = model.get(currentIndex).name;
+            attributeListView.model.clear();
+            for (var i in view.viewAttributes) {
+              var attribute = view.viewAttributes[i];
+              var dataFields = view.dataFields(attribute);
+              var value = view.getAttribute(attribute);
+              var valueIndex = -1;
+              var dataFieldsArray = Qt.createQmlObject("import QtQuick 2.0; ListModel {}", attributeList);
+              //dataFieldsArray.append({name: ""});
+              for (var j = 0; j < dataFields.length; ++j) {
+                if (dataFields[j] === value) {
+                  valueIndex = j;
+                }
+                dataFieldsArray.append({name: dataFields[j]});
+              }
+              console.log(dataFieldsArray.get(0));
+              attributeListView.model.append({name: attribute, fields: dataFieldsArray, valueIndex: valueIndex});
+            }
+          }
+
           MouseArea {
             anchors.fill: parent
             onClicked: {
               parent.focus = true
               var indexedItem = parent.indexAt(mouseX, mouseY)
-              if (indexedItem !== -1) {
+              if (indexedItem === parent.currentIndex) {
+                if (attributeList.height > 0) {
+                  attributeList.height = 0;
+                  attributeList.opacity = 0;
+                } else {
+                  attributeList.height = 40
+                  attributeList.opacity = 1;
+                }
+              }
+              else {
                 parent.currentIndex = indexedItem
-                view.viewType = parent.model.get(indexedItem).name;
               }
             }
           }
         }
       }
-
-      // Data list and fields
 
       // ------------------------------------------------------------------
       // Data list
@@ -167,94 +198,83 @@ Row {
         }
       }
 
-      /*
-      Rectangle {
-        width: parent.width;
-        height: parent.height;
-        color: "#faf";
+      Item {
+        width: parent.width - 200;
+        height: parent.height - 40;
 
-        Grid {
+        Column {
           anchors.fill: parent
-          columns: 2
           spacing: 0
 
-          Rectangle {
-            width: 200
-            height: 40
-          }
-
-          Rectangle {
-            width: parent.width - 200
-            height: 40
-            color: "#f5f5f5"
-            z: 100
-            ComboBox {
-              z: 100
-            }
-          }
-
           // ------------------------------------------------------------------
-          // Field list
+          // Attributes list
           Rectangle {
-            width: 200
-            height: parent.height - 40
-            id: fieldListRect
-            color: "#f5f5f5"
+            width: parent.width
+            height: 0
+            opacity: 0
+            color: "#ddd"
+            z: 5
+            id: attributeList
+            Behavior on height {
+              NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+            }
+            Behavior on opacity {
+              NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+            }
 
             Component {
-              id: fieldItemDelegate
-              Item {
-                width: parent.width
-                height: 40
+              id: attributeItemDelegate
+              ComboBox {
+                id: attributeComboBox
+                width: 80
+                //height: parent.height
+                items: fields
+                selectedIndex: valueIndex
+                label: name
+                //items: [name, name, name];
+                /*
                 Text {
                   text: name;
                   anchors.fill: parent
-                  anchors.verticalCenter: parent.verticalCenter
-                  anchors.leftMargin: 10
                   verticalAlignment: Text.AlignVCenter
+                  horizontalAlignment: Text.AlignHCenter
                   font.family: "Helvetica"
                   font.pointSize: 12
                   font.weight: Font.Bold
                 }
+                */
               }
             }
 
             ListView {
-              anchors.fill: parent
+              id: attributeListView
+              anchors.fill: parent;
               model: ListModel {}
-              id: fieldListView
-              delegate: fieldItemDelegate
+              orientation: ListView.Horizontal;
+              delegate: attributeItemDelegate
+              /*
               highlight: Rectangle {
-                width: parent.width
+                height: parent.height;
+                width: 80
                 gradient: Gradient {
                   GradientStop { position: 0.0; color: "#eee" }
                   GradientStop { position: 1.0; color: "#ddd" }
                 }
               }
-              MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                  parent.focus = true;
-                  var indexedItem = parent.indexAt(mouseX, mouseY);
-                  if (indexedItem !== -1) {
-                    parent.currentIndex = indexedItem;
-                    view.url = parent.model.get(indexedItem).path;
-                  }
-                }
-              }
+              */
             }
           }
-*/
+
           // ------------------------------------------------------------------
           // VTK view
           OVView {
-            id: view;
-            width: parent.width - 200
-            height: parent.height - 40
-            anchors.fill: parent
+            id: view
+            width: parent.width
+            height: parent.height - attributeList.height
+            //anchors.fill: parent
           }
-  //      }
-  //    }
+        }
+      }
     }
   }
 }

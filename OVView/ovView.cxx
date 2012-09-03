@@ -1,5 +1,5 @@
 #include "ovView.h"
-#include "ovGLContext.h"
+#include "ovOpenGLContext.h"
 
 #include "vtkAxis.h"
 #include "vtkChartXY.h"
@@ -25,8 +25,7 @@
 #include <set>
 #include <algorithm>
 
-ovView::ovView(QGraphicsItem *p)
-  : QVTKGraphicsItem(ovGLContext::instance(), p)
+ovView::ovView()
 {
   this->View->SetRenderWindow(this->GetRenderWindow());
   this->ViewType = "GRAPH";
@@ -79,7 +78,7 @@ void ovView::setUrl(QUrl &url)
   this->setTable(table);
 }
 
-QStringList ovView::dataFields()
+QStringList ovView::dataFields(QString attribute)
 {
   QStringList fields;
   for (vtkIdType col = 0; col < this->Table->GetNumberOfColumns(); ++col)
@@ -105,6 +104,16 @@ QStringList ovView::viewAttributes()
     attributes << "x" << "y";
     }
   return attributes;
+}
+
+void ovView::setAttribute(QString attribute, QString value)
+{
+  this->Attributes[this->ViewType][attribute] = value;
+}
+
+QString ovView::getAttribute(QString attribute)
+{
+  return this->Attributes[this->ViewType][attribute];
 }
 
 int ovView::basicType(int type)
@@ -317,6 +326,9 @@ void ovView::setupScatter()
     return;
     }
 
+  this->Attributes[this->ViewType]["x"] = this->Table->GetColumnName(x);
+  this->Attributes[this->ViewType]["y"] = this->Table->GetColumnName(y);
+
   vtkNew<vtkChartXY> chart;
   this->View->GetScene()->AddItem(chart.GetPointer());
   chart->SetShowLegend(false);
@@ -477,6 +489,9 @@ void ovView::setupGraph()
     }
 
   std::cerr << "GRAPH chose " << source << ", " << target << " with score " << bestScore << std::endl;
+
+  this->Attributes[this->ViewType]["source"] = source.c_str();
+  this->Attributes[this->ViewType]["target"] = target.c_str();
 
   vtkNew<vtkTableToGraph> ttg;
   ttg->SetInputData(this->Table.GetPointer());
