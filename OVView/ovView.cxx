@@ -1,5 +1,4 @@
 #include "ovView.h"
-#include "ovOpenGLContext.h"
 
 #include "vtkAxis.h"
 #include "vtkChartXY.h"
@@ -22,13 +21,15 @@
 #include "vtkTable.h"
 #include "vtkTableToGraph.h"
 
+#include <QOpenGLContext>
+#include <QQuickCanvas>
+#include <QThread>
+
 #include <set>
 #include <algorithm>
 
 ovView::ovView()
 {
-  this->View->SetRenderWindow(this->GetRenderWindow());
-  this->ViewType = "GRAPH";
 }
 
 ovView::~ovView()
@@ -47,6 +48,24 @@ enum {
   UNRELATED,
   SHARED_DOMAIN
 };
+
+void ovView::init()
+{
+  this->View->SetRenderWindow(this->GetRenderWindow());
+  this->ViewType = "GRAPH";
+  //QUrl url("file:///code/opendemo/data/domains.csv");
+  //QUrl url("file:///code/opendemo/data/classes.csv");
+  QUrl url("file:///code/opendemo/data/kcore_edges.csv");
+  this->setUrl(url);
+}
+
+void ovView::prepareForRender()
+{
+  if (this->ViewType == "GRAPH")
+    {
+    graphItem->UpdateLayout();
+    }
+}
 
 void ovView::setUrl(QUrl &url)
 {
@@ -266,7 +285,13 @@ void ovView::setViewType(QString &viewType)
 
 void ovView::setupView()
 {
+  if (!canvas() || !canvas()->openglContext() || QThread::currentThread() != this->canvas()->openglContext()->thread())
+    {
+    this->ViewLock.lock();
+    }
   this->View->GetScene()->ClearItems();
+  this->AnimationTimer.stop();
+  disconnect(&AnimationTimer, SIGNAL(timeout()), this, SLOT(animateGraph()));
 
   if (this->ViewType == "SCATTER")
     {
@@ -275,6 +300,10 @@ void ovView::setupView()
   else if (this->ViewType == "GRAPH")
     {
     setupGraph();
+    }
+  if (!canvas() || !canvas()->openglContext() || QThread::currentThread() != this->canvas()->openglContext()->thread())
+    {
+    this->ViewLock.unlock();
     }
 }
 
@@ -346,24 +375,6 @@ void ovView::setupScatter()
   points->SetColor(128, 128, 128, 255);
 }
 
-class ovGraphItem : public vtkGraphItem
-{
-public:
-  static ovGraphItem *New();
-  vtkTypeMacro(ovGraphItem, vtkGraphItem);
-
-protected:
-  ovGraphItem() {}
-  ~ovGraphItem() {}
-
-  virtual vtkStdString VertexTooltip(vtkIdType vertex);
-  virtual vtkColor4ub VertexColor(vtkIdType vertex);
-
-private:
-  ovGraphItem(const ovGraphItem&); // Not implemented
-  void operator=(const ovGraphItem&); // Not implemented
-};
-
 vtkStandardNewMacro(ovGraphItem);
 
 vtkColor4ub ovGraphItem::VertexColor(vtkIdType vertex)
@@ -392,6 +403,13 @@ vtkStdString ovGraphItem::VertexTooltip(vtkIdType vertex)
     return arr->GetVariantValue(vertex).ToString();
     }
   return "";
+}
+
+void ovView::animateGraph()
+{
+  //static int i = 1;
+  //cerr << "update: " << i++ << endl;
+  update();
 }
 
 void ovView::setupGraph()
@@ -521,10 +539,15 @@ void ovView::setupGraph()
   trans->SetInteractive(true);
   this->View->GetScene()->AddItem(trans.GetPointer());
 
-  vtkNew<ovGraphItem> graphItem;
   graphItem->SetGraph(ttg->GetOutput());
   trans->AddItem(graphItem.GetPointer());
 
   graphItem->GetLayout()->SetStrength(1);
-  graphItem->StartLayoutAnimation(this->GetRenderWindow()->GetInteractor());
+  this->AnimationTimer.setInterval(1000/60);
+  this->AnimationTimer.moveToThread(this->canvas()->openglContext()->thread());
+  connect(&AnimationTimer, SIGNAL(timeout()), this, SLOT(animateGraph()), Qt::DirectConnection);
+  graphItem->GetLayout()->SetAlpha(0.1f);
+
+  this->AnimationTimer.start();
+  //graphItem->StartLayoutAnimation(this->GetRenderWindow()->GetInteractor());
 }

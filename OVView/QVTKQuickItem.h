@@ -8,6 +8,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkNew.h"
 
+#include <QMutex>
+
 class QOpenGLContext;
 class QOpenGLFramebufferObject;
 class QVTKInteractorAdapter;
@@ -43,13 +45,7 @@ public:
   QVTKInteractor* GetInteractor() const;
 
 public slots:
-  // Description:
-  // update this item in the view (this does not cause the vtk render window to draw)
-  // it just causes the current contents in the window to draw to the QGraphicsScene
-  virtual void Update();
-
-  void paint();
-  void vtkpaint();
+  virtual void paint();
 
 protected slots:
   // slot to make this vtk render window current
@@ -65,15 +61,32 @@ protected slots:
   // slot called when vtk wants to know if a window supports OpenGL
   virtual void SupportsOpenGL(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
 
+protected:
+
+  virtual void init();
+  virtual void prepareForRender();
+
+  // handle item key events
+  virtual void keyPressEvent(QKeyEvent* e);
+  virtual void keyReleaseEvent(QKeyEvent* e);
+
+  // handle item mouse events
+  virtual void mousePressEvent(QMouseEvent* e);
+  virtual void mouseReleaseEvent(QMouseEvent* e);
+  virtual void mouseMoveEvent(QMouseEvent* e);
+  virtual void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry);
+  virtual void wheelEvent(QWheelEvent* e);
+  virtual void hoverEnterEvent(QHoverEvent* e);
+  virtual void hoverLeaveEvent(QHoverEvent* e);
+  virtual void hoverMoveEvent(QHoverEvent* e);
+
+  QMutex ViewLock;
 private:
-  QOpenGLShaderProgram *m_program;
   QOpenGLContext* mContext;
-  QOpenGLFramebufferObject* mFBO;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> mWin;
   vtkSmartPointer<QVTKInteractor> mIren;
   QVTKInteractorAdapter* mIrenAdapter;
   vtkSmartPointer<vtkEventQtSlotConnect> mConnect;
-  vtkNew<vtkContextView> mView;
 };
 
 #endif

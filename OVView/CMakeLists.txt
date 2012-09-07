@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+project(OpenView)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
@@ -41,24 +42,25 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
   ${Qt5OpenGL_EXECUTABLE_COMPILE_FLAGS} )
 
 qt5_wrap_cpp( OPENVIEW_APP_MOC_FILES
-  QVTKPaintedItem.h
+  QVTKInteractorAdapter.h
+  QVTKInteractorInternal.h
   QVTKQuickItem.h
-  ovRectItem.h
+  vtkQtConnection.h
   ovViewPlugin.h
   ovView.h )
 
 add_library( ovviewplugin SHARED
-  QVTKPaintedItem.cxx
+  vtkEventQtSlotConnect.cxx
+  QVTKInteractor.cxx
+  QVTKInteractorAdapter.cxx
   QVTKQuickItem.cxx
-  ovRectItem.cxx
-  ovOpenGLContext.cxx
+  vtkQtConnection.cxx
   ovViewPlugin.cxx
   ovView.cxx
   ${OPENVIEW_APP_MOC_FILES} )
 
 target_link_libraries( ovviewplugin
   vtkChartsCore
-  vtkGUISupportQtOpenGL
   vtkInteractionStyle
   vtkIOInfovis
   vtkRenderingCore
@@ -74,7 +76,7 @@ target_link_libraries( ovviewplugin
   ${Qt5Quick_LIBRARIES}
   ${Qt5OpenGL_LIBRARIES} )
 
-add_executable(opendemo main.cxx)
-target_link_libraries(opendemo ovviewplugin)
+add_executable(OpenDemo main.cxx)
+target_link_libraries(OpenDemo ovviewplugin)
 
 file(COPY qmldir DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
