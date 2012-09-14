@@ -14,13 +14,9 @@ include_directories(
   ${Qt5Widgets_INCLUDE_DIRS}
   ${Qt5Network_INCLUDE_DIRS}
   ${Qt5Qml_INCLUDE_DIRS}
-  /Users/jeff/dev/qt-5.0.0-alpha/qtdeclarative/include
-  /Users/jeff/dev/qt-5.0.0-alpha/qtdeclarative/include/QtQml
   ${Qt5Quick_INCLUDE_DIRS}
-  /Users/jeff/dev/qt-5.0.0-alpha/qtdeclarative/include
-  /Users/jeff/dev/qt-5.0.0-alpha/qtdeclarative/include/QtQuick
   ${Qt5OpenGL_INCLUDE_DIRS} )
-message(${Qt5Qml_INCLUDE_DIRS})
+
 add_definitions(
   ${Qt5Core_DEFINITIONS}
   ${Qt5Gui_DEFINITIONS}
@@ -29,6 +25,7 @@ add_definitions(
   ${Qt5Qml_DEFINITIONS}
   ${Qt5Quick_DEFINITIONS}
   ${Qt5OpenGL_DEFINITIONS} )
+
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
   ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
   ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS}

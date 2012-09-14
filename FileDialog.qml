@@ -1,5 +1,5 @@
 import QtQuick 2.0
-//import Qt.labs.folderlistmodel 1.0
+import Qt.labs.folderlistmodel 1.0
 
 Rectangle {
   signal fileSelected (string filePath, string fileName)
@@ -7,14 +7,12 @@ Rectangle {
   ListView {
     anchors.fill: parent
 
-    /*
     FolderListModel {
       id: foldermodel
       folder: "file:///"
       nameFilters: ["*.*"]
       showDotAndDotDot: true
     }
-    */
 
     Component {
       id: filedelegate

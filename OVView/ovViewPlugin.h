@@ -12,6 +12,7 @@
 class ovViewPlugin : public QQmlExtensionPlugin
 {
   Q_OBJECT
+  Q_PLUGIN_METADATA(IID "ovviewplugin")
 public:
   void registerTypes(const char *uri)
     {

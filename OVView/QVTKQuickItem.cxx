@@ -5,8 +5,6 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 #include <QQuickCanvas>
-#include <QSGEngine>
-#include <QSGSimpleRectNode>
 #include <QThread>
 
 #include "QVTKInteractor.h"
@@ -306,6 +304,9 @@ void QVTKQuickItem::paint()
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   mWin->Render();
+
+  // Disable alpha test for QML
+  glDisable(GL_ALPHA_TEST);
 
   this->ViewLock.unlock();
 }
