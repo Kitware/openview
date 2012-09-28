@@ -1,5 +1,6 @@
 #include "ovView.h"
 
+#include "ovContextInteractorStyle.h"
 #include "vtkAxis.h"
 #include "vtkChartXY.h"
 #include "vtkContextScene.h"
@@ -17,6 +18,7 @@
 #include "vtkPlot.h"
 #include "vtkPlotPoints.h"
 #include "vtkPoints.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTableToGraph.h"
@@ -52,11 +54,18 @@ enum {
 void ovView::init()
 {
   this->View->SetRenderWindow(this->GetRenderWindow());
+  vtkNew<ovContextInteractorStyle> style;
+  style->SetScene(this->View->GetScene());
+  this->View->GetInteractor()->SetInteractorStyle(style.GetPointer());
   this->ViewType = "GRAPH";
   //QUrl url("file:///code/opendemo/data/domains.csv");
   //QUrl url("file:///code/opendemo/data/classes.csv");
-  QUrl url("file:///code/opendemo/data/kcore_edges.csv");
-  this->setUrl(url);
+  //QUrl url("file:///code/opendemo/data/kcore_edges.csv");
+  //this->setUrl(url);
+  connect(&AnimationTimer, SIGNAL(timeout()), this, SLOT(animateGraph()), Qt::DirectConnection);
+  this->AnimationTimer.setInterval(1000/60);
+  this->AnimationTimer.moveToThread(this->canvas()->openglContext()->thread());
+  this->AnimationTimer.start();
 }
 
 void ovView::prepareForRender()
@@ -73,6 +82,7 @@ void ovView::setUrl(QUrl &url)
   vtkNew<vtkDelimitedTextReader> reader;
   reader->SetFileName(url.toLocalFile().toLatin1().data());
   reader->SetHaveHeaders(true);
+  //reader->SetFieldDelimiterCharacters("\t");
   reader->Update();
   vtkTable *table = reader->GetOutput();
 
@@ -291,7 +301,6 @@ void ovView::setupView()
     }
   this->View->GetScene()->ClearItems();
   this->AnimationTimer.stop();
-  disconnect(&AnimationTimer, SIGNAL(timeout()), this, SLOT(animateGraph()));
 
   if (this->ViewType == "SCATTER")
     {
@@ -407,8 +416,6 @@ vtkStdString ovGraphItem::VertexTooltip(vtkIdType vertex)
 
 void ovView::animateGraph()
 {
-  //static int i = 1;
-  //cerr << "update: " << i++ << endl;
   update();
 }
 
@@ -543,9 +550,6 @@ void ovView::setupGraph()
   trans->AddItem(graphItem.GetPointer());
 
   graphItem->GetLayout()->SetStrength(1);
-  this->AnimationTimer.setInterval(1000/60);
-  this->AnimationTimer.moveToThread(this->canvas()->openglContext()->thread());
-  connect(&AnimationTimer, SIGNAL(timeout()), this, SLOT(animateGraph()), Qt::DirectConnection);
   graphItem->GetLayout()->SetAlpha(0.1f);
 
   this->AnimationTimer.start();

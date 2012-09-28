@@ -34,12 +34,13 @@ QVTKQuickItem::QVTKQuickItem()
 
 QVTKQuickItem::~QVTKQuickItem()
 {
+  this->SetRenderWindow(0);
 }
 
 void QVTKQuickItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
   if(mWin)
-  {
+    {
     mWin->SetMapped(0);
     //mConnect->Disconnect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     //mConnect->Disconnect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
@@ -48,14 +49,14 @@ void QVTKQuickItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     mConnect->Disconnect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     mConnect->Disconnect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
     mConnect->Disconnect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
-  }
+    }
 
   mIren->SetRenderWindow(win);
   mWin = win;
   mIren->Initialize();
 
   if(mWin)
-  {
+    {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
     mWin->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
@@ -70,7 +71,7 @@ void QVTKQuickItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     mConnect->Connect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     mConnect->Connect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
     mConnect->Connect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
-  }
+    }
 }
 
 vtkGenericOpenGLRenderWindow* QVTKQuickItem::GetRenderWindow() const
