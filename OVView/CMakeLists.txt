@@ -50,6 +50,7 @@ add_library( ovviewplugin SHARED
   QVTKQuickItem.cxx
   vtkQtConnection.cxx
   ovContextInteractorStyle.cxx
+  ovGraphItem.cxx
   ovViewPlugin.cxx
   ovView.cxx
   ${OPENVIEW_APP_MOC_FILES} )

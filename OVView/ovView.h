@@ -3,9 +3,7 @@
 #define ovView_h
 
 #include "QVTKQuickItem.h"
-#include "vtkGraphItem.h"
 #include "vtkNew.h"
-#include "vtkSmartPointer.h"
 
 #include <QStringList>
 #include <QTimer>
@@ -14,26 +12,9 @@
 #include <vector>
 #include <map>
 
+class ovGraphItem;
 class vtkContextView;
 class vtkTable;
-
-class ovGraphItem : public vtkGraphItem
-{
-public:
-  static ovGraphItem *New();
-  vtkTypeMacro(ovGraphItem, vtkGraphItem);
-
-protected:
-  ovGraphItem() {}
-  ~ovGraphItem() {}
-
-  virtual vtkStdString VertexTooltip(vtkIdType vertex);
-  virtual vtkColor4ub VertexColor(vtkIdType vertex);
-
-private:
-  ovGraphItem(const ovGraphItem&); // Not implemented
-  void operator=(const ovGraphItem&); // Not implemented
-};
 
 class ovView : public QVTKQuickItem
 {

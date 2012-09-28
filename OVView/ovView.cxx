@@ -1,6 +1,8 @@
 #include "ovView.h"
 
 #include "ovContextInteractorStyle.h"
+#include "ovGraphItem.h"
+
 #include "vtkAxis.h"
 #include "vtkChartXY.h"
 #include "vtkContextScene.h"
@@ -382,36 +384,6 @@ void ovView::setupScatter()
   vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::CIRCLE);
   vtkPlotPoints::SafeDownCast(points)->SetMarkerSize(10);
   points->SetColor(128, 128, 128, 255);
-}
-
-vtkStandardNewMacro(ovGraphItem);
-
-vtkColor4ub ovGraphItem::VertexColor(vtkIdType vertex)
-{
-  vtkAbstractArray *domainArr = this->GetGraph()->GetVertexData()->GetAbstractArray("domain");
-  if (domainArr)
-    {
-    vtkStdString domain = domainArr->GetVariantValue(vertex).ToString();
-    if (domain == "source")
-      {
-      return vtkColor4ub(128, 128, 255, 255);
-      }
-    else if (domain == "target")
-      {
-      return vtkColor4ub(255, 128, 128, 255);
-      }
-    }
-  return vtkColor4ub(128, 128, 128, 255);
-}
-
-vtkStdString ovGraphItem::VertexTooltip(vtkIdType vertex)
-{
-  vtkAbstractArray *arr = this->GetGraph()->GetVertexData()->GetAbstractArray("label");
-  if (arr)
-    {
-    return arr->GetVariantValue(vertex).ToString();
-    }
-  return "";
 }
 
 void ovView::animateGraph()
