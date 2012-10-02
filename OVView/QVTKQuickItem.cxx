@@ -39,49 +39,49 @@ QVTKQuickItem::~QVTKQuickItem()
 
 void QVTKQuickItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
-  if(mWin)
+  if(m_win)
     {
-    mWin->SetMapped(0);
-    //mConnect->Disconnect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
-    //mConnect->Disconnect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
-    //mConnect->Disconnect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
-    //mConnect->Disconnect(mWin, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
-    mConnect->Disconnect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Disconnect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Disconnect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
+    m_win->SetMapped(0);
+    //m_connect->Disconnect(m_win, vtkCommand::StartEvent, this, SLOT(Start()));
+    //m_connect->Disconnect(m_win, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
+    //m_connect->Disconnect(m_win, vtkCommand::EndEvent, this, SLOT(End()));
+    //m_connect->Disconnect(m_win, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
+    m_connect->Disconnect(m_win, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
+    m_connect->Disconnect(m_win, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    m_connect->Disconnect(m_win, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
     }
 
-  mIren->SetRenderWindow(win);
-  mWin = win;
-  mIren->Initialize();
+  m_interactor->SetRenderWindow(win);
+  m_win = win;
+  m_interactor->Initialize();
 
-  if(mWin)
+  if(m_win)
     {
-    mWin->SetMapped(1);
-    mWin->SetDoubleBuffer(0);
-    mWin->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetFrontLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetBackBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetBackLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+    m_win->SetMapped(1);
+    m_win->SetDoubleBuffer(0);
+    m_win->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+    m_win->SetFrontLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+    m_win->SetBackBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+    m_win->SetBackLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
 
-    //mConnect->Connect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
-    //mConnect->Connect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
-    //mConnect->Connect(mWin, vtkCommand::EndEvent, this, SLOT(End()));
-    //mConnect->Connect(mWin, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
-    mConnect->Connect(mWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Connect(mWin, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
-    mConnect->Connect(mWin, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
+    //m_connect->Connect(m_win, vtkCommand::StartEvent, this, SLOT(Start()));
+    //m_connect->Connect(m_win, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
+    //m_connect->Connect(m_win, vtkCommand::EndEvent, this, SLOT(End()));
+    //m_connect->Connect(m_win, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
+    m_connect->Connect(m_win, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
+    m_connect->Connect(m_win, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
+    m_connect->Connect(m_win, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
     }
 }
 
 vtkGenericOpenGLRenderWindow* QVTKQuickItem::GetRenderWindow() const
 {
-  return mWin;
+  return m_win;
 }
 
 QVTKInteractor* QVTKQuickItem::GetInteractor() const
 {
-  return mIren;
+  return m_interactor;
 }
 
 void QVTKQuickItem::itemChange(ItemChange change, const ItemChangeData &)
@@ -109,13 +109,13 @@ void QVTKQuickItem::MakeCurrent()
 {
   if (!this->canvas())
     {
-    mWin->SetAbortRender(1);
+    m_win->SetAbortRender(1);
     cerr << "Could not make current since there is no canvas!" << endl;
     return;
     }
   if (QThread::currentThread() != this->canvas()->openglContext()->thread())
     {
-    mWin->SetAbortRender(1);
+    m_win->SetAbortRender(1);
     cerr << "Could not make current since we are on the wrong thread!" << endl;
     return;
     }
@@ -127,18 +127,18 @@ void QVTKQuickItem::Start()
 {
   MakeCurrent();
 
-  if (!mWin->GetAbortRender())
+  if (!m_win->GetAbortRender())
     {
-    mWin->PushState();
-    mWin->OpenGLInitState();
+    m_win->PushState();
+    m_win->OpenGLInitState();
     }
 }
 
 void QVTKQuickItem::End()
 {
-  if (!mWin->GetAbortRender())
+  if (!m_win->GetAbortRender())
     {
-    mWin->PopState();
+    m_win->PopState();
     }
 
 }
@@ -168,19 +168,19 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
   QSize oldSize(oldGeometry.width(), oldGeometry.height());
   QSize newSize(newGeometry.width(), newGeometry.height());
   QResizeEvent e(newSize, oldSize);
-  if (mIrenAdapter)
+  if (m_interactorAdapter)
     {
-    mIrenAdapter->ProcessEvent(&e, mIren);
+    m_interactorAdapter->ProcessEvent(&e, m_interactor);
     }
-  if(mWin.GetPointer())
+  if(m_win.GetPointer())
     {
-    mWin->SetSize(canvas()->width(), canvas()->height());
+    m_win->SetSize(canvas()->width(), canvas()->height());
     QPointF origin = mapToScene(QPointF(0, 0));
     QPointF minPt(origin.x()/canvas()->width(), (canvas()->height() - origin.y() - height())/canvas()->height());
     QPointF maxPt(minPt.x() + width()/canvas()->width(), minPt.y() + height()/canvas()->height());
-    if (mWin->GetRenderers()->GetFirstRenderer())
+    if (m_win->GetRenderers()->GetFirstRenderer())
       {
-      mWin->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());
+      m_win->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());
       }
     update();
     }
@@ -189,42 +189,42 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
 void QVTKQuickItem::keyPressEvent(QKeyEvent* e)
 {
   e->accept();
-  mIrenAdapter->ProcessEvent(e, mIren);
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
   update();
 }
 
 void QVTKQuickItem::keyReleaseEvent(QKeyEvent* e)
 {
   e->accept();
-  mIrenAdapter->ProcessEvent(e, mIren);
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
   update();
 }
 
 void QVTKQuickItem::mousePressEvent(QMouseEvent* e)
 {
   e->accept();
-  mIrenAdapter->ProcessEvent(e, mIren);
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
   update();
 }
 
 void QVTKQuickItem::mouseReleaseEvent(QMouseEvent* e)
 {
   e->accept();
-  mIrenAdapter->ProcessEvent(e, mIren);
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
   update();
 }
 
 void QVTKQuickItem::mouseMoveEvent(QMouseEvent* e)
 {
   e->accept();
-  mIrenAdapter->ProcessEvent(e, mIren);
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
   update();
 }
 
 void QVTKQuickItem::wheelEvent(QWheelEvent* e)
 {
   e->accept();
-  mIrenAdapter->ProcessEvent(e, mIren);
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
   update();
 }
 
@@ -232,7 +232,7 @@ void QVTKQuickItem::hoverEnterEvent(QHoverEvent* e)
 {
   e->accept();
   QEvent e2(QEvent::Enter);
-  mIrenAdapter->ProcessEvent(&e2, mIren);
+  m_interactorAdapter->ProcessEvent(&e2, m_interactor);
   update();
 }
 
@@ -240,7 +240,7 @@ void QVTKQuickItem::hoverLeaveEvent(QHoverEvent* e)
 {
   e->accept();
   QEvent e2(QEvent::Leave);
-  mIrenAdapter->ProcessEvent(&e2, mIren);
+  m_interactorAdapter->ProcessEvent(&e2, m_interactor);
   update();
 }
 
@@ -248,14 +248,14 @@ void QVTKQuickItem::hoverMoveEvent(QHoverEvent* e)
 {
   e->accept();
   QMouseEvent e2(QEvent::MouseMove, e->pos(), Qt::NoButton, Qt::NoButton, e->modifiers());
-  mIrenAdapter->ProcessEvent(&e2, mIren);
+  m_interactorAdapter->ProcessEvent(&e2, m_interactor);
   update();
 }
 
 void QVTKQuickItem::init()
 {
   vtkNew<vtkContextView> view;
-  view->SetRenderWindow(mWin);
+  view->SetRenderWindow(m_win);
   vtkNew<vtkBlockItem> block;
   block->SetDimensions(0, 0, 100, 100);
   view->GetScene()->AddItem(block.GetPointer());
@@ -267,13 +267,13 @@ void QVTKQuickItem::prepareForRender()
 
 void QVTKQuickItem::paint()
 {
-  this->ViewLock.lock();
+  this->m_viewLock.lock();
 
-  if (!mWin.GetPointer()) {
-    mIren = vtkSmartPointer<QVTKInteractor>::New();
-    mIrenAdapter = new QVTKInteractorAdapter(this);
-    mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-    mConnect->Connect(mIren, vtkCommand::RenderEvent, this, SLOT(Update()));
+  if (!m_win.GetPointer()) {
+    m_interactor = vtkSmartPointer<QVTKInteractor>::New();
+    m_interactorAdapter = new QVTKInteractorAdapter(this);
+    m_connect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+    m_connect->Connect(m_interactor, vtkCommand::RenderEvent, this, SLOT(Update()));
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     this->geometryChanged(QRectF(x(), y(), width(), height()), QRectF(0, 0, 100, 100));
     this->SetRenderWindow(win);
@@ -288,13 +288,13 @@ void QVTKQuickItem::paint()
   // Make sure viewport is up to date.
   // This is needed because geometryChanged() is not called when parent geometry changes, so we miss when widths/heights
   // of surrounding elements change.
-  mWin->SetSize(canvas()->width(), canvas()->height());
+  m_win->SetSize(canvas()->width(), canvas()->height());
   QPointF origin = mapToScene(QPointF(0, 0));
   QPointF minPt(origin.x()/canvas()->width(), (canvas()->height() - origin.y() - height())/canvas()->height());
   QPointF maxPt(minPt.x() + width()/canvas()->width(), minPt.y() + height()/canvas()->height());
-  if (mWin->GetRenderers()->GetFirstRenderer())
+  if (m_win->GetRenderers()->GetFirstRenderer())
     {
-    mWin->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());
+    m_win->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());
     }
 
   // Turn off any QML shader program
@@ -304,10 +304,10 @@ void QVTKQuickItem::paint()
   glEnable(GL_BLEND);
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-  mWin->Render();
+  m_win->Render();
 
   // Disable alpha test for QML
   glDisable(GL_ALPHA_TEST);
 
-  this->ViewLock.unlock();
+  this->m_viewLock.unlock();
 }

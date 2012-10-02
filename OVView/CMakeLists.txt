@@ -40,7 +40,10 @@ qt5_wrap_cpp( OPENVIEW_APP_MOC_FILES
   QVTKInteractorInternal.h
   QVTKQuickItem.h
   vtkQtConnection.h
+  ovGraphView.h
+  ovScatterPlotView.h
   ovViewPlugin.h
+  ovViewQuickItem.h
   ovView.h )
 
 add_library( ovviewplugin SHARED
@@ -51,7 +54,10 @@ add_library( ovviewplugin SHARED
   vtkQtConnection.cxx
   ovContextInteractorStyle.cxx
   ovGraphItem.cxx
+  ovGraphView.cxx
+  ovScatterPlotView.cxx
   ovViewPlugin.cxx
+  ovViewQuickItem.cxx
   ovView.cxx
   ${OPENVIEW_APP_MOC_FILES} )
 

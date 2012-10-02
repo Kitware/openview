@@ -80,13 +80,14 @@ protected:
   virtual void hoverLeaveEvent(QHoverEvent* e);
   virtual void hoverMoveEvent(QHoverEvent* e);
 
-  QMutex ViewLock;
+  QMutex m_viewLock;
+
 private:
-  QOpenGLContext* mContext;
-  vtkSmartPointer<vtkGenericOpenGLRenderWindow> mWin;
-  vtkSmartPointer<QVTKInteractor> mIren;
-  QVTKInteractorAdapter* mIrenAdapter;
-  vtkSmartPointer<vtkEventQtSlotConnect> mConnect;
+  QOpenGLContext* m_context;
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_win;
+  vtkSmartPointer<QVTKInteractor> m_interactor;
+  QVTKInteractorAdapter* m_interactorAdapter;
+  vtkSmartPointer<vtkEventQtSlotConnect> m_connect;
 };
 
 #endif

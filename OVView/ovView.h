@@ -2,63 +2,35 @@
 #ifndef ovView_h
 #define ovView_h
 
-#include "QVTKQuickItem.h"
-#include "vtkNew.h"
+#include <QObject>
 
 #include <QStringList>
-#include <QTimer>
-#include <QUrl>
 
 #include <vector>
-#include <map>
 
-class ovGraphItem;
 class vtkContextView;
 class vtkTable;
 
-class ovView : public QVTKQuickItem
+class ovView : public QObject
 {
   Q_OBJECT
-  Q_PROPERTY(QUrl url READ url WRITE setUrl)
-  Q_PROPERTY(QString viewType READ viewType WRITE setViewType)
-  Q_PROPERTY(QStringList viewAttributes READ viewAttributes)
+  Q_PROPERTY(QString name READ name)
+  Q_PROPERTY(QStringList attributes READ attributes)
 public:
-  ovView();
+  ovView(QObject *parent);
   ~ovView();
 
-  QUrl url() { return this->Url; }
-  void setUrl(QUrl &url);
-
-  QString viewType() { return this->ViewType; }
-  void setViewType(QString &viewType);
-
-  QStringList viewAttributes();
+  virtual void setTable(vtkTable *data, vtkContextView *view) = 0;
+  virtual QString name() = 0;
+  virtual QStringList attributes() { return QStringList(); }
+  virtual void prepareForRender() { }
 
 public slots:
-  QStringList dataFields(QString attribute);
-  void setAttribute(QString attribute, QString value);
-  QString getAttribute(QString attribute);
-  void animateGraph();
+  virtual QStringList attributeOptions(QString attribute) { return QStringList(); }
+  virtual void setAttribute(QString attribute, QString value) { }
+  virtual QString getAttribute(QString attribute) { return QString(); }
 
 protected:
-  virtual void init();
-  virtual void prepareForRender();
-
-  void setTable(vtkTable *data);
-  void setupView();
-  void setupGraph();
-  void setupScatter();
-  int basicType(int type);
-
-  QTimer AnimationTimer;
-  QUrl Url;
-  QString ViewType;
-  vtkNew<vtkContextView> View;
-  vtkNew<ovGraphItem> graphItem;
-  vtkNew<vtkTable> Table;
-  std::vector<int> Types;
-  std::vector<std::vector<int> > Relationships;
-  std::map<QString, std::map<QString, QString> > Attributes;
 };
 
 #endif

@@ -90,6 +90,7 @@ Row {
         }
 
         ListView {
+          id: viewList;
           anchors.fill: parent;
           model: ViewModel {}
           orientation: ListView.Horizontal;
@@ -105,21 +106,23 @@ Row {
 
           onCurrentIndexChanged: {
             view.viewType = model.get(currentIndex).name;
+            updateViewAttributes();
+          }
+
+          function updateViewAttributes() {
             attributeListView.model.clear();
-            for (var i in view.viewAttributes) {
-              var attribute = view.viewAttributes[i];
-              var dataFields = view.dataFields(attribute);
+            for (var i in view.attributes) {
+              var attribute = view.attributes[i];
+              var dataFields = view.attributeOptions(attribute);
               var value = view.getAttribute(attribute);
               var valueIndex = -1;
               var dataFieldsArray = Qt.createQmlObject("import QtQuick 2.0; ListModel {}", attributeList);
-              //dataFieldsArray.append({name: ""});
               for (var j = 0; j < dataFields.length; ++j) {
                 if (dataFields[j] === value) {
                   valueIndex = j;
                 }
                 dataFieldsArray.append({name: dataFields[j]});
               }
-              console.log(dataFieldsArray.get(0));
               attributeListView.model.append({name: attribute, fields: dataFieldsArray, valueIndex: valueIndex});
             }
           }
@@ -192,6 +195,7 @@ Row {
               if (indexedItem !== -1) {
                 parent.currentIndex = indexedItem;
                 view.url = parent.model.get(indexedItem).path;
+                viewList.updateViewAttributes();
               }
             }
           }
@@ -243,6 +247,9 @@ Row {
                   font.weight: Font.Bold
                 }
                 */
+                onComboClicked: {
+                  view.setAttribute(label, selectedItem);
+                }
               }
             }
 

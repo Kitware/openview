@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "ovView.h"
+#include "ovViewQuickItem.h"
 
 class ovViewPlugin : public QQmlExtensionPlugin
 {
@@ -18,7 +18,7 @@ public:
     {
     std::cerr << "uri: " << uri << std::endl;
     //Q_ASSERT(uri == QLatin1String(""));
-    qmlRegisterType<ovView>(uri, 1, 0, "OVView");
+    qmlRegisterType<ovViewQuickItem>(uri, 1, 0, "OVView");
     }
 };
 
