@@ -8,6 +8,8 @@
 
 class vtkChartXY;
 class vtkContextView;
+class vtkLookupTable;
+class vtkPlotPoints;
 class vtkTable;
 
 class ovScatterPlotView : public ovView
@@ -33,6 +35,9 @@ protected:
   int m_y;
   vtkSmartPointer<vtkTable> m_table;
   vtkNew<vtkChartXY> m_chart;
+  vtkNew<vtkLookupTable> m_lookup;
+  QString m_color;
+  vtkSmartPointer<vtkPlotPoints> m_plot;
 };
 
 #endif

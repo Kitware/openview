@@ -12,7 +12,7 @@ Row {
     width: 0
     height: parent.height
     Behavior on width {
-      NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+      NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
     }
     onFileSelected: {
       dataListView.model.append({name: fileName, path: filePath})
@@ -105,12 +105,24 @@ Row {
           }
 
           onCurrentIndexChanged: {
-            view.viewType = model.get(currentIndex).name;
+            var type = model.get(currentIndex).name;
+            if (type === "TABLE") {
+              view.visible = false;
+              tableView.visible = true;
+            } else {
+              view.visible = true;
+              tableView.visible = false;
+              view.viewType = type;
+            }
             updateViewAttributes();
           }
 
           function updateViewAttributes() {
             attributeListView.model.clear();
+            if (model.get(currentIndex).name === "TABLE") {
+              return;
+            }
+
             for (var i in view.attributes) {
               var attribute = view.attributes[i];
               var dataFields = view.attributeOptions(attribute);
@@ -195,6 +207,7 @@ Row {
               if (indexedItem !== -1) {
                 parent.currentIndex = indexedItem;
                 view.url = parent.model.get(indexedItem).path;
+                tableView.update();
                 viewList.updateViewAttributes();
               }
             }
@@ -219,34 +232,21 @@ Row {
             color: "#ddd"
             z: 5
             id: attributeList
-            Behavior on height {
-              NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
-            }
-            Behavior on opacity {
-              NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
-            }
+            //Behavior on height {
+            //  NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+            //}
+            //Behavior on opacity {
+            //  NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+            //}
 
             Component {
               id: attributeItemDelegate
               ComboBox {
                 id: attributeComboBox
                 width: 80
-                //height: parent.height
                 items: fields
                 selectedIndex: valueIndex
                 label: name
-                //items: [name, name, name];
-                /*
-                Text {
-                  text: name;
-                  anchors.fill: parent
-                  verticalAlignment: Text.AlignVCenter
-                  horizontalAlignment: Text.AlignHCenter
-                  font.family: "Helvetica"
-                  font.pointSize: 12
-                  font.weight: Font.Bold
-                }
-                */
                 onComboClicked: {
                   view.setAttribute(label, selectedItem);
                 }
@@ -259,30 +259,97 @@ Row {
               model: ListModel {}
               orientation: ListView.Horizontal;
               delegate: attributeItemDelegate
-              /*
-              highlight: Rectangle {
-                height: parent.height;
-                width: 80
-                gradient: Gradient {
-                  GradientStop { position: 0.0; color: "#eee" }
-                  GradientStop { position: 1.0; color: "#ddd" }
-                }
-              }
-              */
             }
           }
 
           // ------------------------------------------------------------------
-          // VTK view
-          OVView {
-            id: view
+          // Main view area
+          Column {
             width: parent.width
             height: parent.height - attributeList.height
-            //anchors.fill: parent
+
+            // VTK view
+            OVView {
+              id: view
+              width: parent.width
+              height: parent.height
+              visible: true
+              //anchors.fill: parent
+            }
+
+            // Table view
+            Rectangle {
+              id: tableView
+
+              //anchors.fill: parent
+              width: parent.width
+              height: parent.height
+              visible: false
+
+              color: "#fff"
+              Component {
+                id: tableRowDelegate
+
+                Rectangle {
+                  width: parent.width
+                  height: 40
+                  property int rowIndex: index
+
+                  Component {
+                    id: tableItemDelegate
+                    Rectangle {
+                      width: 160
+                      height: 40
+                      clip: true
+                      gradient: Gradient {
+                        GradientStop {
+                          position: 0.0
+                          color: "#fff"
+                        }
+                        GradientStop {
+                          position: 1.0
+                          color: "#eee"
+                        }
+                      }
+
+                      Text {
+                        text: rowIndex === 0 ? view.tableColumnName(index) : view.tableData(rowIndex-1, index)
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        //horizontalAlignment: Text.AlignHCenter
+                        font.family: "Helvetica"
+                        font.pointSize: 12
+                        font.weight: rowIndex === 0 ? Font.Bold : Font.Normal
+                      }
+
+                    }
+                  }
+
+                  ListView {
+                    id: tableItemView
+                    anchors.fill: parent;
+                    interactive: false;
+                    model: 10
+                    orientation: ListView.Horizontal;
+                    delegate: tableItemDelegate
+                  }
+                }
+              }
+              ListView {
+                id: tableRowView
+                maximumFlickVelocity: 5000
+                anchors.fill: parent
+                model: 0
+                delegate: tableRowDelegate
+              }
+
+              function update() {
+                tableRowView.model = view.tableRows() + 1;
+              }
+            }
           }
         }
       }
     }
   }
 }
-

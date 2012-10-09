@@ -9,6 +9,7 @@
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDataArray.h"
+#include "vtkLookupTable.h"
 #include "vtkPlot.h"
 #include "vtkPlotPoints.h"
 #include "vtkTable.h"
@@ -16,8 +17,27 @@
 ovScatterPlotView::ovScatterPlotView(QObject *parent) : ovView(parent)
 {
   m_table = vtkSmartPointer<vtkTable>::New();
+  m_plot = vtkSmartPointer<vtkPlotPoints>::New();
+  m_color = "(none)";
   m_x = 0;
   m_y = 0;
+  m_lookup->SetNumberOfTableValues(6);
+  unsigned char colors[] = {
+      //247,252,253,
+      //229,245,249,
+      //204,236,230,
+      153,216,201,
+      102,194,164,
+      65,174,118,
+      35,139,69,
+      0,109,44,
+      0,68,27};
+  for (int i = 0; i < 6; ++i)
+    {
+    m_lookup->SetTableValue(
+          i, colors[i*3] / 255., colors[i*3+1] / 255., colors[i*3+2] / 255., 1.);
+    }
+  m_lookup->IndexedLookupOff();
 }
 
 ovScatterPlotView::~ovScatterPlotView()
@@ -91,17 +111,19 @@ void ovScatterPlotView::setTable(vtkTable *table, vtkContextView *view)
 void ovScatterPlotView::generatePlot()
 {
   m_chart->ClearPlots();
-  vtkPlot *points = m_chart->AddPlot(vtkChart::POINTS);
-  points->SetInputData(m_table, m_x, m_y);
-  points->SetColor(0, 0, 0, 255);
-  points->SetWidth(1.0);
-  //points->SetIndexedLabels(labels.GetPointer());
-  points->SetTooltipLabelFormat("(%x, %y)");
+  m_plot = vtkPlotPoints::SafeDownCast(m_chart->AddPlot(vtkChart::POINTS));
+  m_plot->SetInputData(m_table, m_x, m_y);
+  m_plot->SetColor(0, 0, 0, 255);
+  m_plot->SetWidth(1.0);
+  //m_plot->SetIndexedLabels(labels.GetPointer());
+  m_plot->SetTooltipLabelFormat("(%x, %y)");
   m_chart->GetAxis(vtkAxis::LEFT)->SetTitle(m_table->GetColumnName(this->m_y));
   m_chart->GetAxis(vtkAxis::BOTTOM)->SetTitle(m_table->GetColumnName(this->m_x));
-  vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::CIRCLE);
-  vtkPlotPoints::SafeDownCast(points)->SetMarkerSize(10);
-  points->SetColor(128, 128, 128, 255);
+  m_plot->SetMarkerStyle(vtkPlotPoints::CIRCLE);
+  m_plot->SetMarkerSize(10);
+  m_plot->SetColor(128, 128, 128, 255);
+  m_plot->SetLookupTable(m_lookup.GetPointer());
+  this->setAttribute("Color", m_color);
 }
 
 QString ovScatterPlotView::name()
@@ -111,14 +133,18 @@ QString ovScatterPlotView::name()
 
 QStringList ovScatterPlotView::attributes()
 {
-  return QStringList() << "X" << "Y";
+  return QStringList() << "X" << "Y" << "Color";
 }
 
 QStringList ovScatterPlotView::attributeOptions(QString attribute)
 {
-  if (attribute == "X" || attribute == "Y")
+  if (attribute == "X" || attribute == "Y" || attribute == "Color")
     {
     QStringList fields;
+    if (attribute == "Color")
+      {
+      fields << "(none)";
+      }
     for (vtkIdType col = 0; col < this->m_table->GetNumberOfColumns(); ++col)
       {
       if (vtkDataArray::SafeDownCast(m_table->GetColumn(col)))
@@ -157,6 +183,18 @@ void ovScatterPlotView::setAttribute(QString attribute, QString value)
     this->generatePlot();
     return;
     }
+  if (attribute == "Color")
+    {
+    m_color = value;
+    m_plot->SetScalarVisibility(value != "(none)");
+    m_plot->SelectColorArray(value.toStdString());
+    vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(value.toAscii()));
+    if (arr)
+      {
+      m_lookup->SetRange(arr->GetRange());
+      }
+    return;
+    }
 }
 
 QString ovScatterPlotView::getAttribute(QString attribute)
@@ -168,5 +206,9 @@ QString ovScatterPlotView::getAttribute(QString attribute)
   if (attribute == "Y")
     {
     return m_table->GetColumnName(m_y);
+    }
+  if (attribute == "Color")
+    {
+    return m_color;
     }
 }

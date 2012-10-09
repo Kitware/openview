@@ -31,12 +31,11 @@ protected:
 
   QString m_source;
   QString m_target;
-  QString m_color;
-  QString m_label;
   bool m_animate;
   bool m_sharedDomain;
   vtkNew<ovGraphItem> m_item;
   vtkSmartPointer<vtkTable> m_table;
+  bool m_filter;
 };
 
 #endif

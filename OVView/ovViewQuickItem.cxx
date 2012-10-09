@@ -76,11 +76,16 @@ void ovViewQuickItem::setUrl(QUrl &url)
   this->m_viewLock.lock();
   this->m_url = url;
   vtkNew<vtkDelimitedTextReader> reader;
-  reader->SetFileName(url.toLocalFile().toLatin1().data());
+  QString fileName = url.toLocalFile();
+  reader->SetFileName(fileName.toAscii());
   reader->SetHaveHeaders(true);
-  //reader->SetFieldDelimiterCharacters("\t");
+  if (fileName.endsWith(".tab"))
+    {
+    reader->SetFieldDelimiterCharacters("\t");
+    }
   reader->Update();
   vtkTable *table = reader->GetOutput();
+  table->Dump(5, 10);
 
   // Figure out if it really has headers
   // Are the column names contained in their own columns?
@@ -101,7 +106,36 @@ void ovViewQuickItem::setUrl(QUrl &url)
     table = reader->GetOutput();
     }
   this->setTable(table);
+  table->Dump(5, 10);
   this->m_viewLock.unlock();
+}
+
+int ovViewQuickItem::tableRows()
+{
+  return m_table->GetNumberOfRows();
+}
+
+int ovViewQuickItem::tableColumns()
+{
+  return m_table->GetNumberOfColumns();
+}
+
+QString ovViewQuickItem::tableColumnName(int col)
+{
+  if (col >= 0 && col < m_table->GetNumberOfColumns())
+    {
+    return QString(m_table->GetColumnName(col));
+    }
+  return QString();
+}
+
+QString ovViewQuickItem::tableData(int row, int col)
+{
+  if (row >= 0 && row < m_table->GetNumberOfRows() && col >= 0 && col < m_table->GetNumberOfColumns())
+    {
+    return QString::fromStdString(m_table->GetValue(row, col).ToString());
+    }
+  return QString();
 }
 
 QStringList ovViewQuickItem::attributeOptions(QString attribute)

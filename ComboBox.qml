@@ -108,7 +108,7 @@ Rectangle {
     PropertyChanges { target: dropDown; height:40*comboBox.items.count }
   }
 
-  transitions: Transition {
-    NumberAnimation { target: dropDown; properties: "height"; duration: 250 }
-  }
+  //transitions: Transition {
+  //  NumberAnimation { target: dropDown; properties: "height"; duration: 250 }
+  //}
 }

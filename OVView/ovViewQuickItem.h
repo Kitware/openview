@@ -60,6 +60,10 @@ public slots:
   QStringList attributeOptions(QString attribute);
   void setAttribute(QString attribute, QString value);
   QString getAttribute(QString attribute);
+  int tableRows();
+  int tableColumns();
+  QString tableColumnName(int col);
+  QString tableData(int row, int col);
   void animate();
 
 protected:

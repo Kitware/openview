@@ -267,6 +267,11 @@ void QVTKQuickItem::prepareForRender()
 
 void QVTKQuickItem::paint()
 {
+  if (!this->isVisible())
+    {
+    return;
+    }
+
   this->m_viewLock.lock();
 
   if (!m_win.GetPointer()) {
