@@ -37,10 +37,10 @@ Rectangle {
             anchors.fill: parent
             onClicked: {
               if (foldermodel.isFolder(index)) {
-                foldermodel.folder = filePath
+                foldermodel.folder = "file://" + filePath;
               }
               else {
-                fileSelected(filePath, fileName)
+                fileSelected("file://" + filePath, fileName)
               }
             }
           }
@@ -52,7 +52,7 @@ Rectangle {
     delegate: filedelegate
     header: Rectangle {
       height: 40
-      width: parent.width
+      //width: parent.width
 
       gradient: Gradient {
         GradientStop { position: 0.0; color: "#fff" }

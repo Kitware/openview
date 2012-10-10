@@ -170,10 +170,13 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
   QResizeEvent e(newSize, oldSize);
   if (m_interactorAdapter)
     {
+    this->m_viewLock.lock();
     m_interactorAdapter->ProcessEvent(&e, m_interactor);
+    this->m_viewLock.unlock();
     }
   if(m_win.GetPointer())
     {
+    this->m_viewLock.lock();
     m_win->SetSize(canvas()->width(), canvas()->height());
     QPointF origin = mapToScene(QPointF(0, 0));
     QPointF minPt(origin.x()/canvas()->width(), (canvas()->height() - origin.y() - height())/canvas()->height());
@@ -182,6 +185,7 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
       {
       m_win->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());
       }
+    this->m_viewLock.unlock();
     update();
     }
 }
@@ -189,42 +193,54 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
 void QVTKQuickItem::keyPressEvent(QKeyEvent* e)
 {
   e->accept();
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
 void QVTKQuickItem::keyReleaseEvent(QKeyEvent* e)
 {
   e->accept();
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
 void QVTKQuickItem::mousePressEvent(QMouseEvent* e)
 {
   e->accept();
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
 void QVTKQuickItem::mouseReleaseEvent(QMouseEvent* e)
 {
   e->accept();
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
 void QVTKQuickItem::mouseMoveEvent(QMouseEvent* e)
 {
   e->accept();
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
 void QVTKQuickItem::wheelEvent(QWheelEvent* e)
 {
   e->accept();
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
@@ -232,7 +248,9 @@ void QVTKQuickItem::hoverEnterEvent(QHoverEvent* e)
 {
   e->accept();
   QEvent e2(QEvent::Enter);
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(&e2, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
@@ -240,7 +258,9 @@ void QVTKQuickItem::hoverLeaveEvent(QHoverEvent* e)
 {
   e->accept();
   QEvent e2(QEvent::Leave);
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(&e2, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
@@ -248,7 +268,9 @@ void QVTKQuickItem::hoverMoveEvent(QHoverEvent* e)
 {
   e->accept();
   QMouseEvent e2(QEvent::MouseMove, e->pos(), Qt::NoButton, Qt::NoButton, e->modifiers());
+  this->m_viewLock.lock();
   m_interactorAdapter->ProcessEvent(&e2, m_interactor);
+  this->m_viewLock.unlock();
   update();
 }
 
@@ -272,8 +294,6 @@ void QVTKQuickItem::paint()
     return;
     }
 
-  this->m_viewLock.lock();
-
   if (!m_win.GetPointer()) {
     m_interactor = vtkSmartPointer<QVTKInteractor>::New();
     m_interactorAdapter = new QVTKInteractorAdapter(this);
@@ -286,6 +306,8 @@ void QVTKQuickItem::paint()
     // Let subclasses do something on initialization
     init();
   }
+
+  this->m_viewLock.lock();
 
   // Let subclasses do something each render
   prepareForRender();

@@ -3,6 +3,7 @@
 #include "ovContextInteractorStyle.h"
 #include "ovGraphView.h"
 #include "ovScatterPlotView.h"
+#include "ovScatterPlot3DView.h"
 
 #include "vtkAxis.h"
 #include "vtkContextScene.h"
@@ -30,6 +31,7 @@ ovViewQuickItem::ovViewQuickItem()
 {
   this->m_views["GRAPH"] = new ovGraphView(this);
   this->m_views["SCATTER"] = new ovScatterPlotView(this);
+  this->m_views["3D SCATTER"] = new ovScatterPlot3DView(this);
   this->m_table = vtkSmartPointer<vtkTable>::New();
 }
 

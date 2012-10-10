@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>main.qml</file>
+  <file>ComboBox.qml</file>
+  <file>FileDialog.qml</file>
+  <file>ViewModel.qml</file>
+</qresource>
+</RCC>
