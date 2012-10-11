@@ -52,6 +52,7 @@ qt5_wrap_cpp( OPENVIEW_MOC_FILES
   ovGraphView.h
   ovScatterPlotView.h
   ovScatterPlot3DView.h
+  ovTreemapView.h
   ovViewPlugin.h
   ovViewQuickItem.h
   ovView.h )
@@ -70,6 +71,8 @@ set( OPENVIEW_SRCS
   ovGraphView.cxx
   ovScatterPlotView.cxx
   ovScatterPlot3DView.cxx
+  ovTreemapItem.cxx
+  ovTreemapView.cxx
   ovViewQuickItem.cxx
   ovView.cxx
   ${OPENVIEW_MOC_FILES}

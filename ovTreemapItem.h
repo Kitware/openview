@@ -5,20 +5,22 @@
 
   Licensed under the BSD license. See LICENSE file for details.
  ========================================================================*/
-#ifndef ovGraphItem_h
-#define ovGraphItem_h
+#ifndef ovTreemapItem_h
+#define ovTreemapItem_h
 
-#include "vtkGraphItem.h"
+#include "vtkContextItem.h"
 #include "vtkNew.h"
 
 #include "vtkColorSeries.h"
 #include "vtkLookupTable.h"
 
-class ovGraphItem : public vtkGraphItem
+class vtkTree;
+
+class ovTreemapItem : public vtkContextItem
 {
 public:
-  static ovGraphItem *New();
-  vtkTypeMacro(ovGraphItem, vtkGraphItem);
+  static ovTreemapItem *New();
+  vtkTypeMacro(ovTreemapItem, vtkContextItem);
 
   std::string GetColorArray() { return this->ColorArray; }
   void SetColorArray(const std::string &arr);
@@ -29,27 +31,15 @@ public:
   std::string GetTooltipArray() { return this->TooltipArray; }
   void SetTooltipArray(const std::string &arr) { this->TooltipArray = arr; }
 
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetTree(vtkTree *tree);
+
+  virtual bool Paint(vtkContext2D *painter);
 
 protected:
-  ovGraphItem();
-  ~ovGraphItem() {}
+  ovTreemapItem();
+  ~ovTreemapItem() {}
 
   void InitializeColorLookup();
-
-  // Description:
-  // Efficiently draws the contents of the buffers built in RebuildBuffers.
-  // This occurs once per frame.
-  virtual void PaintBuffers(vtkContext2D *painter);
-
-  // Description:
-  // Returns the label for each vertex. Override in a subclass to change the tooltip
-  // text.
-  virtual vtkStdString VertexLabel(vtkIdType vertex);
-
-  virtual vtkStdString VertexTooltip(vtkIdType vertex);
-  virtual vtkColor4ub VertexColor(vtkIdType vertex);
-  virtual vtkColor4ub EdgeColor(vtkIdType edgeIdx, vtkIdType point);
 
   std::string ColorArray;
   std::string LabelArray;
@@ -57,10 +47,11 @@ protected:
 
   vtkNew<vtkColorSeries> ColorSeries;
   vtkNew<vtkLookupTable> ColorLookup;
+  vtkNew<vtkTree> Tree;
 
 private:
-  ovGraphItem(const ovGraphItem&); // Not implemented
-  void operator=(const ovGraphItem&); // Not implemented
+  ovTreemapItem(const ovTreemapItem&); // Not implemented
+  void operator=(const ovTreemapItem&); // Not implemented
 };
 
 #endif

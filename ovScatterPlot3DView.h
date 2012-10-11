@@ -1,4 +1,10 @@
+/*========================================================================
+  OpenView -- http://openview.kitware.com
 
+  Copyright 2012 Kitware, Inc.
+
+  Licensed under the BSD license. See LICENSE file for details.
+ ========================================================================*/
 #ifndef ovScatterPlot3DView_h
 #define ovScatterPlot3DView_h
 

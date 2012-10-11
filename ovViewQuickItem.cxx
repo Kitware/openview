@@ -1,9 +1,17 @@
+/*========================================================================
+  OpenView -- http://openview.kitware.com
+
+  Copyright 2012 Kitware, Inc.
+
+  Licensed under the BSD license. See LICENSE file for details.
+ ========================================================================*/
 #include "ovViewQuickItem.h"
 
 #include "ovContextInteractorStyle.h"
 #include "ovGraphView.h"
 #include "ovScatterPlotView.h"
 #include "ovScatterPlot3DView.h"
+#include "ovTreemapView.h"
 
 #include "vtkAxis.h"
 #include "vtkContextScene.h"
@@ -32,6 +40,7 @@ ovViewQuickItem::ovViewQuickItem()
   this->m_views["GRAPH"] = new ovGraphView(this);
   this->m_views["SCATTER"] = new ovScatterPlotView(this);
   this->m_views["3D SCATTER"] = new ovScatterPlot3DView(this);
+  this->m_views["TREEMAP"] = new ovTreemapView(this);
   this->m_table = vtkSmartPointer<vtkTable>::New();
 }
 
@@ -87,7 +96,6 @@ void ovViewQuickItem::setUrl(QUrl &url)
     }
   reader->Update();
   vtkTable *table = reader->GetOutput();
-  table->Dump(5, 10);
 
   // Figure out if it really has headers
   // Are the column names contained in their own columns?
@@ -108,7 +116,6 @@ void ovViewQuickItem::setUrl(QUrl &url)
     table = reader->GetOutput();
     }
   this->setTable(table);
-  table->Dump(5, 10);
   this->m_viewLock.unlock();
 }
 

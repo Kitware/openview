@@ -1,4 +1,10 @@
+/*========================================================================
+  OpenView -- http://openview.kitware.com
 
+  Copyright 2012 Kitware, Inc.
+
+  Licensed under the BSD license. See LICENSE file for details.
+ ========================================================================*/
 #ifndef ovViewQuickItem_h
 #define ovViewQuickItem_h
 

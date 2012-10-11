@@ -1,3 +1,10 @@
+/*========================================================================
+  OpenView -- http://openview.kitware.com
+
+  Copyright 2012 Kitware, Inc.
+
+  Licensed under the BSD license. See LICENSE file for details.
+ ========================================================================*/
 #include "ovGraphView.h"
 
 #include "ovGraphItem.h"
