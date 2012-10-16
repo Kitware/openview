@@ -121,15 +121,9 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
   it->SetStartVertex(this->Tree->GetRoot());
   vtkDataArray *arr = vtkDataArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str()));
   vtkAbstractArray *labelArr = this->Tree->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
-  //painter->GetTextProp()->SetJustificationToCentered();
-  //painter->GetTextProp()->SetVerticalJustificationToCentered();
   painter->GetTextProp()->SetFontSize(20);
   painter->GetTextProp()->SetOpacity(0.75);
   painter->GetTextProp()->SetColor(0, 0, 0);
-  for (int i = 0; i < this->Tree->GetVertexData()->GetNumberOfArrays(); ++i)
-    {
-    cerr << this->Tree->GetVertexData()->GetAbstractArray(i)->GetName() << endl;
-    }
   while (it->HasNext())
     {
     vtkIdType i = it->Next();
@@ -170,15 +164,8 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
       painter->GetPen()->SetOpacityF(0.5f);
       painter->GetBrush()->SetOpacityF(1.0f);
       }
-#if 0
-    cerr << "[";
-    cerr << pt[0] << ",";
-    cerr << pt[1] << ",";
-    cerr << pt[2] << ",";
-    cerr << pt[3] << ",";
-    cerr << "]\n";
-#endif
     painter->DrawRect(pt[0], pt[2], (pt[1]-pt[0]), (pt[3]-pt[2]));
     }
   painter->PopMatrix();
+  return true;
 }

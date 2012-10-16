@@ -44,7 +44,6 @@ ovTreemapView::~ovTreemapView()
 
 void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
 {
-  cerr << "setTable" << endl;
   if (table != this->m_table.GetPointer())
     {
     std::vector<std::set<std::string> > domains = ovViewQuickItem::columnDomains(table);
@@ -74,9 +73,6 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
         level2 = table->GetColumnName(col);
         }
       }
-
-    cerr << "level1: " << level1.toStdString() << endl;
-    cerr << "level2: " << level2.toStdString() << endl;
 
     this->m_level1 = level1;
     this->m_level2 = level2;
@@ -145,13 +141,9 @@ void ovTreemapView::generateTreemap()
     layout->SetLayoutStrategy(slice.GetPointer());
     }
   layout->SetSizeArrayName(m_size.toAscii());
-  cerr << "layout begin" << endl;
   layout->Update();
-  cerr << "layout end" << endl;
 
-  cerr << "set tree begin" << endl;
   m_item->SetTree(layout->GetOutput());
-  cerr << "set tree end" << endl;
   m_item->SetColorArray(m_color.toStdString());
   m_item->SetLabelArray("name");
 }

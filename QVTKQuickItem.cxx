@@ -125,7 +125,6 @@ void QVTKQuickItem::MakeCurrent()
     cerr << "Could not make current since we are on the wrong thread!" << endl;
     return;
     }
-  cerr << "Making current" << endl;
   this->canvas()->openglContext()->makeCurrent(this->canvas());
 }
 

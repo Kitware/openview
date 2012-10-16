@@ -16,7 +16,6 @@ class ovViewPlugin : public QQmlExtensionPlugin
 public:
   void registerTypes(const char *uri)
     {
-    std::cerr << "uri: " << uri << std::endl;
     //Q_ASSERT(uri == QLatin1String(""));
     qmlRegisterType<ovViewQuickItem>(uri, 1, 0, "OVView");
     }
