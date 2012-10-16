@@ -1,0 +1,395 @@
+Gold,cc,ccevent,Silver,Event,Bronze
+0,UZB,UZB_Judge,0,Judge,1
+1,TRI,TRI_Track & Field,0,Track & Field,3
+0,EGY,EGY_Fencing,1,Fencing,0
+0,EGY,EGY_Wrestling,1,Wrestling,0
+0,MDA,MDA_Weightlifting,0,Weightlifting,2
+0,QAT,QAT_Track & Field,0,Track & Field,1
+0,QAT,QAT_Shooting,0,Shooting,1
+0,USA,USA_Archery,1,Archery,0
+9,USA,USA_Track & Field,13,Track & Field,7
+2,USA,USA_Basketball,0,Basketball,0
+1,USA,USA_Beach Volleyball,1,Beach Volleyball,0
+1,USA,USA_Boxing,0,Boxing,1
+0,USA,USA_Cycling,2,Cycling,0
+1,USA,USA_Diving,1,Diving,2
+1,USA,USA_Soccer,0,Soccer,0
+0,USA,USA_Fencing,0,Fencing,1
+3,USA,USA_Gymnastics,1,Gymnastics,2
+1,USA,USA_Judo,0,Judo,1
+1,USA,USA_Rowing,0,Rowing,2
+3,USA,USA_Shooting,0,Shooting,1
+16,USA,USA_Swimming,9,Swimming,6
+3,USA,USA_Tennis,0,Tennis,1
+0,USA,USA_Taekwondo,0,Taekwondo,2
+0,USA,USA_Volleyball,1,Volleyball,0
+1,USA,USA_Water Polo,0,Water Polo,0
+2,USA,USA_Wrestling,0,Wrestling,2
+0,ARM,ARM_Weightlifting,0,Weightlifting,1
+0,ARM,ARM_Wrestling,1,Wrestling,1
+0,AZE,AZE_Boxing,0,Boxing,2
+0,AZE,AZE_Weightlifting,0,Weightlifting,1
+2,AZE,AZE_Wrestling,2,Wrestling,3
+0,POR,POR_Canoe/Kayak,1,Canoe/Kayak,0
+0,NED,NED_Cycling,0,Cycling,1
+0,NED,NED_Equestrian,3,Equestrian,1
+1,NED,NED_Gymnastics,0,Gymnastics,0
+1,NED,NED_Field Hockey,1,Field Hockey,0
+0,NED,NED_Judo,0,Judo,2
+0,NED,NED_Rowing,0,Rowing,1
+1,NED,NED_Sailing,1,Sailing,1
+2,NED,NED_Swimming,1,Swimming,1
+0,CYP,CYP_Sailing,1,Sailing,0
+0,SWE,SWE_Equestrian,1,Equestrian,0
+0,SWE,SWE_Handball,1,Handball,0
+1,SWE,SWE_Sailing,0,Sailing,1
+0,SWE,SWE_Shooting,1,Shooting,0
+0,SWE,SWE_Triathlon,1,Triathlon,0
+0,SWE,SWE_Wrestling,0,Wrestling,2
+0,UKR,UKR_Track & Field,1,Track & Field,2
+2,UKR,UKR_Boxing,1,Boxing,2
+1,UKR,UKR_Canoe/Kayak,2,Canoe/Kayak,0
+1,UKR,UKR_Fencing,0,Fencing,1
+0,UKR,UKR_Gymnastics,0,Gymnastics,1
+1,UKR,UKR_Rowing,0,Rowing,0
+0,UKR,UKR_Shooting,0,Shooting,2
+1,UKR,UKR_Weightlifting,0,Weightlifting,1
+0,UKR,UKR_Wrestling,1,Wrestling,0
+0,SUI,SUI_Cycling,1,Cycling,0
+1,SUI,SUI_Equestrian,0,Equestrian,0
+0,SUI,SUI_Tennis,1,Tennis,0
+1,SUI,SUI_Triathlon,0,Triathlon,0
+1,GRN,GRN_Track & Field,0,Track & Field,0
+4,GBR,GBR_Track & Field,1,Track & Field,1
+3,GBR,GBR_Boxing,1,Boxing,1
+1,GBR,GBR_Canoe/Kayak,1,Canoe/Kayak,0
+7,GBR,GBR_Cycling,1,Cycling,1
+0,GBR,GBR_Diving,0,Diving,1
+3,GBR,GBR_Equestrian,1,Equestrian,1
+0,GBR,GBR_Gymnastics,1,Gymnastics,3
+0,GBR,GBR_Field Hockey,0,Field Hockey,1
+0,GBR,GBR_Judo,1,Judo,1
+0,GBR,GBR_Modern Pentathlon,1,Modern Pentathlon,0
+4,GBR,GBR_Rowing,2,Rowing,3
+1,GBR,GBR_Sailing,4,Sailing,0
+1,GBR,GBR_Shooting,0,Shooting,0
+0,GBR,GBR_Swimming,1,Swimming,2
+1,GBR,GBR_Tennis,1,Tennis,0
+1,GBR,GBR_Taekwondo,0,Taekwondo,1
+1,GBR,GBR_Triathlon,0,Triathlon,1
+0,CAN,CAN_Track & Field,0,Track & Field,1
+0,CAN,CAN_Canoe/Kayak,1,Canoe/Kayak,2
+0,CAN,CAN_Cycling,0,Cycling,1
+0,CAN,CAN_Diving,0,Diving,2
+0,CAN,CAN_Soccer,0,Soccer,1
+1,CAN,CAN_Trampoline,0,Trampoline,0
+0,CAN,CAN_Judo,0,Judo,1
+0,CAN,CAN_Rowing,2,Rowing,0
+0,CAN,CAN_Swimming,1,Swimming,2
+0,CAN,CAN_Weightlifting,0,Weightlifting,1
+0,CAN,CAN_Wrestling,1,Wrestling,1
+0,DEN,DEN_Badminton,1,Badminton,1
+1,DEN,DEN_Cycling,0,Cycling,0
+1,DEN,DEN_Rowing,1,Rowing,1
+0,DEN,DEN_Sailing,1,Sailing,1
+0,DEN,DEN_Shooting,1,Shooting,0
+0,KUW,KUW_Shooting,0,Shooting,1
+0,INA,INA_Weightlifting,1,Weightlifting,1
+3,ETH,ETH_Track & Field,1,Track & Field,3
+3,KOR,KOR_Archery,0,Archery,1
+0,KOR,KOR_Badminton,0,Badminton,1
+0,KOR,KOR_Boxing,1,Boxing,0
+0,KOR,KOR_Soccer,0,Soccer,1
+2,KOR,KOR_Fencing,1,Fencing,3
+1,KOR,KOR_Gymnastics,0,Gymnastics,0
+2,KOR,KOR_Judo,0,Judo,1
+3,KOR,KOR_Shooting,2,Shooting,0
+0,KOR,KOR_Swimming,2,Swimming,0
+1,KOR,KOR_Taekwondo,1,Taekwondo,0
+0,KOR,KOR_Table Tennis,1,Table Tennis,0
+1,KOR,KOR_Wrestling,0,Wrestling,0
+0,COL,COL_Track & Field,1,Track & Field,0
+0,COL,COL_Cycling,1,Cycling,0
+0,COL,COL_Judo,0,Judo,1
+0,COL,COL_Taekwondo,0,Taekwondo,1
+0,COL,COL_Weightlifting,1,Weightlifting,0
+0,COL,COL_Wrestling,0,Wrestling,1
+1,BAH,BAH_Track & Field,0,Track & Field,0
+0,MGL,MGL_Boxing,1,Boxing,1
+0,MGL,MGL_Judo,1,Judo,1
+0,MGL,MGL_Wrestling,0,Wrestling,1
+1,GER,GER_Track & Field,4,Track & Field,3
+1,GER,GER_Beach Volleyball,0,Beach Volleyball,0
+0,GER,GER_Canoe/Kayak,1,Canoe/Kayak,1
+1,GER,GER_Cycling,1,Cycling,1
+2,GER,GER_Equestrian,1,Equestrian,1
+0,GER,GER_Fencing,1,Fencing,1
+0,GER,GER_Gymnastics,3,Gymnastics,0
+1,GER,GER_Field Hockey,0,Field Hockey,0
+0,GER,GER_Judo,2,Judo,2
+2,GER,GER_Rowing,1,Rowing,0
+0,GER,GER_Swimming,1,Swimming,0
+0,GER,GER_Taekwondo,0,Taekwondo,1
+0,GER,GER_Table Tennis,0,Table Tennis,2
+0,UZB,UZB_Boxing,0,Boxing,1
+0,UZB,UZB_Judo,0,Judo,1
+1,UZB,UZB_Wrestling,0,Wrestling,1
+0,BEL,BEL_Judo,0,Judo,1
+0,BEL,BEL_Sailing,0,Sailing,1
+0,BEL,BEL_Shooting,1,Shooting,0
+0,HKG,HKG_Cycling,0,Cycling,1
+1,HUN,HUN_Track & Field,0,Track & Field,0
+3,HUN,HUN_Canoe/Kayak,2,Canoe/Kayak,1
+1,HUN,HUN_Fencing,0,Fencing,0
+1,HUN,HUN_Gymnastics,0,Gymnastics,0
+0,HUN,HUN_Judo,1,Judo,1
+0,HUN,HUN_Modern Pentathlon,0,Modern Pentathlon,1
+2,HUN,HUN_Swimming,0,Swimming,1
+0,HUN,HUN_Wrestling,1,Wrestling,1
+1,DOM,DOM_Track & Field,1,Track & Field,0
+0,PUR,PUR_Track & Field,0,Track & Field,1
+0,PUR,PUR_Wrestling,1,Wrestling,0
+1,PRK,PRK_Judo,0,Judo,0
+3,PRK,PRK_Weightlifting,0,Weightlifting,1
+0,PRK,PRK_Wrestling,0,Wrestling,1
+1,CRO,CRO_Track & Field,0,Track & Field,0
+0,CRO,CRO_Handball,0,Handball,1
+0,CRO,CRO_Rowing,1,Rowing,0
+1,CRO,CRO_Shooting,0,Shooting,0
+0,CRO,CRO_Taekwondo,0,Taekwondo,1
+1,CRO,CRO_Water Polo,0,Water Polo,0
+0,TPE,TPE_Taekwondo,0,Taekwondo,1
+0,TPE,TPE_Weightlifting,1,Weightlifting,0
+1,POL,POL_Track & Field,1,Track & Field,0
+0,POL,POL_Canoe/Kayak,0,Canoe/Kayak,1
+0,POL,POL_Rowing,0,Rowing,1
+0,POL,POL_Sailing,0,Sailing,2
+0,POL,POL_Shooting,1,Shooting,0
+1,POL,POL_Weightlifting,0,Weightlifting,1
+0,POL,POL_Wrestling,0,Wrestling,1
+0,BUL,BUL_Boxing,0,Boxing,1
+0,BUL,BUL_Wrestling,1,Wrestling,0
+1,GEO,GEO_Judo,0,Judo,0
+0,GEO,GEO_Wrestling,3,Wrestling,3
+0,ROU,ROU_Fencing,1,Fencing,0
+1,ROU,ROU_Gymnastics,1,Gymnastics,1
+0,ROU,ROU_Judo,2,Judo,0
+1,ROU,ROU_Shooting,0,Shooting,0
+0,ROU,ROU_Weightlifting,1,Weightlifting,1
+1,UGA,UGA_Track & Field,0,Track & Field,0
+0,MNE,MNE_Handball,1,Handball,0
+0,SRB,SRB_Shooting,1,Shooting,1
+1,SRB,SRB_Taekwondo,0,Taekwondo,0
+0,SRB,SRB_Water Polo,0,Water Polo,1
+1,FRA,FRA_Track & Field,1,Track & Field,0
+0,FRA,FRA_Basketball,1,Basketball,0
+2,FRA,FRA_Canoe/Kayak,0,Canoe/Kayak,0
+0,FRA,FRA_Cycling,3,Cycling,0
+0,FRA,FRA_Gymnastics,0,Gymnastics,1
+1,FRA,FRA_Handball,0,Handball,0
+2,FRA,FRA_Judo,0,Judo,5
+0,FRA,FRA_Rowing,1,Rowing,0
+0,FRA,FRA_Sailing,0,Sailing,1
+0,FRA,FRA_Shooting,1,Shooting,1
+4,FRA,FRA_Swimming,2,Swimming,1
+0,FRA,FRA_Tennis,1,Tennis,1
+0,FRA,FRA_Taekwondo,1,Taekwondo,1
+0,FRA,FRA_Wrestling,0,Wrestling,1
+0,EST,EST_Track & Field,0,Track & Field,1
+0,EST,EST_Wrestling,1,Wrestling,0
+0,SVK,SVK_Canoe/Kayak,0,Canoe/Kayak,2
+0,SVK,SVK_Shooting,1,Shooting,1
+0,LTU,LTU_Boxing,0,Boxing,1
+0,LTU,LTU_Canoe/Kayak,1,Canoe/Kayak,0
+1,LTU,LTU_Modern Pentathlon,0,Modern Pentathlon,0
+1,LTU,LTU_Swimming,0,Swimming,0
+0,LTU,LTU_Wrestling,0,Wrestling,1
+0,ESP,ESP_Basketball,1,Basketball,0
+0,ESP,ESP_Canoe/Kayak,0,Canoe/Kayak,1
+0,ESP,ESP_Handball,0,Handball,1
+2,ESP,ESP_Sailing,0,Sailing,0
+0,ESP,ESP_Swimming,2,Swimming,0
+0,ESP,ESP_Synchronized Swimming,1,Synchronized Swimming,1
+1,ESP,ESP_Taekwondo,2,Taekwondo,0
+0,ESP,ESP_Triathlon,1,Triathlon,0
+0,ESP,ESP_Water Polo,1,Water Polo,0
+0,ESP,ESP_Wrestling,0,Wrestling,1
+0,BOT,BOT_Track & Field,1,Track & Field,0
+0,AFG,AFG_Taekwondo,0,Taekwondo,1
+0,CHN,CHN_Archery,1,Archery,1
+1,CHN,CHN_Track & Field,0,Track & Field,4
+5,CHN,CHN_Badminton,2,Badminton,1
+1,CHN,CHN_Boxing,1,Boxing,1
+0,CHN,CHN_Cycling,2,Cycling,1
+6,CHN,CHN_Diving,3,Diving,1
+2,CHN,CHN_Fencing,0,Fencing,1
+4,CHN,CHN_Gymnastics,3,Gymnastics,1
+1,CHN,CHN_Trampoline,1,Trampoline,2
+0,CHN,CHN_Judo,1,Judo,1
+0,CHN,CHN_Modern Pentathlon,1,Modern Pentathlon,0
+0,CHN,CHN_Rowing,1,Rowing,0
+1,CHN,CHN_Sailing,0,Sailing,0
+2,CHN,CHN_Shooting,2,Shooting,3
+5,CHN,CHN_Swimming,2,Swimming,3
+0,CHN,CHN_Synchronized Swimming,1,Synchronized Swimming,1
+1,CHN,CHN_Taekwondo,1,Taekwondo,1
+4,CHN,CHN_Table Tennis,2,Table Tennis,0
+5,CHN,CHN_Weightlifting,2,Weightlifting,0
+0,CHN,CHN_Wrestling,1,Wrestling,0
+1,BLR,BLR_Track & Field,0,Track & Field,0
+0,BLR,BLR_Canoe/Kayak,2,Canoe/Kayak,1
+0,BLR,BLR_Rhythmic Gymnastics,1,Rhythmic Gymnastics,1
+1,BLR,BLR_Shooting,0,Shooting,0
+0,BLR,BLR_Swimming,2,Swimming,0
+1,BLR,BLR_Tennis,0,Tennis,1
+0,BLR,BLR_Weightlifting,0,Weightlifting,2
+0,IRI,IRI_Track & Field,1,Track & Field,0
+0,IRI,IRI_Taekwondo,1,Taekwondo,0
+1,IRI,IRI_Weightlifting,2,Weightlifting,1
+3,IRI,IRI_Wrestling,1,Wrestling,2
+1,AUS,AUS_Track & Field,2,Track & Field,0
+0,AUS,AUS_Basketball,0,Basketball,1
+0,AUS,AUS_Canoe/Kayak,1,Canoe/Kayak,0
+1,AUS,AUS_Cycling,1,Cycling,3
+0,AUS,AUS_Diving,1,Diving,0
+0,AUS,AUS_Field Hockey,0,Field Hockey,1
+0,AUS,AUS_Rowing,3,Rowing,2
+3,AUS,AUS_Sailing,1,Sailing,0
+1,AUS,AUS_Swimming,6,Swimming,3
+0,AUS,AUS_Triathlon,0,Triathlon,1
+0,AUS,AUS_Water Polo,0,Water Polo,1
+4,JAM,JAM_Track & Field,4,Track & Field,4
+1,IRL,IRL_Boxing,1,Boxing,2
+0,IRL,IRL_Equestrian,0,Equestrian,1
+0,CUB,CUB_Track & Field,1,Track & Field,1
+2,CUB,CUB_Boxing,0,Boxing,2
+1,CUB,CUB_Judo,2,Judo,0
+1,CUB,CUB_Shooting,0,Shooting,0
+0,CUB,CUB_Taekwondo,0,Taekwondo,1
+0,CUB,CUB_Weightlifting,0,Weightlifting,1
+1,CUB,CUB_Wrestling,0,Wrestling,1
+8,RUS,RUS_Track & Field,4,Track & Field,6
+0,RUS,RUS_Badminton,0,Badminton,1
+0,RUS,RUS_Basketball,0,Basketball,1
+1,RUS,RUS_Boxing,2,Boxing,3
+1,RUS,RUS_Canoe/Kayak,0,Canoe/Kayak,2
+0,RUS,RUS_Cycling,0,Cycling,2
+1,RUS,RUS_Diving,1,Diving,0
+0,RUS,RUS_Fencing,2,Fencing,1
+1,RUS,RUS_Gymnastics,3,Gymnastics,4
+2,RUS,RUS_Rhythmic Gymnastics,1,Rhythmic Gymnastics,0
+0,RUS,RUS_Trampoline,1,Trampoline,0
+3,RUS,RUS_Judo,1,Judo,1
+0,RUS,RUS_Shooting,0,Shooting,1
+0,RUS,RUS_Swimming,2,Swimming,2
+2,RUS,RUS_Synchronized Swimming,0,Synchronized Swimming,0
+0,RUS,RUS_Tennis,1,Tennis,1
+0,RUS,RUS_Taekwondo,0,Taekwondo,2
+1,RUS,RUS_Volleyball,0,Volleyball,0
+0,RUS,RUS_Weightlifting,5,Weightlifting,1
+4,RUS,RUS_Wrestling,2,Wrestling,5
+1,VEN,VEN_Fencing,0,Fencing,0
+0,LAT,LAT_Beach Volleyball,0,Beach Volleyball,1
+1,LAT,LAT_Cycling,0,Cycling,0
+0,FIN,FIN_Track & Field,0,Track & Field,1
+0,FIN,FIN_Sailing,1,Sailing,1
+0,THA,THA_Boxing,1,Boxing,0
+0,THA,THA_Taekwondo,0,Taekwondo,1
+0,THA,THA_Weightlifting,1,Weightlifting,0
+0,NZL,NZL_Track & Field,1,Track & Field,0
+1,NZL,NZL_Canoe/Kayak,0,Canoe/Kayak,0
+0,NZL,NZL_Cycling,0,Cycling,2
+0,NZL,NZL_Equestrian,0,Equestrian,1
+3,NZL,NZL_Rowing,0,Rowing,2
+1,NZL,NZL_Sailing,1,Sailing,0
+2,KEN,KEN_Track & Field,4,Track & Field,5
+0,MAS,MAS_Badminton,1,Badminton,0
+0,MAS,MAS_Diving,0,Diving,1
+0,MAR,MAR_Track & Field,0,Track & Field,1
+0,GAB,GAB_Taekwondo,1,Taekwondo,0
+0,JPN,JPN_Archery,1,Archery,1
+0,JPN,JPN_Track & Field,0,Track & Field,1
+0,JPN,JPN_Badminton,1,Badminton,0
+1,JPN,JPN_Boxing,0,Boxing,1
+0,JPN,JPN_Soccer,1,Soccer,0
+0,JPN,JPN_Fencing,1,Fencing,0
+1,JPN,JPN_Gymnastics,2,Gymnastics,0
+1,JPN,JPN_Judo,3,Judo,3
+0,JPN,JPN_Swimming,3,Swimming,8
+0,JPN,JPN_Table Tennis,1,Table Tennis,0
+0,JPN,JPN_Volleyball,0,Volleyball,1
+0,JPN,JPN_Weightlifting,1,Weightlifting,0
+4,JPN,JPN_Wrestling,0,Wrestling,2
+1,ALG,ALG_Track & Field,0,Track & Field,0
+1,TUR,TUR_Track & Field,1,Track & Field,0
+1,TUR,TUR_Taekwondo,1,Taekwondo,0
+0,TUR,TUR_Wrestling,0,Wrestling,1
+0,GUA,GUA_Track & Field,1,Track & Field,0
+0,SIN,SIN_Table Tennis,0,Table Tennis,2
+0,RSA,RSA_Track & Field,1,Track & Field,0
+0,RSA,RSA_Canoe/Kayak,0,Canoe/Kayak,1
+1,RSA,RSA_Rowing,0,Rowing,0
+2,RSA,RSA_Swimming,1,Swimming,0
+1,ITA,ITA_Archery,0,Archery,0
+0,ITA,ITA_Track & Field,0,Track & Field,1
+0,ITA,ITA_Boxing,2,Boxing,1
+0,ITA,ITA_Cycling,0,Cycling,1
+1,ITA,ITA_Canoe/Kayak,0,Canoe/Kayak,0
+3,ITA,ITA_Fencing,2,Fencing,2
+0,ITA,ITA_Gymnastics,0,Gymnastics,1
+0,ITA,ITA_Rhythmic Gymnastics,0,Rhythmic Gymnastics,1
+0,ITA,ITA_Judo,0,Judo,1
+0,ITA,ITA_Rowing,1,Rowing,0
+2,ITA,ITA_Shooting,3,Shooting,0
+0,ITA,ITA_Swimming,0,Swimming,1
+1,ITA,ITA_Taekwondo,0,Taekwondo,1
+0,ITA,ITA_Volleyball,0,Volleyball,1
+0,ITA,ITA_Water Polo,1,Water Polo,0
+0,BRN,BRN_Track & Field,0,Track & Field,1
+0,KSA,KSA_Equestrian,0,Equestrian,1
+0,SLO,SLO_Track & Field,1,Track & Field,0
+1,SLO,SLO_Judo,0,Judo,0
+0,SLO,SLO_Rowing,0,Rowing,1
+0,SLO,SLO_Shooting,0,Shooting,1
+0,TJK,TJK_Boxing,0,Boxing,1
+1,NOR,NOR_Canoe/Kayak,0,Canoe/Kayak,0
+0,NOR,NOR_Cycling,0,Cycling,1
+0,NOR,NOR_Fencing,1,Fencing,0
+1,NOR,NOR_Handball,0,Handball,0
+0,TUN,TUN_Track & Field,1,Track & Field,0
+1,TUN,TUN_Swimming,0,Swimming,1
+0,ARG,ARG_Field Hockey,1,Field Hockey,0
+0,ARG,ARG_Sailing,0,Sailing,1
+0,ARG,ARG_Tennis,0,Tennis,1
+1,ARG,ARG_Taekwondo,0,Taekwondo,0
+0,IND,IND_Badminton,0,Badminton,1
+0,IND,IND_Boxing,0,Boxing,1
+0,IND,IND_Shooting,1,Shooting,1
+0,IND,IND_Wrestling,1,Wrestling,1
+1,KAZ,KAZ_Track & Field,0,Track & Field,0
+1,KAZ,KAZ_Boxing,1,Boxing,2
+1,KAZ,KAZ_Cycling,0,Cycling,0
+4,KAZ,KAZ_Weightlifting,0,Weightlifting,0
+0,KAZ,KAZ_Wrestling,0,Wrestling,3
+0,GRE,GRE_Judo,0,Judo,1
+0,GRE,GRE_Rowing,0,Rowing,1
+0,MEX,MEX_Archery,1,Archery,1
+0,MEX,MEX_Diving,2,Diving,1
+1,MEX,MEX_Soccer,0,Soccer,0
+0,MEX,MEX_Taekwondo,0,Taekwondo,1
+0,BRA,BRA_Beach Volleyball,1,Beach Volleyball,1
+0,BRA,BRA_Boxing,1,Boxing,2
+0,BRA,BRA_Soccer,1,Soccer,0
+1,BRA,BRA_Gymnastics,0,Gymnastics,0
+1,BRA,BRA_Judo,0,Judo,3
+0,BRA,BRA_Modern Pentathlon,0,Modern Pentathlon,1
+0,BRA,BRA_Sailing,0,Sailing,1
+0,BRA,BRA_Swimming,1,Swimming,1
+1,BRA,BRA_Volleyball,1,Volleyball,0
+1,CZE,CZE_Track & Field,0,Track & Field,1
+1,CZE,CZE_Cycling,0,Cycling,0
+0,CZE,CZE_Canoe/Kayak,1,Canoe/Kayak,0
+1,CZE,CZE_Modern Pentathlon,0,Modern Pentathlon,0
+1,CZE,CZE_Rowing,1,Rowing,0
+0,CZE,CZE_Shooting,0,Shooting,1
+0,CZE,CZE_Tennis,1,Tennis,0
