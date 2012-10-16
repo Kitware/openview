@@ -14,6 +14,7 @@
 #include "vtkColorSeries.h"
 #include "vtkLookupTable.h"
 
+class vtkTooltipItem;
 class vtkTree;
 
 class ovTreemapItem : public vtkContextItem
@@ -39,6 +40,25 @@ protected:
   ovTreemapItem();
   ~ovTreemapItem() {}
 
+  // Description:
+  // Return index of hit vertex, or -1 if no hit.
+  virtual vtkIdType HitVertex(const vtkVector2f &pos);
+
+  // Description:
+  // Handle mouse events.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &event);
+
+  // Description:
+  // Whether this graph item is hit.
+  virtual bool Hit(const vtkContextMouseEvent &event);
+
+  // Description:
+  // Change the position of the tooltip based on the vertex hovered.
+  virtual void PlaceTooltip(vtkIdType v, const vtkVector2f &pos);
+
+  std::string VertexTooltip(vtkIdType vertex);
   void InitializeColorLookup();
 
   std::string ColorArray;
@@ -48,6 +68,7 @@ protected:
   vtkNew<vtkColorSeries> ColorSeries;
   vtkNew<vtkLookupTable> ColorLookup;
   vtkNew<vtkTree> Tree;
+  vtkNew<vtkTooltipItem> Tooltip;
 
 private:
   ovTreemapItem(const ovTreemapItem&); // Not implemented

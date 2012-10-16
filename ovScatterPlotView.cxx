@@ -62,50 +62,41 @@ void ovScatterPlotView::setTable(vtkTable *table, vtkContextView *view)
     vtkIdType numCol = table->GetNumberOfColumns();
     vtkIdType x = -1;
     vtkIdType y = -1;
-    double bestScore = 0;
-    for (vtkIdType col1 = 0; col1 < numCol; ++col1)
+    vtkIdType color = -1;
+    for (vtkIdType i = 0; i < numCol; ++i)
       {
-      for (vtkIdType col2 = col1+1; col2 < numCol; ++col2)
+      if (vtkDataArray::SafeDownCast(table->GetColumn(i)))
         {
-        int type1 = types[col1];
-        int type2 = types[col2];
-        bool numeric1 = (type1 == CONTINUOUS || type1 == INTEGER_CATEGORY || type1 == INTEGER_DATA);
-        bool numeric2 = (type1 == CONTINUOUS || type1 == INTEGER_CATEGORY || type1 == INTEGER_DATA);
-        if (bestScore < 10 && type1 == CONTINUOUS && type2 == CONTINUOUS)
+        if (x == -1)
           {
-          bestScore = 10;
-          x = col1;
-          y = col2;
+          x = i;
           }
-        else if (bestScore < 8 && (type1 == CONTINUOUS && numeric2 || numeric1 && type2 == CONTINUOUS))
+        else if (y == -1)
           {
-          bestScore = 8;
-          x = col1;
-          y = col2;
+          y = i;
           }
-        else if (bestScore < 6 && numeric1 && numeric2)
+        else if (color == -1)
           {
-          bestScore = 6;
-          x = col1;
-          y = col2;
-          }
-        else if (bestScore < 1)
-          {
-          bestScore = 1;
-          x = col1;
-          y = col2;
+          color = i;
           }
         }
       }
-    //std::cerr << "SCATTER chose " << x << ", " << y << " with score " << bestScore << std::endl;
-
-    if (x == -1 || y == -1)
+    if (x == -1)
       {
       return;
+      }
+    if (y == -1)
+      {
+      y = x;
+      }
+    if (color == -1)
+      {
+      color = y;
       }
 
     this->m_x = x;
     this->m_y = y;
+    this->m_color = m_table->GetColumnName(color);
     }
 
   view->GetScene()->AddItem(m_chart.GetPointer());
@@ -130,7 +121,13 @@ void ovScatterPlotView::generatePlot()
   m_plot->SetMarkerSize(10);
   m_plot->SetColor(128, 128, 128, 255);
   m_plot->SetLookupTable(m_lookup.GetPointer());
-  this->setAttribute("Color", m_color);
+  m_plot->SetScalarVisibility(m_color != "(none)");
+  m_plot->SelectColorArray(m_color.toStdString());
+  vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(m_color.toAscii()));
+  if (arr)
+    {
+    m_lookup->SetRange(arr->GetRange());
+    }
 }
 
 QString ovScatterPlotView::name()
@@ -193,13 +190,7 @@ void ovScatterPlotView::setAttribute(QString attribute, QString value)
   if (attribute == "Color")
     {
     m_color = value;
-    m_plot->SetScalarVisibility(value != "(none)");
-    m_plot->SelectColorArray(value.toStdString());
-    vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(value.toAscii()));
-    if (arr)
-      {
-      m_lookup->SetRange(arr->GetRange());
-      }
+    this->generatePlot();
     return;
     }
 }
@@ -218,4 +209,5 @@ QString ovScatterPlotView::getAttribute(QString attribute)
     {
     return m_color;
     }
+  return QString();
 }

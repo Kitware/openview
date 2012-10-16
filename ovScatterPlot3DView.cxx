@@ -50,9 +50,6 @@ void ovScatterPlot3DView::setTable(vtkTable *table, vtkContextView *view)
 {
   if (table != this->m_table.GetPointer())
     {
-    std::vector<std::set<std::string> > domains = ovViewQuickItem::columnDomains(table);
-    std::vector<int> types = ovViewQuickItem::columnTypes(table, domains);
-
     // Find best pair of columns for x/y
     vtkIdType numCol = table->GetNumberOfColumns();
     vtkIdType x = -1;
@@ -97,7 +94,6 @@ void ovScatterPlot3DView::setTable(vtkTable *table, vtkContextView *view)
       {
       color = z;
       }
-    cerr << x << "," << y << "," << z << "," << color << endl;
 
     this->m_x = table->GetColumnName(x);
     this->m_y = table->GetColumnName(y);
@@ -115,7 +111,14 @@ void ovScatterPlot3DView::generatePlot()
 {
   m_chart->SetGeometry(vtkRectf(0.0, 0.0, 1000, 1000));
 
-  m_chart->SetInput(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString(), m_color.toStdString());
+  if (m_table->GetColumnByName(m_color.toAscii()))
+    {
+    m_chart->SetInput(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString(), m_color.toStdString());
+    }
+  else
+    {
+    m_chart->SetInput(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString());
+    }
   m_chart->RecalculateBounds();
   m_chart->RecalculateTransform();
 
@@ -214,4 +217,5 @@ QString ovScatterPlot3DView::getAttribute(QString attribute)
     {
     return m_color;
     }
+  return QString();
 }

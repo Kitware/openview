@@ -53,6 +53,7 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
 
     QString level1 = "";
     QString level2 = "";
+    QString hover = "";
 
     for (vtkIdType col = 0; col < numCol; ++col)
       {
@@ -64,6 +65,10 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
         {
         level2 = table->GetColumnName(col);
         }
+      else if (hover == "" && types[col] == STRING_DATA)
+        {
+        hover = table->GetColumnName(col);
+        }
       else if (level1 == "" && types[col] == STRING_DATA)
         {
         level1 = table->GetColumnName(col);
@@ -74,8 +79,18 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
         }
       }
 
+    if (level2 == "")
+      {
+      level2 = level1;
+      }
+    if (hover == "")
+      {
+      hover = level2;
+      }
+
     this->m_level1 = level1;
     this->m_level2 = level2;
+    this->m_hover = hover;
     this->m_color = "parent";
     this->m_size = "equal size";
     this->m_strategy = "squarify";
@@ -146,6 +161,7 @@ void ovTreemapView::generateTreemap()
   m_item->SetTree(layout->GetOutput());
   m_item->SetColorArray(m_color.toStdString());
   m_item->SetLabelArray("name");
+  m_item->SetTooltipArray(m_hover.toStdString());
 }
 
 QString ovTreemapView::name()
@@ -210,6 +226,12 @@ QStringList ovTreemapView::attributeOptions(QString attribute)
 
 void ovTreemapView::setAttribute(QString attribute, QString value)
 {
+  if (attribute == "Hover")
+    {
+    m_hover = value;
+    generateTreemap();
+    return;
+    }
   if (attribute == "Strategy")
     {
     m_strategy = value;
@@ -244,6 +266,14 @@ void ovTreemapView::setAttribute(QString attribute, QString value)
 
 QString ovTreemapView::getAttribute(QString attribute)
 {
+  if (attribute == "Hover")
+    {
+    return this->m_hover;
+    }
+  if (attribute == "Strategy")
+    {
+    return this->m_strategy;
+    }
   if (attribute == "Level 1")
     {
     return this->m_level1;

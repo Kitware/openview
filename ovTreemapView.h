@@ -11,6 +11,7 @@
 #include "ovView.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+#include "vtkTooltipItem.h"
 
 class ovTreemapItem;
 class vtkContextView;
@@ -39,6 +40,7 @@ protected:
   QString m_color;
   QString m_size;
   QString m_strategy;
+  QString m_hover;
   vtkNew<ovTreemapItem> m_item;
   vtkSmartPointer<vtkTable> m_table;
 };

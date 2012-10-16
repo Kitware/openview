@@ -11,12 +11,14 @@
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkPen.h"
 #include "vtkTextProperty.h"
+#include "vtkTooltipItem.h"
 #include "vtkTransform2D.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
@@ -27,6 +29,8 @@ ovTreemapItem::ovTreemapItem()
 {
   this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
   this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
+  this->Tooltip->SetVisible(false);
+  this->AddItem(this->Tooltip.GetPointer());
 }
 
 void ovTreemapItem::InitializeColorLookup()
@@ -105,6 +109,94 @@ void ovTreemapItem::SetColorArray(const std::string &name)
   this->InitializeColorLookup();
 }
 
+bool ovTreemapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
+{
+  if (event.GetButton() == vtkContextMouseEvent::NO_BUTTON)
+    {
+    vtkIdType v = this->HitVertex(event.GetPos());
+    this->Scene->SetDirty(true);
+    if (v < 0)
+      {
+      this->Tooltip->SetVisible(false);
+      return true;
+      }
+    vtkStdString text = this->VertexTooltip(v);
+    if (text == "")
+      {
+      this->Tooltip->SetVisible(false);
+      return true;
+      }
+    this->PlaceTooltip(v, event.GetPos());
+    this->Tooltip->SetText(text);
+    this->Tooltip->SetVisible(true);
+    return true;
+    }
+
+  if (this->Tooltip->GetVisible())
+    {
+    vtkIdType v = this->HitVertex(event.GetPos());
+    this->PlaceTooltip(v, event.GetPos());
+    this->Scene->SetDirty(true);
+    }
+
+  return false;
+}
+
+bool ovTreemapItem::MouseEnterEvent(const vtkContextMouseEvent &vtkNotUsed(event))
+{
+  return true;
+}
+
+bool ovTreemapItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(event))
+{
+  this->Tooltip->SetVisible(false);
+  return true;
+}
+
+vtkIdType ovTreemapItem::HitVertex(const vtkVector2f &pos)
+{
+  vtkVector2f transformed(pos[0]/this->GetScene()->GetSceneWidth(), pos[1]/this->GetScene()->GetSceneHeight());
+  vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
+  for (vtkIdType v = 0; v < this->Tree->GetNumberOfVertices(); ++v)
+    {
+    float *pt = area->GetPointer(4*v);
+    if (this->Tree->IsLeaf(v) && transformed.X() >= pt[0] && transformed.X() <= pt[1] && transformed.Y() >= pt[2] && transformed.Y() <= pt[3])
+      {
+      return v;
+      }
+    }
+  return -1;
+}
+
+std::string ovTreemapItem::VertexTooltip(vtkIdType vertex)
+{
+  vtkAbstractArray *arr = this->Tree->GetVertexData()->GetAbstractArray(this->TooltipArray.c_str());
+  if (arr)
+    {
+    return arr->GetVariantValue(vertex).ToString();
+    }
+  return "";
+}
+
+bool ovTreemapItem::Hit(const vtkContextMouseEvent &event)
+{
+  vtkIdType v = this->HitVertex(event.GetPos());
+  return (v >= 0);
+}
+
+void ovTreemapItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
+{
+  if (v >= 0)
+    {
+    this->Tooltip->SetPosition(pos[0]+5, pos[1]+5);
+    this->Tooltip->SetVisible(true);
+    }
+  else
+    {
+    this->Tooltip->SetVisible(false);
+    }
+}
+
 bool ovTreemapItem::Paint(vtkContext2D *painter)
 {
   painter->GetPen()->SetColor(0, 0, 0);
@@ -122,8 +214,10 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
   vtkDataArray *arr = vtkDataArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str()));
   vtkAbstractArray *labelArr = this->Tree->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
   painter->GetTextProp()->SetFontSize(20);
-  painter->GetTextProp()->SetOpacity(0.75);
+  painter->GetTextProp()->SetOpacity(0.5);
   painter->GetTextProp()->SetColor(0, 0, 0);
+  painter->GetTextProp()->SetBold(true);
+  int numLabels = 0;
   while (it->HasNext())
     {
     vtkIdType i = it->Next();
@@ -139,10 +233,11 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
         vtkStdString label = labelArr->GetVariantValue(i).ToString();
         float bounds[4];
         painter->ComputeStringBounds(label, bounds);
-        if (bounds[2] > 0.0f && bounds[3] > 0.0f)
+        if (numLabels < 100 && bounds[2] > 0.0f && bounds[3] > 0.0f)
           {
           float center[2] = {(pt[0]+pt[1])/2 - bounds[2]/2, (pt[2]+pt[3])/2 - bounds[3]/2};
           painter->DrawString(center[0], center[1], label);
+          ++numLabels;
           }
         }
       }
@@ -167,5 +262,6 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
     painter->DrawRect(pt[0], pt[2], (pt[1]-pt[0]), (pt[3]-pt[2]));
     }
   painter->PopMatrix();
+  this->PaintChildren(painter);
   return true;
 }
