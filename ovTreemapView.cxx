@@ -14,9 +14,12 @@
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkGraph.h"
+#include "vtkGroupLeafVertices.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIncrementalForceLayout.h"
 #include "vtkMath.h"
 #include "vtkPoints.h"
@@ -25,6 +28,10 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTableToTreeFilter.h"
+#include "vtkTreeFieldAggregator.h"
+#include "vtkTreeMapLayout.h"
+#include "vtkSliceAndDiceLayoutStrategy.h"
+#include "vtkSquarifyLayoutStrategy.h"
 
 ovTreemapView::ovTreemapView(QObject *parent) : ovView(parent)
 {
@@ -50,11 +57,11 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
 
     for (vtkIdType col = 0; col < numCol; ++col)
       {
-      if (level1 == "" && types[col] == INTEGER_CATEGORY || types[col] == STRING_CATEGORY)
+      if (level1 == "" && types[col] == STRING_CATEGORY)
         {
         level1 = table->GetColumnName(col);
         }
-      else if (level2 == "" && types[col] == INTEGER_CATEGORY || types[col] == STRING_CATEGORY)
+      else if (level2 == "" && types[col] == STRING_CATEGORY)
         {
         level2 = table->GetColumnName(col);
         }
@@ -73,11 +80,12 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
 
     this->m_level1 = level1;
     this->m_level2 = level2;
-    this->m_color = "count";
-    this->m_size = "count";
+    this->m_color = "parent";
+    this->m_size = "equal size";
+    this->m_strategy = "squarify";
 
     this->m_table = table;
-    this->m_table->Dump();
+    //this->m_table->Dump();
 
     this->generateTreemap();
     }
@@ -89,8 +97,63 @@ void ovTreemapView::generateTreemap()
 {
   vtkNew<vtkTableToTreeFilter> ttt;
   ttt->SetInputData(m_table);
+  ttt->Update();
 
-  m_item->SetTree(ttt->GetOutput());
+  vtkNew<vtkIdTypeArray> pedigree;
+  pedigree->SetName("pedigree");
+  pedigree->SetNumberOfTuples(ttt->GetOutput()->GetNumberOfVertices());
+  vtkNew<vtkStringArray> name;
+  name->SetName("name");
+  name->SetNumberOfTuples(ttt->GetOutput()->GetNumberOfVertices());
+  for (vtkIdType i = 0; i < ttt->GetOutput()->GetNumberOfVertices(); ++i)
+    {
+    pedigree->SetValue(i, i);
+    name->SetValue(i, "");
+    }
+  ttt->GetOutput()->GetVertexData()->SetPedigreeIds(pedigree.GetPointer());
+  ttt->GetOutput()->GetVertexData()->AddArray(name.GetPointer());
+
+  vtkNew<vtkGroupLeafVertices> group1;
+  group1->SetInputConnection(ttt->GetOutputPort());
+  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toAscii().data());
+  group1->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
+
+  vtkNew<vtkGroupLeafVertices> group2;
+  group2->SetInputConnection(group1->GetOutputPort());
+  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toAscii().data());
+  group2->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
+
+  vtkNew<vtkTreeFieldAggregator> agg;
+  agg->SetInputConnection(group2->GetOutputPort());
+  agg->SetLeafVertexUnitSize(false);
+  agg->SetField(m_size.toAscii());
+
+  vtkNew<vtkSquarifyLayoutStrategy> squarify;
+  squarify->SetShrinkPercentage(0.0);
+
+  vtkNew<vtkSliceAndDiceLayoutStrategy> slice;
+  slice->SetShrinkPercentage(0.0);
+
+  vtkNew<vtkTreeMapLayout> layout;
+  layout->SetInputConnection(agg->GetOutputPort());
+  if (m_strategy == "squarify")
+    {
+    layout->SetLayoutStrategy(squarify.GetPointer());
+    }
+  else
+    {
+    layout->SetLayoutStrategy(slice.GetPointer());
+    }
+  layout->SetSizeArrayName(m_size.toAscii());
+  cerr << "layout begin" << endl;
+  layout->Update();
+  cerr << "layout end" << endl;
+
+  cerr << "set tree begin" << endl;
+  m_item->SetTree(layout->GetOutput());
+  cerr << "set tree end" << endl;
+  m_item->SetColorArray(m_color.toStdString());
+  m_item->SetLabelArray("name");
 }
 
 QString ovTreemapView::name()
@@ -100,12 +163,24 @@ QString ovTreemapView::name()
 
 QStringList ovTreemapView::attributes()
 {
-  return QStringList() << "Level 1" << "Level 2" << "Color" << "Size";
+  return QStringList() << "Level 1" << "Level 2" << "Strategy" << "Hover" << "Color" << "Size";
 }
 
 QStringList ovTreemapView::attributeOptions(QString attribute)
 {
-  cerr << attribute.toStdString() << endl;
+  if (attribute == "Strategy")
+    {
+    return QStringList() << "squarify" << "slice and dice";
+    }
+  if (attribute == "Hover")
+    {
+    QStringList fields;
+    for (vtkIdType col = 0; col < this->m_table->GetNumberOfColumns(); ++col)
+      {
+      fields << this->m_table->GetColumn(col)->GetName();
+      }
+    return fields;
+    }
   if (attribute == "Level 1" || attribute == "Level 2")
     {
     QStringList fields;
@@ -121,7 +196,14 @@ QStringList ovTreemapView::attributeOptions(QString attribute)
   if (attribute == "Color" || attribute == "Size")
     {
     QStringList fields;
-    fields << "count";
+    if (attribute == "Color")
+      {
+      fields << "parent";
+      }
+    if (attribute == "Size")
+      {
+      fields << "equal size";
+      }
     for (vtkIdType col = 0; col < this->m_table->GetNumberOfColumns(); ++col)
       {
       if (vtkDataArray::SafeDownCast(this->m_table->GetColumn(col)))
@@ -136,6 +218,12 @@ QStringList ovTreemapView::attributeOptions(QString attribute)
 
 void ovTreemapView::setAttribute(QString attribute, QString value)
 {
+  if (attribute == "Strategy")
+    {
+    m_strategy = value;
+    generateTreemap();
+    return;
+    }
   if (attribute == "Level 1")
     {
     m_level1 = value;

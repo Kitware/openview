@@ -11,5 +11,6 @@ ListModel {
   ListElement { name: "GRAPH" }
   ListElement { name: "SCATTER" }
   ListElement { name: "3D SCATTER" }
+  ListElement { name: "TREEMAP" }
   ListElement { name: "TABLE" }
 }

@@ -82,7 +82,7 @@ Row {
         Component {
           id: viewItemDelegate
           Item {
-            width: 80
+            width: 120
             height: parent.height
             Text {
               text: name;
@@ -104,7 +104,7 @@ Row {
           delegate: viewItemDelegate
           highlight: Rectangle {
             height: parent.height;
-            width: 80
+            width: 120
             gradient: Gradient {
               GradientStop { position: 0.0; color: "#eee" }
               GradientStop { position: 1.0; color: "#ddd" }
@@ -250,7 +250,7 @@ Row {
               id: attributeItemDelegate
               ComboBox {
                 id: attributeComboBox
-                width: 80
+                width: 120
                 items: fields
                 selectedIndex: valueIndex
                 label: name
@@ -305,7 +305,7 @@ Row {
                   Component {
                     id: tableItemDelegate
                     Rectangle {
-                      width: 160
+                      width: 120
                       height: 40
                       clip: true
                       gradient: Gradient {

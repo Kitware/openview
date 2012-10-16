@@ -38,6 +38,7 @@ protected:
   QString m_level2;
   QString m_color;
   QString m_size;
+  QString m_strategy;
   vtkNew<ovTreemapItem> m_item;
   vtkSmartPointer<vtkTable> m_table;
 };
