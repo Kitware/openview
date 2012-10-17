@@ -11,6 +11,7 @@
 #include "ovViewQuickItem.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkBoostDividedEdgeBundling.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
@@ -32,6 +33,7 @@ ovGraphView::ovGraphView(QObject *parent) : ovView(parent)
   m_sharedDomain = false;
   m_table = vtkSmartPointer<vtkTable>::New();
   m_filter = false;
+  m_bundle = false;
 }
 
 ovGraphView::~ovGraphView()
@@ -175,6 +177,7 @@ void ovGraphView::generateGraph()
     ttg->AddLinkVertex(m_target.toAscii(), m_target.toAscii());
     }
   ttg->AddLinkEdge(m_source.toAscii(), m_target.toAscii());
+  ttg->SetDirected(true);
 
   vtkNew<vtkVertexDegree> degree;
   degree->SetInputConnection(ttg->GetOutputPort());
@@ -224,6 +227,19 @@ void ovGraphView::generateGraph()
   //m_item->GetLayout()->SetDistance(50.0f);
   //m_item->GetLayout()->SetCharge(-5.0f);
   m_item->GetLayout()->SetAlpha(0.1f);
+
+  if (m_bundle)
+    {
+    m_item->GetLayout()->SetAlpha(0.3f);
+    for (int i = 0; i < 100; ++i)
+      {
+      m_item->UpdateLayout();
+      }
+    vtkNew<vtkBoostDividedEdgeBundling> bundle;
+    bundle->SetInputData(graph);
+    bundle->Update();
+    m_item->SetGraph(bundle->GetOutput());
+    }
 }
 
 QString ovGraphView::name()
@@ -233,7 +249,7 @@ QString ovGraphView::name()
 
 QStringList ovGraphView::attributes()
 {
-  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Hover" << "Animate" << "Filter";
+  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Hover" << "Animate" << "Filter" << "Bundle";
 }
 
 QStringList ovGraphView::attributeOptions(QString attribute)
@@ -251,7 +267,7 @@ QStringList ovGraphView::attributeOptions(QString attribute)
     {
     return QStringList() << "(none)" << "domain" << "label" << "connections";
     }
-  if (attribute == "Animate")
+  if (attribute == "Animate" || attribute == "Bundle")
     {
     return QStringList() << "on" << "off";
     }
@@ -296,6 +312,12 @@ void ovGraphView::setAttribute(QString attribute, QString value)
     m_animate = (value == "on");
     return;
     }
+  if (attribute == "Bundle")
+    {
+    m_bundle = (value == "on");
+    generateGraph();
+    return;
+    }
   if (attribute == "Filter")
     {
     m_filter = (value != "all");
@@ -330,15 +352,20 @@ QString ovGraphView::getAttribute(QString attribute)
     {
     return this->m_animate ? "on" : "off";
     }
+  if (attribute == "Bundle")
+    {
+    return this->m_bundle ? "on" : "off";
+    }
   if (attribute == "Filter")
     {
     return this->m_filter ? "2+ connections" : "all";
     }
+  return QString();
 }
 
 void ovGraphView::prepareForRender()
 {
-  if (this->m_animate)
+  if (this->m_animate && !this->m_bundle)
     {
     this->m_item->UpdateLayout();
     }

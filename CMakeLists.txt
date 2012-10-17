@@ -90,6 +90,7 @@ set( OPENVIEW_LIBS
   vtkRenderingVolumeOpenGL
   vtkViewsContext2D
   vtkViewsInfovis
+  vtkInfovisBoostGraphAlgorithms
   ${Qt5Core_LIBRARIES}
   ${Qt5Gui_LIBRARIES}
   ${Qt5Widgets_LIBRARIES}

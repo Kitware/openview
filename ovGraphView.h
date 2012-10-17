@@ -42,6 +42,7 @@ protected:
   vtkNew<ovGraphItem> m_item;
   vtkSmartPointer<vtkTable> m_table;
   bool m_filter;
+  bool m_bundle;
 };
 
 #endif
