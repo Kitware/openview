@@ -30,6 +30,9 @@ ovTreemapItem::ovTreemapItem()
   this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
   this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
   this->Tooltip->SetVisible(false);
+  this->TargetVertex = 0;
+  this->Scale->Identity();
+  this->Translate->Identity();
   this->AddItem(this->Tooltip.GetPointer());
 }
 
@@ -101,6 +104,9 @@ void ovTreemapItem::SetTree(vtkTree *tree)
 {
   this->Tree->ShallowCopy(tree);
   this->InitializeColorLookup();
+  this->Scale->Identity();
+  this->Translate->Identity();
+  this->TargetVertex = this->Tree->GetRoot();
 }
 
 void ovTreemapItem::SetColorArray(const std::string &name)
@@ -155,7 +161,11 @@ bool ovTreemapItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(event
 
 vtkIdType ovTreemapItem::HitVertex(const vtkVector2f &pos)
 {
-  vtkVector2f transformed(pos[0]/this->GetScene()->GetSceneWidth(), pos[1]/this->GetScene()->GetSceneHeight());
+  vtkVector2f transformed = pos;
+  transformed[0] = transformed[0]/this->GetScene()->GetSceneWidth();
+  transformed[1] = transformed[1]/this->GetScene()->GetSceneHeight();
+  this->Scale->InverseTransformPoints(transformed.GetData(), transformed.GetData(), 1);
+  this->Translate->InverseTransformPoints(transformed.GetData(), transformed.GetData(), 1);
   vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
   for (vtkIdType v = 0; v < this->Tree->GetNumberOfVertices(); ++v)
     {
@@ -184,6 +194,25 @@ bool ovTreemapItem::Hit(const vtkContextMouseEvent &event)
   return (v >= 0);
 }
 
+bool ovTreemapItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
+{
+  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    vtkIdType v = this->HitVertex(event.GetPos());
+    vtkIdType parent = this->Tree->GetParent(v);
+    if (parent == this->TargetVertex)
+      {
+      this->TargetVertex = this->Tree->GetRoot();
+      }
+    else
+      {
+      this->TargetVertex = parent;
+      }
+    return true;
+    }
+  return false;
+}
+
 void ovTreemapItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
 {
   if (v >= 0)
@@ -202,10 +231,46 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
   painter->GetPen()->SetColor(0, 0, 0);
   painter->GetBrush()->SetColor(128, 128, 128);
   vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
+
   painter->PushMatrix();
   vtkNew<vtkTransform2D> transform;
   transform->Scale(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
   painter->AppendTransform(transform.GetPointer());
+
+  float *targetRect = area->GetPointer(4*this->TargetVertex);
+
+  float currentRect[4];
+
+  float scale[2];
+  this->Scale->GetScale(scale);
+  float pos[2];
+  this->Translate->GetPosition(pos);
+  currentRect[0] = -pos[0];
+  currentRect[1] = currentRect[0] + 1.0f/scale[0];
+  currentRect[2] = -pos[1];
+  currentRect[3] = currentRect[2] + 1.0f/scale[1];
+
+  float deltaRect[4];
+  deltaRect[0] = targetRect[0] - currentRect[0];
+  deltaRect[1] = targetRect[1] - currentRect[1];
+  deltaRect[2] = targetRect[2] - currentRect[2];
+  deltaRect[3] = targetRect[3] - currentRect[3];
+
+  float newRect[4];
+  newRect[0] = currentRect[0] + 0.1*deltaRect[0];
+  newRect[1] = currentRect[1] + 0.1*deltaRect[1];
+  newRect[2] = currentRect[2] + 0.1*deltaRect[2];
+  newRect[3] = currentRect[3] + 0.1*deltaRect[3];
+  float newScale[2] = {1.0f/(newRect[1]-newRect[0]), 1.0f/(newRect[3]-newRect[2])};
+  float newPos[2] = {-newRect[0], -newRect[2]};
+
+  this->Scale->GetMatrix()->SetElement(0, 0, newScale[0]);
+  this->Scale->GetMatrix()->SetElement(1, 1, newScale[1]);
+  this->Translate->GetMatrix()->SetElement(0, 2, newPos[0]);
+  this->Translate->GetMatrix()->SetElement(1, 2, newPos[1]);
+
+  painter->AppendTransform(this->Scale.GetPointer());
+  painter->AppendTransform(this->Translate.GetPointer());
 
   vtkNew<vtkTreeDFSIterator> it;
   it->SetTree(this->Tree.GetPointer());

@@ -13,6 +13,7 @@
 
 #include "vtkColorSeries.h"
 #include "vtkLookupTable.h"
+#include "vtkTransform2D.h"
 
 class vtkTooltipItem;
 class vtkTree;
@@ -49,6 +50,7 @@ protected:
   virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
   virtual bool MouseLeaveEvent(const vtkContextMouseEvent &event);
   virtual bool MouseEnterEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event);
 
   // Description:
   // Whether this graph item is hit.
@@ -64,6 +66,10 @@ protected:
   std::string ColorArray;
   std::string LabelArray;
   std::string TooltipArray;
+
+  vtkIdType TargetVertex;
+  vtkNew<vtkTransform2D> Scale;
+  vtkNew<vtkTransform2D> Translate;
 
   vtkNew<vtkColorSeries> ColorSeries;
   vtkNew<vtkLookupTable> ColorLookup;
