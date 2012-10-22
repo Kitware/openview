@@ -12,8 +12,8 @@
 #include "ovScatterPlotView.h"
 #include "ovScatterPlot3DView.h"
 #include "ovTreemapView.h"
+#include "ovTreeringView.h"
 
-#include "vtkAxis.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDataSetAttributes.h"
@@ -41,6 +41,7 @@ ovViewQuickItem::ovViewQuickItem()
   this->m_views["SCATTER"] = new ovScatterPlotView(this);
   this->m_views["3D SCATTER"] = new ovScatterPlot3DView(this);
   this->m_views["TREEMAP"] = new ovTreemapView(this);
+  this->m_views["TREERING"] = new ovTreeringView(this);
   this->m_table = vtkSmartPointer<vtkTable>::New();
 }
 
