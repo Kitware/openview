@@ -22,8 +22,9 @@ Row {
       NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
     }
     onFileSelected: {
-      dataListView.model.append({name: fileName, path: filePath})
-      width = 0
+      width = 0;
+      dataListView.model.append({name: fileName, path: filePath});
+      dataListView.currentIndex = dataListView.model.count - 1;
     }
   }
 
@@ -206,6 +207,13 @@ Row {
               GradientStop { position: 1.0; color: "#ddd" }
             }
           }
+
+          onCurrentIndexChanged: {
+            view.url = model.get(currentIndex).path;
+            tableView.update();
+            viewList.updateViewAttributes();
+          }
+
           MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -213,9 +221,6 @@ Row {
               var indexedItem = parent.indexAt(mouseX, mouseY);
               if (indexedItem !== -1) {
                 parent.currentIndex = indexedItem;
-                view.url = parent.model.get(indexedItem).path;
-                tableView.update();
-                viewList.updateViewAttributes();
               }
             }
           }
