@@ -301,9 +301,11 @@ void QVTKQuickItem::paint()
 
   if (!m_win.GetPointer()) {
     m_interactor = vtkSmartPointer<QVTKInteractor>::New();
-    m_interactorAdapter = new QVTKInteractorAdapter(this);
+    m_interactorAdapter = new QVTKInteractorAdapter(NULL);
+    m_interactorAdapter->moveToThread(this->thread());
+    m_interactorAdapter->setParent(this);
     m_connect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-    m_connect->Connect(m_interactor, vtkCommand::RenderEvent, this, SLOT(Update()));
+    //m_connect->Connect(m_interactor, vtkCommand::RenderEvent, this, SLOT(paint()));
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     this->geometryChanged(QRectF(x(), y(), width(), height()), QRectF(0, 0, 100, 100));
     this->SetRenderWindow(win);

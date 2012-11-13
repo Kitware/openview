@@ -63,6 +63,7 @@ QStringList ovViewQuickItem::viewTypes()
 
 void ovViewQuickItem::init()
 {
+  this->GetRenderWindow()->SetPolygonSmoothing(true);
   this->m_view->SetRenderWindow(this->GetRenderWindow());
   vtkNew<ovContextInteractorStyle> style;
   style->SetScene(this->m_view->GetScene());
@@ -72,10 +73,6 @@ void ovViewQuickItem::init()
   //QUrl url("file:///code/opendemo/data/classes.csv");
   //QUrl url("file:///code/opendemo/data/kcore_edges.csv");
   //this->setUrl(url);
-  connect(&this->m_animationTimer, SIGNAL(timeout()), this, SLOT(animate()), Qt::DirectConnection);
-  this->m_animationTimer.setInterval(1000/60);
-  this->m_animationTimer.moveToThread(this->canvas()->openglContext()->thread());
-  this->m_animationTimer.start();
 }
 
 void ovViewQuickItem::prepareForRender()

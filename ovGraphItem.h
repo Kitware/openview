@@ -12,7 +12,9 @@
 #include "vtkNew.h"
 
 #include "vtkColorSeries.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
+#include "vtkSmartPointer.h"
 
 class ovGraphItem : public vtkGraphItem
 {
@@ -31,11 +33,15 @@ public:
 
   virtual void SetGraph(vtkGraph *graph);
 
+  virtual void SetFocusedVertices(vtkIdTypeArray *arr) { this->FocusedVertices = arr; }
+
 protected:
   ovGraphItem();
   ~ovGraphItem() {}
 
   void InitializeColorLookup();
+
+  int DistanceFromFocus(vtkIdType vertex);
 
   // Description:
   // Efficiently draws the contents of the buffers built in RebuildBuffers.
@@ -50,6 +56,9 @@ protected:
   virtual vtkStdString VertexTooltip(vtkIdType vertex);
   virtual vtkColor4ub VertexColor(vtkIdType vertex);
   virtual vtkColor4ub EdgeColor(vtkIdType edgeIdx, vtkIdType point);
+  virtual float EdgeWidth(vtkIdType edgeIdx, vtkIdType point);
+
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &event);
 
   std::string ColorArray;
   std::string LabelArray;
@@ -57,6 +66,8 @@ protected:
 
   vtkNew<vtkColorSeries> ColorSeries;
   vtkNew<vtkLookupTable> ColorLookup;
+
+  vtkSmartPointer<vtkIdTypeArray> FocusedVertices;
 
 private:
   ovGraphItem(const ovGraphItem&); // Not implemented

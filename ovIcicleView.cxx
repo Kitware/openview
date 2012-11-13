@@ -5,9 +5,9 @@
 
   Licensed under the BSD license. See LICENSE file for details.
  ========================================================================*/
-#include "ovTreemapView.h"
+#include "ovTreeringView.h"
 
-#include "ovTreemapItem.h"
+#include "ovTreeringItem.h"
 #include "ovViewQuickItem.h"
 
 #include "vtkAbstractArray.h"
@@ -29,20 +29,19 @@
 #include "vtkTable.h"
 #include "vtkTableToTreeFilter.h"
 #include "vtkTreeFieldAggregator.h"
-#include "vtkTreeMapLayout.h"
-#include "vtkSliceAndDiceLayoutStrategy.h"
-#include "vtkSquarifyLayoutStrategy.h"
+#include "vtkAreaLayout.h"
+#include "vtkStackedTreeLayoutStrategy.h"
 
-ovTreemapView::ovTreemapView(QObject *parent) : ovView(parent)
+ovTreeringView::ovTreeringView(QObject *parent) : ovView(parent)
 {
   m_table = vtkSmartPointer<vtkTable>::New();
 }
 
-ovTreemapView::~ovTreemapView()
+ovTreeringView::~ovTreeringView()
 {
 }
 
-void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
+void ovTreeringView::setTable(vtkTable *table, vtkContextView *view)
 {
   if (table != this->m_table.GetPointer())
     {
@@ -93,18 +92,17 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
     this->m_hover = hover;
     this->m_color = "parent";
     this->m_size = "equal size";
-    this->m_strategy = "squarify";
 
     this->m_table = table;
     //this->m_table->Dump();
 
-    this->generateTreemap();
+    this->generateTreering();
     }
 
   view->GetScene()->AddItem(this->m_item.GetPointer());
 }
 
-void ovTreemapView::generateTreemap()
+void ovTreeringView::generateTreering()
 {
   vtkNew<vtkTableToTreeFilter> ttt;
   ttt->SetInputData(m_table);
@@ -135,63 +133,46 @@ void ovTreemapView::generateTreemap()
   group2->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkTreeFieldAggregator> agg;
-  if (!m_table->GetColumnByName(m_level1.toAscii().data()))
-    {
-    agg->SetInputConnection(ttt->GetOutputPort());
-    }
-  else if (!m_table->GetColumnByName(m_level2.toAscii().data()))
-    {
-    agg->SetInputConnection(group1->GetOutputPort());
-    }
-  else
-    {
-    agg->SetInputConnection(group2->GetOutputPort());
-    }
+  agg->SetInputConnection(group2->GetOutputPort());
   agg->SetLeafVertexUnitSize(false);
   agg->SetField(m_size.toAscii());
 
-  vtkNew<vtkSquarifyLayoutStrategy> squarify;
-  squarify->SetShrinkPercentage(0.0);
+  vtkNew<vtkTreeFieldAggregator> agg2;
+  agg2->SetInputConnection(agg->GetOutputPort());
+  agg2->SetLeafVertexUnitSize(false);
+  agg2->SetField(m_color.toAscii());
 
-  vtkNew<vtkSliceAndDiceLayoutStrategy> slice;
-  slice->SetShrinkPercentage(0.0);
+  vtkNew<vtkStackedTreeLayoutStrategy> stacked;
+  stacked->SetShrinkPercentage(0.0);
+  stacked->SetRootEndAngle(1.0);
+  stacked->SetReverse(true);
 
-  vtkNew<vtkTreeMapLayout> layout;
-  layout->SetInputConnection(agg->GetOutputPort());
-  if (m_strategy == "squarify")
-    {
-    layout->SetLayoutStrategy(squarify.GetPointer());
-    }
-  else
-    {
-    layout->SetLayoutStrategy(slice.GetPointer());
-    }
+  vtkNew<vtkAreaLayout> layout;
+  layout->SetInputConnection(m_size != m_color ? agg2->GetOutputPort() : agg->GetOutputPort());
+  layout->SetLayoutStrategy(stacked.GetPointer());
   layout->SetSizeArrayName(m_size.toAscii());
   layout->Update();
 
   m_item->SetTree(layout->GetOutput());
   m_item->SetColorArray(m_color.toStdString());
-  m_item->SetLabelArray("name");
+  m_item->SetGroupNameArray("name");
+  m_item->SetLabelArray(m_label.toStdString());
   m_item->SetTooltipArray(m_hover.toStdString());
 }
 
-QString ovTreemapView::name()
+QString ovTreeringView::name()
 {
-  return "TREEMAP";
+  return "TREERING";
 }
 
-QStringList ovTreemapView::attributes()
+QStringList ovTreeringView::attributes()
 {
-  return QStringList() << "Level 1" << "Level 2" << "Strategy" << "Hover" << "Color" << "Size";
+  return QStringList() << "Level 1" << "Level 2" << "Hover" << "Label" << "Color" << "Size";
 }
 
-QStringList ovTreemapView::attributeOptions(QString attribute)
+QStringList ovTreeringView::attributeOptions(QString attribute)
 {
-  if (attribute == "Strategy")
-    {
-    return QStringList() << "squarify" << "slice and dice";
-    }
-  if (attribute == "Hover")
+  if (attribute == "Hover" || attribute == "Label")
     {
     QStringList fields;
     for (vtkIdType col = 0; col < this->m_table->GetNumberOfColumns(); ++col)
@@ -235,55 +216,55 @@ QStringList ovTreemapView::attributeOptions(QString attribute)
   return QStringList();
 }
 
-void ovTreemapView::setAttribute(QString attribute, QString value)
+void ovTreeringView::setAttribute(QString attribute, QString value)
 {
   if (attribute == "Hover")
     {
     m_hover = value;
-    generateTreemap();
+    generateTreering();
     return;
     }
-  if (attribute == "Strategy")
+  if (attribute == "Hover")
     {
-    m_strategy = value;
-    generateTreemap();
+    m_label = value;
+    generateTreering();
     return;
     }
   if (attribute == "Level 1")
     {
     m_level1 = value;
-    generateTreemap();
+    generateTreering();
     return;
     }
   if (attribute == "Level 2")
     {
     m_level2 = value;
-    generateTreemap();
+    generateTreering();
     return;
     }
   if (attribute == "Color")
     {
     m_color = value;
-    generateTreemap();
+    generateTreering();
     return;
     }
   if (attribute == "Size")
     {
     m_size = value;
-    generateTreemap();
+    generateTreering();
     return;
     }
 }
 
-QString ovTreemapView::getAttribute(QString attribute)
+QString ovTreeringView::getAttribute(QString attribute)
 {
   if (attribute == "Hover")
     {
     return this->m_hover;
     }
-  if (attribute == "Strategy")
+  if (attribute == "Label")
     {
-    return this->m_strategy;
+    return this->m_label;
     }
   if (attribute == "Level 1")
     {

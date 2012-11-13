@@ -147,7 +147,7 @@ void ovGraphView::setTable(vtkTable *table, vtkContextView *view)
     this->m_target = target;
     this->m_item->SetColorArray("domain");
     this->m_item->SetTooltipArray("label");
-    this->m_item->SetLabelArray("(none)");
+    this->m_item->SetLabelArray("label");
 
     this->m_table = table;
 

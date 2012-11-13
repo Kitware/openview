@@ -5,25 +5,24 @@
 
   Licensed under the BSD license. See LICENSE file for details.
  ========================================================================*/
-#ifndef ovScatterPlot3DView_h
-#define ovScatterPlot3DView_h
+#ifndef ovTreeringView_h
+#define ovTreeringView_h
 
 #include "ovView.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+#include "vtkTooltipItem.h"
 
-class vtkChartXYZ;
-class vtkPlotPoints3D;
+class ovTreeringItem;
 class vtkContextView;
-class vtkLookupTable;
 class vtkTable;
 
-class ovScatterPlot3DView : public ovView
+class ovTreeringView : public ovView
 {
   Q_OBJECT
 public:
-  ovScatterPlot3DView(QObject *parent);
-  ~ovScatterPlot3DView();
+  ovTreeringView(QObject *parent);
+  ~ovTreeringView();
 
   virtual void setTable(vtkTable *data, vtkContextView *view);
   virtual QString name();
@@ -34,16 +33,16 @@ public:
   virtual QString getAttribute(QString attribute);
 
 protected:
-  void generatePlot();
+  void generateTreering();
 
-  vtkSmartPointer<vtkTable> m_table;
-  vtkNew<vtkChartXYZ> m_chart;
-  vtkNew<vtkPlotPoints3D> m_plot;
-  vtkNew<vtkLookupTable> m_lookup;
-  QString m_x;
-  QString m_y;
-  QString m_z;
+  QString m_level1;
+  QString m_level2;
   QString m_color;
+  QString m_size;
+  QString m_hover;
+  QString m_label;
+  vtkNew<ovTreeringItem> m_item;
+  vtkSmartPointer<vtkTable> m_table;
 };
 
 #endif

@@ -12,11 +12,12 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkAxis.h"
-#include "vtkInteractiveChartXYZ.h"
+#include "vtkChartXYZ.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDataArray.h"
 #include "vtkLookupTable.h"
+#include "vtkPlotPoints3D.h"
 #include "vtkTable.h"
 
 ovScatterPlot3DView::ovScatterPlot3DView(QObject *parent) : ovView(parent)
@@ -113,11 +114,11 @@ void ovScatterPlot3DView::generatePlot()
 
   if (m_table->GetColumnByName(m_color.toAscii()))
     {
-    m_chart->SetInput(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString(), m_color.toStdString());
+    m_plot->SetInputData(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString(), m_color.toStdString());
     }
   else
     {
-    m_chart->SetInput(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString());
+    m_plot->SetInputData(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString());
     }
   m_chart->RecalculateBounds();
   m_chart->RecalculateTransform();

@@ -10,9 +10,12 @@
 #include "vtkAbstractArray.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGraph.h"
+#include "vtkIdTypeArray.h"
+#include "vtkIncrementalForceLayout.h"
 #include "vtkLookupTable.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
@@ -23,6 +26,7 @@ ovGraphItem::ovGraphItem()
 {
   this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
   this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
+  this->FocusedVertices = vtkSmartPointer<vtkIdTypeArray>::New();
 }
 
 void ovGraphItem::InitializeColorLookup()
@@ -83,13 +87,34 @@ void ovGraphItem::SetColorArray(const std::string &name)
   this->InitializeColorLookup();
 }
 
-vtkColor4ub ovGraphItem::EdgeColor(vtkIdType vtkNotUsed(edgeIdx), vtkIdType vtkNotUsed(point))
+vtkColor4ub ovGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType vtkNotUsed(point))
 {
   return vtkColor4ub(0, 0, 0, 64);
 }
 
+float ovGraphItem::EdgeWidth(vtkIdType edgeIdx, vtkIdType point)
+{
+  vtkGraph *g = this->GetGraph();
+  int sdist = this->DistanceFromFocus(g->GetSourceVertex(edgeIdx));
+  int tdist = this->DistanceFromFocus(g->GetTargetVertex(edgeIdx));
+  if ((sdist == 0 && tdist <= 1) || (tdist == 0 && sdist <= 1))
+    {
+    return 3;
+    }
+  return 1;
+}
+
 vtkColor4ub ovGraphItem::VertexColor(vtkIdType vertex)
 {
+  int dist = this->DistanceFromFocus(vertex);
+  if (dist == 0)
+    {
+    return vtkColor4ub(255, 0, 0, 255);
+    }
+  if (dist == 1)
+    {
+    return vtkColor4ub(255, 128, 128, 255);
+    }
   // vtkScalarsToColors - add annotations, value (vtkVariant)
   // Boolean IndexedLookup - whether colors are discrete or continuous
   // GetAnnotatedValueIndex, then GetTableValue
@@ -137,12 +162,56 @@ vtkStdString ovGraphItem::VertexTooltip(vtkIdType vertex)
   return "";
 }
 
+int ovGraphItem::DistanceFromFocus(vtkIdType vertex)
+{
+  if (this->FocusedVertices->GetNumberOfTuples() == 0)
+    {
+    return 2;
+    }
+  if (this->FocusedVertices->LookupValue(vertex) >= 0)
+    {
+    return 0;
+    }
+  vtkGraph *g = this->GetGraph();
+  for (vtkIdType i = 0; i < this->FocusedVertices->GetNumberOfTuples(); ++i)
+    {
+    vtkIdType v = this->FocusedVertices->GetValue(i);
+    bool found = false;
+    for (vtkIdType j = 0; j < g->GetOutDegree(vertex); ++j)
+      {
+      if (g->GetOutEdge(vertex, j).Target == v)
+        {
+        found = true;
+        break;
+        }
+      }
+    for (vtkIdType j = 0; j < g->GetInDegree(vertex); ++j)
+      {
+      if (g->GetInEdge(vertex, j).Source == v)
+        {
+        found = true;
+        break;
+        }
+      }
+    if (!found)
+      {
+      return 2;
+      }
+    }
+  return 1;
+}
+
 vtkStdString ovGraphItem::VertexLabel(vtkIdType vertex)
 {
-  vtkAbstractArray *arr = this->GetGraph()->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
+  vtkGraph *g = this->GetGraph();
+  vtkAbstractArray *arr = g->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
   if (arr)
     {
-    return arr->GetVariantValue(vertex).ToString();
+    int dist = this->DistanceFromFocus(vertex);
+    if (dist < 2)
+      {
+      return arr->GetVariantValue(vertex).ToString();
+      }
     }
   return "";
 }
@@ -150,6 +219,8 @@ vtkStdString ovGraphItem::VertexLabel(vtkIdType vertex)
 void ovGraphItem::PaintBuffers(vtkContext2D *painter)
 {
   this->Superclass::PaintBuffers(painter);
+
+  this->GetLayout()->SetGravityPoint(vtkVector2f(this->GetScene()->GetSceneWidth()/2, this->GetScene()->GetSceneHeight()/2));
 
   // Paint labels
   float scale[2];
@@ -186,10 +257,10 @@ void ovGraphItem::PaintBuffers(vtkContext2D *painter)
       continue;
       }
     bool overlap = false;
-    int xmin = (pos.X() + bounds[0] - sceneMinX)/resolution;
-    int xmax = (pos.X() + bounds[2] - sceneMinX)/resolution;
-    int ymin = (pos.Y() + bounds[1] - sceneMinY)/resolution;
-    int ymax = (pos.Y() + bounds[3] - sceneMinY)/resolution;
+    int xmin = (pos.GetX() + bounds[0] - sceneMinX)/resolution;
+    int xmax = (pos.GetX() + bounds[2] - sceneMinX)/resolution;
+    int ymin = (pos.GetY() + bounds[1] - sceneMinY)/resolution;
+    int ymax = (pos.GetY() + bounds[3] - sceneMinY)/resolution;
     if (xmin < 0 || xmax >= w || ymin < 0 || ymax >= h)
       {
       continue;
@@ -198,16 +269,17 @@ void ovGraphItem::PaintBuffers(vtkContext2D *painter)
       {
       for (int y = ymin; y <= ymax; ++y)
         {
-        if (x >= 0 && x < w && y >= 0 && y < h && buffer[w*x + y])
+        if (x >= 0 && x < w && y >= 0 && y < h && buffer[h*x + y])
           {
           overlap = true;
           break;
           }
         }
       }
-    if (!overlap)
+    if (!overlap || this->DistanceFromFocus(i) == 0)
       {
-      painter->DrawString(pos.X(), pos.Y(), label);
+      painter->GetTextProp()->SetFontSize(this->DistanceFromFocus(i) == 0 ? 20 : 12);
+      painter->DrawString(pos.GetX(), pos.GetY(), label);
       ++numRendered;
       for (int x = xmin; x <= xmax; ++x)
         {
@@ -215,11 +287,33 @@ void ovGraphItem::PaintBuffers(vtkContext2D *painter)
           {
           if (x >= 0 && x < w && y >= 0 && y < h)
             {
-            buffer[w*x + y] = true;
+            buffer[h*x + y] = true;
             }
           }
         }
       }
     }
   //cerr << "number of labels rendered: " << numRendered << endl;
+}
+
+bool ovGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &event)
+{
+  this->Superclass::MouseButtonPressEvent(event);
+  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    vtkIdType hitVertex = this->HitVertex(event.GetPos());
+    vtkIdType hitIndex = this->FocusedVertices->LookupValue(hitVertex);
+    if (hitIndex < 0)
+      {
+      this->FocusedVertices->InsertNextValue(hitVertex);
+      }
+    else
+      {
+      vtkIdType numTuples = this->FocusedVertices->GetNumberOfTuples();
+      this->FocusedVertices->SetValue(hitIndex, this->FocusedVertices->GetValue(numTuples - 1));
+      this->FocusedVertices->SetNumberOfTuples(numTuples - 1);
+      }
+    return true;
+    }
+  return false;
 }

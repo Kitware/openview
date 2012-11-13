@@ -99,7 +99,11 @@ void ovTreeringView::setTable(vtkTable *table, vtkContextView *view)
     this->generateTreering();
     }
 
-  view->GetScene()->AddItem(this->m_item.GetPointer());
+  vtkNew<vtkContextTransform> trans;
+  trans->SetInteractive(true);
+  view->GetScene()->AddItem(trans.GetPointer());
+
+  trans->AddItem(this->m_item.GetPointer());
 }
 
 void ovTreeringView::generateTreering()
@@ -133,7 +137,7 @@ void ovTreeringView::generateTreering()
   group2->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkTreeFieldAggregator> agg;
-  agg->SetInputConnection(group2->GetOutputPort());
+  agg->SetInputConnection(group1->GetOutputPort());
   agg->SetLeafVertexUnitSize(false);
   agg->SetField(m_size.toAscii());
 
@@ -144,7 +148,9 @@ void ovTreeringView::generateTreering()
 
   vtkNew<vtkStackedTreeLayoutStrategy> stacked;
   stacked->SetShrinkPercentage(0.0);
-  stacked->SetRootEndAngle(1.0);
+  stacked->SetRingThickness(100.0);
+  stacked->SetInteriorRadius(400.0);
+  stacked->SetRootEndAngle(360.0);
   stacked->SetReverse(true);
 
   vtkNew<vtkAreaLayout> layout;

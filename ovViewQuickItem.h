@@ -13,7 +13,6 @@
 #include "vtkSmartPointer.h"
 
 #include <QStringList>
-#include <QTimer>
 #include <QUrl>
 
 #include "ovView.h"
@@ -79,7 +78,6 @@ protected:
   void setTable(vtkTable *data);
   void setupView();
 
-  QTimer m_animationTimer;
   QUrl m_url;
   QString m_viewType;
   vtkNew<vtkContextView> m_view;

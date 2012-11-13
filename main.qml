@@ -10,7 +10,7 @@ import OVView 1.0
 
 Row {
   width: 1000;
-  height: 1000;
+  height: 800;
 
   // ------------------------------------------------------------------
   // File open dialog
@@ -280,20 +280,25 @@ Row {
             width: parent.width
             height: parent.height - attributeList.height
 
+            Timer {
+              interval: 1000/60
+              running: true
+              repeat: true
+              onTriggered: view.animate()
+            }
+
             // VTK view
             OVView {
               id: view
               width: parent.width
               height: parent.height
               visible: true
-              //anchors.fill: parent
             }
 
             // Table view
             Rectangle {
               id: tableView
 
-              //anchors.fill: parent
               width: parent.width
               height: parent.height
               visible: false
@@ -328,7 +333,6 @@ Row {
                         text: rowIndex === 0 ? view.tableColumnName(index) : view.tableData(rowIndex-1, index)
                         anchors.fill: parent
                         verticalAlignment: Text.AlignVCenter
-                        //horizontalAlignment: Text.AlignHCenter
                         font.family: "Helvetica"
                         font.pointSize: 12
                         font.weight: rowIndex === 0 ? Font.Bold : Font.Normal

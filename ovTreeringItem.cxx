@@ -16,6 +16,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
+#include "vtkMath.h"
 #include "vtkPen.h"
 #include "vtkPoints.h"
 #include "vtkTextProperty.h"
@@ -31,9 +32,6 @@ ovTreeringItem::ovTreeringItem()
   this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
   this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
   this->Tooltip->SetVisible(false);
-  this->TargetVertex = 0;
-  this->Scale->Identity();
-  this->Translate->Identity();
   this->AddItem(this->Tooltip.GetPointer());
 }
 
@@ -106,17 +104,6 @@ void ovTreeringItem::SetTree(vtkTree *tree)
 {
   this->Tree->ShallowCopy(tree);
   this->InitializeColorLookup();
-  this->Scale->Identity();
-  this->Translate->Identity();
-  double rng[4];
-  vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
-  area->GetRange(rng, 0);
-  area->GetRange(rng+2, 2);
-  this->Scale->GetMatrix()->SetElement(0, 0, 1.0/(rng[1] - rng[0]));
-  this->Scale->GetMatrix()->SetElement(1, 1, 1.0/(rng[3] - rng[2]));
-  this->Translate->GetMatrix()->SetElement(0, 2, -rng[0]);
-  this->Translate->GetMatrix()->SetElement(1, 2, -rng[2]);
-  this->TargetVertex = this->Tree->GetRoot();
 }
 
 void ovTreeringItem::SetColorArray(const std::string &name)
@@ -171,16 +158,17 @@ bool ovTreeringItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(even
 
 vtkIdType ovTreeringItem::HitVertex(const vtkVector2f &pos)
 {
-  vtkVector2f transformed = pos;
-  transformed[0] = transformed[0]/this->GetScene()->GetSceneWidth();
-  transformed[1] = transformed[1]/this->GetScene()->GetSceneHeight();
-  this->Scale->InverseTransformPoints(transformed.GetData(), transformed.GetData(), 1);
-  this->Translate->InverseTransformPoints(transformed.GetData(), transformed.GetData(), 1);
   vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
+  float radius = pos.Norm();
+  float angle = vtkMath::DegreesFromRadians(atan2(pos.GetY(), pos.GetX()));
+  if (angle < 0.0f)
+    {
+    angle += 360.0f;
+    }
   for (vtkIdType v = 0; v < this->Tree->GetNumberOfVertices(); ++v)
     {
     float *pt = area->GetPointer(4*v);
-    if (transformed.X() >= pt[0] && transformed.X() <= pt[1] && transformed.Y() >= pt[2] && transformed.Y() <= pt[3])
+    if (angle >= pt[0] && angle <= pt[1] && radius >= pt[2] && radius <= pt[3])
       {
       return v;
       }
@@ -220,25 +208,6 @@ bool ovTreeringItem::Hit(const vtkContextMouseEvent &event)
   return (v >= 0);
 }
 
-bool ovTreeringItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
-{
-  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
-    {
-    vtkIdType v = this->HitVertex(event.GetPos());
-    vtkIdType parent = this->Tree->GetParent(v);
-    if (parent == this->TargetVertex)
-      {
-      this->TargetVertex = this->Tree->GetRoot();
-      }
-    else
-      {
-      this->TargetVertex = parent;
-      }
-    return true;
-    }
-  return false;
-}
-
 void ovTreeringItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
 {
   if (v >= 0)
@@ -252,63 +221,38 @@ void ovTreeringItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
     }
 }
 
+class SortOrder
+{
+public:
+    SortOrder(vtkGraph *g) : sortGraph(g) {;}
+
+    bool operator()(vtkIdType a, vtkIdType b) const
+    {
+        return sortGraph->GetInDegree(a) + sortGraph->GetOutDegree(a) > sortGraph->GetInDegree(b) + sortGraph->GetOutDegree(b);
+    }
+
+private:
+    vtkGraph *sortGraph;
+};
+
 bool ovTreeringItem::Paint(vtkContext2D *painter)
 {
   painter->GetPen()->SetColor(0, 0, 0);
   painter->GetBrush()->SetColor(128, 128, 128);
   vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
 
-  painter->PushMatrix();
-  vtkNew<vtkTransform2D> transform;
-  transform->Scale(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
-  painter->AppendTransform(transform.GetPointer());
-
-#if 0
-
-  float *targetRect = area->GetPointer(4*this->TargetVertex);
-
-  float currentRect[4];
-
-  float scale[2];
-  this->Scale->GetScale(scale);
-  float pos[2];
-  this->Translate->GetPosition(pos);
-  currentRect[0] = -pos[0];
-  currentRect[1] = currentRect[0] + 1.0f/scale[0];
-  currentRect[2] = -pos[1];
-  currentRect[3] = currentRect[2] + 1.0f/scale[1];
-
-  float deltaRect[4];
-  deltaRect[0] = targetRect[0] - currentRect[0];
-  deltaRect[1] = targetRect[1] - currentRect[1];
-  deltaRect[2] = targetRect[2] - currentRect[2];
-  deltaRect[3] = targetRect[3] - currentRect[3];
-
-  float newRect[4];
-  newRect[0] = currentRect[0] + 0.1*deltaRect[0];
-  newRect[1] = currentRect[1] + 0.1*deltaRect[1];
-  newRect[2] = currentRect[2] + 0.1*deltaRect[2];
-  newRect[3] = currentRect[3] + 0.1*deltaRect[3];
-  float newScale[2] = {1.0f/(newRect[1]-newRect[0]), 1.0f/(newRect[3]-newRect[2])};
-  float newPos[2] = {-newRect[0], -newRect[2]};
-
-  this->Scale->GetMatrix()->SetElement(0, 0, newScale[0]);
-  this->Scale->GetMatrix()->SetElement(1, 1, newScale[1]);
-  this->Translate->GetMatrix()->SetElement(0, 2, newPos[0]);
-  this->Translate->GetMatrix()->SetElement(1, 2, newPos[1]);
-#endif
-
-  painter->AppendTransform(this->Scale.GetPointer());
-  painter->AppendTransform(this->Translate.GetPointer());
-
   vtkNew<vtkTreeDFSIterator> it;
   it->SetTree(this->Tree.GetPointer());
-  it->SetMode(vtkTreeDFSIterator::FINISH);
+  it->SetMode(vtkTreeDFSIterator::DISCOVER);
   it->SetStartVertex(this->Tree->GetRoot());
   vtkDataArray *arr = vtkDataArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str()));
   while (it->HasNext())
     {
     vtkIdType i = it->Next();
+    if (i == this->Tree->GetRoot())
+      {
+      continue;
+      }
     float *pt = area->GetPointer(4*i);
     if (this->ColorArray == "parent")
       {
@@ -325,32 +269,125 @@ bool ovTreeringItem::Paint(vtkContext2D *painter)
     painter->GetPen()->SetWidth(1.0f);
     painter->GetPen()->SetOpacityF(0.5f);
     painter->GetBrush()->SetOpacityF(1.0f);
-    painter->DrawRect(pt[0], pt[2], (pt[1]-pt[0]), (pt[3]-pt[2]));
+
+    float innerRadius = pt[2];
+    float outerRadius = pt[3];
+    float startAngle = pt[0];
+    float endAngle = pt[1];
+
+    painter->DrawEllipseWedge(0.0f, 0.0f, outerRadius, outerRadius, innerRadius, innerRadius, startAngle, endAngle);
+
+    // Draw border
+    painter->DrawEllipticArc(0.0f, 0.0f, outerRadius, outerRadius, startAngle, endAngle);
+    painter->DrawEllipticArc(0.0f, 0.0f, innerRadius, innerRadius, startAngle, endAngle);
+
+    float p[4];
+    float rstart = vtkMath::RadiansFromDegrees(startAngle);
+    p[0] = innerRadius * cos(rstart);
+    p[1] = innerRadius * sin(rstart);
+    p[2] = outerRadius * cos(rstart);
+    p[3] = outerRadius * sin(rstart);
+    painter->DrawLine(p);
+
+    float rend = vtkMath::RadiansFromDegrees(endAngle);
+    p[0] = innerRadius * cos(rend);
+    p[1] = innerRadius * sin(rend);
+    p[2] = outerRadius * cos(rend);
+    p[3] = outerRadius * sin(rend);
+    painter->DrawLine(p);
     }
 
-  it->Restart();
   painter->GetTextProp()->SetFontSize(20);
   painter->GetTextProp()->SetOpacity(0.5);
   painter->GetTextProp()->SetColor(0, 0, 0);
   painter->GetTextProp()->SetBold(true);
-  painter->GetTextProp()->SetOrientation(90);
-  int numLabels = 0;
-  while (it->HasNext())
+  painter->GetTextProp()->SetJustificationToCentered();
+
+  float scale[2];
+  float position[2];
+  painter->GetTransform()->GetScale(scale);
+  painter->GetTransform()->GetPosition(position);
+  float sceneMinX = -position[0]/scale[0];
+  float sceneMaxX = (this->Scene->GetViewWidth() - position[0])/scale[0];
+  float sceneMinY = -position[1]/scale[1];
+  float sceneMaxY = (this->Scene->GetViewHeight() - position[1])/scale[1];
+  float sceneWidth = sceneMaxX - sceneMinX;
+  float sceneHeight = sceneMaxY - sceneMinY;
+
+  float resolution = sceneWidth/10.0f;
+  int w = sceneWidth/resolution;
+  int h = sceneHeight/resolution;
+  std::vector<bool> buffer(w*h, false);
+  painter->GetTextProp()->SetColor(0, 0, 0);
+  painter->GetTextProp()->SetJustificationToCentered();
+  painter->GetTextProp()->BoldOn();
+  int numRendered = 0;
+
+  std::vector<vtkIdType> indices;
+  for (vtkIdType i = 0; i < this->Tree->GetNumberOfVertices(); ++i)
     {
-    vtkIdType i = it->Next();
+    indices.push_back(i);
+    }
+  std::sort(indices.begin(), indices.end(), SortOrder(this->Tree.GetPointer()));
+
+  for (vtkIdType ind = 0; ind < indices.size(); ++ind)
+    {
+    vtkIdType i = indices[ind];
     float *pt = area->GetPointer(4*i);
+    float angle = vtkMath::RadiansFromDegrees((pt[0] + pt[1])/2.0f);
+    float radius = (pt[2] + pt[3])/2.0f;
+    vtkVector2f pos(radius * cos(angle), radius * sin(angle));
     vtkStdString label = this->VertexLabel(i);
+    if (label.length() == 0)
+      {
+      continue;
+      }
     float bounds[4];
     painter->ComputeStringBounds(label, bounds);
-    if (numLabels < 100 && bounds[2] > 0.0f && bounds[3] > 0.0f)
+    if (bounds[2] == 0.0f && bounds[3] == 0.0f)
       {
-      float center[2] = {(pt[0]+pt[1])/2 + bounds[2]/2, (pt[2]+pt[3])/2 - bounds[3]/2};
-      painter->DrawString(center[0], center[1], label);
-      ++numLabels;
+      continue;
+      }
+    bool overlap = false;
+    int xmin = (pos.GetX() + bounds[0] - sceneMinX)/resolution;
+    int xmax = (pos.GetX() + bounds[2] - sceneMinX)/resolution;
+    int ymin = (pos.GetY() + bounds[1] - sceneMinY)/resolution;
+    int ymax = (pos.GetY() + bounds[3] - sceneMinY)/resolution;
+    if (xmin < 0 || xmax >= w || ymin < 0 || ymax >= h)
+      {
+      continue;
+      }
+    for (int x = xmin; x <= xmax; ++x)
+      {
+      for (int y = ymin; y <= ymax; ++y)
+        {
+        if (x >= 0 && x < w && y >= 0 && y < h && buffer[h*x + y])
+          {
+          overlap = true;
+          break;
+          }
+        }
+      }
+    if (!overlap)
+      {
+      //painter->GetTextProp()->SetFontSize(this->DistanceFromFocus(i) == 0 ? 20 : 12);
+      painter->DrawString(pos.GetX(), pos.GetY(), label);
+      ++numRendered;
+      for (int x = xmin; x <= xmax; ++x)
+        {
+        for (int y = ymin; y <= ymax; ++y)
+          {
+          if (x >= 0 && x < w && y >= 0 && y < h)
+            {
+            buffer[h*x + y] = true;
+            }
+          }
+        }
       }
     }
 
-  painter->PopMatrix();
+
+
   this->PaintChildren(painter);
   return true;
 }

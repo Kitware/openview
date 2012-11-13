@@ -5,7 +5,7 @@
 
   Licensed under the BSD license. See LICENSE file for details.
  ========================================================================*/
-#include "ovTreemapItem.h"
+#include "ovTreeringItem.h"
 
 #include "vtkAbstractArray.h"
 #include "vtkBrush.h"
@@ -17,15 +17,16 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkPen.h"
+#include "vtkPoints.h"
 #include "vtkTextProperty.h"
 #include "vtkTooltipItem.h"
 #include "vtkTransform2D.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkStandardNewMacro(ovTreemapItem);
+vtkStandardNewMacro(ovTreeringItem);
 
-ovTreemapItem::ovTreemapItem()
+ovTreeringItem::ovTreeringItem()
 {
   this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
   this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
@@ -36,7 +37,7 @@ ovTreemapItem::ovTreemapItem()
   this->AddItem(this->Tooltip.GetPointer());
 }
 
-void ovTreemapItem::InitializeColorLookup()
+void ovTreeringItem::InitializeColorLookup()
 {
   this->ColorLookup->ResetAnnotations();
   if (this->ColorArray == "parent")
@@ -48,6 +49,7 @@ void ovTreemapItem::InitializeColorLookup()
       {
       this->ColorLookup->SetAnnotation(this->Tree->GetParent(i), "");
       }
+    return;
     }
   vtkAbstractArray *arr = this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str());
   if (arr)
@@ -100,22 +102,30 @@ void ovTreemapItem::InitializeColorLookup()
     }
 }
 
-void ovTreemapItem::SetTree(vtkTree *tree)
+void ovTreeringItem::SetTree(vtkTree *tree)
 {
   this->Tree->ShallowCopy(tree);
   this->InitializeColorLookup();
   this->Scale->Identity();
   this->Translate->Identity();
+  double rng[4];
+  vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
+  area->GetRange(rng, 0);
+  area->GetRange(rng+2, 2);
+  this->Scale->GetMatrix()->SetElement(0, 0, 1.0/(rng[1] - rng[0]));
+  this->Scale->GetMatrix()->SetElement(1, 1, 1.0/(rng[3] - rng[2]));
+  this->Translate->GetMatrix()->SetElement(0, 2, -rng[0]);
+  this->Translate->GetMatrix()->SetElement(1, 2, -rng[2]);
   this->TargetVertex = this->Tree->GetRoot();
 }
 
-void ovTreemapItem::SetColorArray(const std::string &name)
+void ovTreeringItem::SetColorArray(const std::string &name)
 {
   this->ColorArray = name;
   this->InitializeColorLookup();
 }
 
-bool ovTreemapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
+bool ovTreeringItem::MouseMoveEvent(const vtkContextMouseEvent &event)
 {
   if (event.GetButton() == vtkContextMouseEvent::NO_BUTTON)
     {
@@ -148,18 +158,18 @@ bool ovTreemapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-bool ovTreemapItem::MouseEnterEvent(const vtkContextMouseEvent &vtkNotUsed(event))
+bool ovTreeringItem::MouseEnterEvent(const vtkContextMouseEvent &vtkNotUsed(event))
 {
   return true;
 }
 
-bool ovTreemapItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(event))
+bool ovTreeringItem::MouseLeaveEvent(const vtkContextMouseEvent &vtkNotUsed(event))
 {
   this->Tooltip->SetVisible(false);
   return true;
 }
 
-vtkIdType ovTreemapItem::HitVertex(const vtkVector2f &pos)
+vtkIdType ovTreeringItem::HitVertex(const vtkVector2f &pos)
 {
   vtkVector2f transformed = pos;
   transformed[0] = transformed[0]/this->GetScene()->GetSceneWidth();
@@ -170,7 +180,7 @@ vtkIdType ovTreemapItem::HitVertex(const vtkVector2f &pos)
   for (vtkIdType v = 0; v < this->Tree->GetNumberOfVertices(); ++v)
     {
     float *pt = area->GetPointer(4*v);
-    if (this->Tree->IsLeaf(v) && transformed.GetX() >= pt[0] && transformed.GetX() <= pt[1] && transformed.GetY() >= pt[2] && transformed.GetY() <= pt[3])
+    if (transformed.GetX() >= pt[0] && transformed.GetX() <= pt[1] && transformed.GetY() >= pt[2] && transformed.GetY() <= pt[3])
       {
       return v;
       }
@@ -178,9 +188,12 @@ vtkIdType ovTreemapItem::HitVertex(const vtkVector2f &pos)
   return -1;
 }
 
-std::string ovTreemapItem::VertexTooltip(vtkIdType vertex)
+std::string ovTreeringItem::VertexTooltip(vtkIdType vertex)
 {
-  vtkAbstractArray *arr = this->Tree->GetVertexData()->GetAbstractArray(this->TooltipArray.c_str());
+  vtkAbstractArray *arr = this->Tree->GetVertexData()->GetAbstractArray(
+    this->Tree->IsLeaf(vertex) ?
+    this->TooltipArray.c_str() :
+    this->GroupNameArray.c_str() );
   if (arr)
     {
     return arr->GetVariantValue(vertex).ToString();
@@ -188,13 +201,26 @@ std::string ovTreemapItem::VertexTooltip(vtkIdType vertex)
   return "";
 }
 
-bool ovTreemapItem::Hit(const vtkContextMouseEvent &event)
+std::string ovTreeringItem::VertexLabel(vtkIdType vertex)
+{
+  vtkAbstractArray *arr = this->Tree->GetVertexData()->GetAbstractArray(
+    this->Tree->IsLeaf(vertex) ?
+    this->LabelArray.c_str() :
+    this->GroupNameArray.c_str() );
+  if (arr)
+    {
+    return arr->GetVariantValue(vertex).ToString();
+    }
+  return "";
+}
+
+bool ovTreeringItem::Hit(const vtkContextMouseEvent &event)
 {
   vtkIdType v = this->HitVertex(event.GetPos());
   return (v >= 0);
 }
 
-bool ovTreemapItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
+bool ovTreeringItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
 {
   if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
@@ -213,7 +239,7 @@ bool ovTreemapItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
   return false;
 }
 
-void ovTreemapItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
+void ovTreeringItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
 {
   if (v >= 0)
     {
@@ -226,21 +252,18 @@ void ovTreemapItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
     }
 }
 
-bool ovTreemapItem::Paint(vtkContext2D *painter)
+bool ovTreeringItem::Paint(vtkContext2D *painter)
 {
-  vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
-  if (!area)
-    {
-    return false;
-    }
-
   painter->GetPen()->SetColor(0, 0, 0);
   painter->GetBrush()->SetColor(128, 128, 128);
+  vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
 
   painter->PushMatrix();
   vtkNew<vtkTransform2D> transform;
   transform->Scale(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
   painter->AppendTransform(transform.GetPointer());
+
+#if 0
 
   float *targetRect = area->GetPointer(4*this->TargetVertex);
 
@@ -273,6 +296,7 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
   this->Scale->GetMatrix()->SetElement(1, 1, newScale[1]);
   this->Translate->GetMatrix()->SetElement(0, 2, newPos[0]);
   this->Translate->GetMatrix()->SetElement(1, 2, newPos[1]);
+#endif
 
   painter->AppendTransform(this->Scale.GetPointer());
   painter->AppendTransform(this->Translate.GetPointer());
@@ -282,55 +306,50 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
   it->SetMode(vtkTreeDFSIterator::FINISH);
   it->SetStartVertex(this->Tree->GetRoot());
   vtkDataArray *arr = vtkDataArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str()));
-  vtkAbstractArray *labelArr = this->Tree->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
+  while (it->HasNext())
+    {
+    vtkIdType i = it->Next();
+    float *pt = area->GetPointer(4*i);
+    if (this->ColorArray == "parent")
+      {
+      vtkIdType index = this->ColorLookup->GetAnnotatedValueIndex(this->Tree->GetParent(i));
+      double rgba[4];
+      this->ColorLookup->GetTableValue(index, rgba);
+      painter->GetBrush()->SetColorF(rgba);
+      }
+    else
+      {
+      unsigned char *rgba = this->ColorLookup->MapValue(arr->GetTuple1(i));
+      painter->GetBrush()->SetColor(rgba);
+      }
+    painter->GetPen()->SetWidth(1.0f);
+    painter->GetPen()->SetOpacityF(0.5f);
+    painter->GetBrush()->SetOpacityF(1.0f);
+    painter->DrawRect(pt[0], pt[2], (pt[1]-pt[0]), (pt[3]-pt[2]));
+    }
+
+  it->Restart();
   painter->GetTextProp()->SetFontSize(20);
   painter->GetTextProp()->SetOpacity(0.5);
   painter->GetTextProp()->SetColor(0, 0, 0);
   painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetOrientation(90);
   int numLabels = 0;
   while (it->HasNext())
     {
     vtkIdType i = it->Next();
     float *pt = area->GetPointer(4*i);
-    if (!this->Tree->IsLeaf(i))
+    vtkStdString label = this->VertexLabel(i);
+    float bounds[4];
+    painter->ComputeStringBounds(label, bounds);
+    if (numLabels < 100 && bounds[2] > 0.0f && bounds[3] > 0.0f)
       {
-      painter->GetBrush()->SetOpacityF(0.0f);
-      float width = std::max(2.0f, 6.0f - 2.0f*this->Tree->GetLevel(i));
-      painter->GetPen()->SetWidth(width);
-      painter->GetPen()->SetOpacityF(1.0f);
-      if (labelArr)
-        {
-        vtkStdString label = labelArr->GetVariantValue(i).ToString();
-        float bounds[4];
-        painter->ComputeStringBounds(label, bounds);
-        if (numLabels < 100 && bounds[2] > 0.0f && bounds[3] > 0.0f)
-          {
-          float center[2] = {(pt[0]+pt[1])/2 - bounds[2]/2, (pt[2]+pt[3])/2 - bounds[3]/2};
-          painter->DrawString(center[0], center[1], label);
-          ++numLabels;
-          }
-        }
+      float center[2] = {(pt[0]+pt[1])/2 + bounds[2]/2, (pt[2]+pt[3])/2 - bounds[3]/2};
+      painter->DrawString(center[0], center[1], label);
+      ++numLabels;
       }
-    else
-      {
-      if (this->ColorArray == "parent")
-        {
-        vtkIdType index = this->ColorLookup->GetAnnotatedValueIndex(this->Tree->GetParent(i));
-        double rgba[4];
-        this->ColorLookup->GetTableValue(index, rgba);
-        painter->GetBrush()->SetColorF(rgba);
-        }
-      else
-        {
-        unsigned char *rgba = this->ColorLookup->MapValue(arr->GetTuple1(i));
-        painter->GetBrush()->SetColor(rgba);
-        }
-      painter->GetPen()->SetWidth(1.0f);
-      painter->GetPen()->SetOpacityF(0.5f);
-      painter->GetBrush()->SetOpacityF(1.0f);
-      }
-    painter->DrawRect(pt[0], pt[2], (pt[1]-pt[0]), (pt[3]-pt[2]));
     }
+
   painter->PopMatrix();
   this->PaintChildren(painter);
   return true;
