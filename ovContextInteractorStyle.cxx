@@ -28,6 +28,11 @@ void ovContextInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void ovContextInteractorStyle::OnSceneModified()
+{
+}
+
+//----------------------------------------------------------------------------
 void ovContextInteractorStyle::RenderNow()
 {
 }

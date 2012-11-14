@@ -5,12 +5,12 @@
 
   Licensed under the BSD license. See LICENSE file for details.
  ========================================================================*/
-// .NAME ovContextInteractorStyle - An interactor for chart views
-// It observes the user events (mouse events) and propagates them
-// to the scene. If the scene doesn't eat the event, it is propagated
-// to the interactor style superclass.
+// .NAME ovContextInteractorStyle - A context interator style that deactivates rendering
 //
 // .SECTION Description
+// OpenView requires a context interactor style that does not cause rendering,
+// since this will end up rendering at the wrong time and from the wrong thread.
+// Instead, OpenView drives its own render loop.
 
 #ifndef __ovContextInteractorStyle_h
 #define __ovContextInteractorStyle_h
@@ -29,6 +29,7 @@ protected:
   ~ovContextInteractorStyle();
 
   virtual void RenderNow();
+  virtual void OnSceneModified();
 
 private:
   ovContextInteractorStyle(const ovContextInteractorStyle&); // Not implemented

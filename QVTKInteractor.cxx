@@ -240,8 +240,7 @@ QVTKInteractor::~QVTKInteractor()
  */
 int QVTKInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType), unsigned long duration)
 {
-  //QTimer* timer = new QTimer(this->Internal);
-  QTimer* timer = new QTimer();
+  QTimer* timer = new QTimer(this->Internal);
   timer->start(duration);
   this->Internal->SignalMapper->setMapping(timer, timerId);
   QObject::connect(timer, SIGNAL(timeout()), this->Internal->SignalMapper, SLOT(map()));
