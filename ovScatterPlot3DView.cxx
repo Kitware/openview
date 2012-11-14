@@ -105,14 +105,15 @@ void ovScatterPlot3DView::setTable(vtkTable *table, vtkContextView *view)
   view->GetScene()->AddItem(m_chart.GetPointer());
   this->m_table = table;
 
+  m_chart->ClearPlots();
   this->generatePlot();
+  m_chart->AddPlot(m_plot.GetPointer());
+  m_chart->SetGeometry(vtkRectf(50.0, 50.0, view->GetScene()->GetSceneWidth()-100, view->GetScene()->GetSceneHeight()-100));
 }
 
 void ovScatterPlot3DView::generatePlot()
 {
-  m_chart->SetGeometry(vtkRectf(0.0, 0.0, 1000, 1000));
-
-  if (m_table->GetColumnByName(m_color.toAscii()))
+  if (m_table->GetColumnByName(m_color.toAscii().data()))
     {
     m_plot->SetInputData(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString(), m_color.toStdString());
     }
