@@ -79,6 +79,7 @@ Row {
         width: parent.width - 200;
         height: 40;
         color: "#555"
+        z: 5;
 
         Component {
           id: viewItemDelegate
@@ -363,21 +364,15 @@ Row {
                     Rectangle {
                       width: 120
                       height: 40
-                      clip: true
-                      gradient: Gradient {
-                        GradientStop {
-                          position: 0.0
-                          color: "#fff"
-                        }
-                        GradientStop {
-                          position: 1.0
-                          color: "#eee"
-                        }
-                      }
+                      color: rowIndex === 0 ? "#aaa" : "white";
+                      border.color: "#777";
 
                       UIText {
                         text: rowIndex === 0 ? view.tableColumnName(index) : view.tableData(rowIndex-1, index)
+                        elide: Text.ElideMiddle;
                         anchors.fill: parent
+                        anchors.leftMargin: 5;
+                        anchors.rightMargin: 5;
                         verticalAlignment: Text.AlignVCenter
                         font.weight: rowIndex === 0 ? Font.Bold : Font.Normal
                       }
