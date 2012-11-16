@@ -17,11 +17,13 @@ Row {
   FileDialog {
     id: openDataDialog
     width: 0
+    clip: true
     height: parent.height
     Behavior on width {
       NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
     }
     onFileSelected: {
+      addDataStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
       width = 0;
       dataListView.model.append({name: fileName, path: filePath});
       dataListView.currentIndex = dataListView.model.count - 1;
@@ -135,7 +137,7 @@ Row {
               height: parent.height;
               x: parent.width - 1;
               color: "#888";
-              opacity: 0.5;
+              opacity: 1;
             }
           }
 
@@ -202,12 +204,13 @@ Row {
         width: 200
         height: parent.height - 40
         id: dataListRect
-        color: "#f5f5f5"
+        color: "#555"
         z: 5;
 
         Component {
           id: dataItemDelegate
           Item {
+            id: dataItem
             width: parent.width
             height: 40
             UIText {
@@ -216,6 +219,7 @@ Row {
               anchors.verticalCenter: parent.verticalCenter
               anchors.leftMargin: 10
               verticalAlignment: Text.AlignVCenter
+              color: dataItem.ListView.isCurrentItem ? "white" : "#ccc";
             }
           }
         }
@@ -227,9 +231,32 @@ Row {
           delegate: dataItemDelegate
           highlight: Rectangle {
             width: parent.width
-            gradient: Gradient {
-              GradientStop { position: 0.0; color: "#eee" }
-              GradientStop { position: 1.0; color: "#ddd" }
+            color: "#444";
+
+            Rectangle {
+              height: 6;
+              width: parent.width;
+              gradient: Gradient {
+                GradientStop { position: 1.0; color: "#444" }
+                GradientStop { position: 0.0; color: "#333" }
+              }
+            }
+
+            Rectangle {
+              height: 6;
+              width: parent.width;
+              y: parent.height - 6;
+              gradient: Gradient {
+                GradientStop { position: 1.0; color: "#333" }
+                GradientStop { position: 0.0; color: "#444" }
+              }
+            }
+
+            Rectangle {
+              height: 1;
+              width: parent.width;
+              y: parent.height - 1;
+              color: "#888";
             }
           }
 

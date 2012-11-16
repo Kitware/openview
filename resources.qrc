@@ -6,5 +6,7 @@
         <file>ViewModel.qml</file>
         <file>UIText.qml</file>
         <file>HelveticaNeue Light.ttf</file>
+        <file>file.png</file>
+        <file>folder.png</file>
     </qresource>
 </RCC>

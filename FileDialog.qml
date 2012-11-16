@@ -32,17 +32,40 @@ Rectangle {
           GradientStop { position: 1.0; color: "#eee" }
         }
 
+        Image {
+          source: foldermodel.isFolder(index) ? "folder.png" : "file.png";
+          x: 10;
+          anchors.verticalCenter: parent.verticalCenter;
+        }
+
         UIText {
-          text: fileName
+          text: fileName;
+          elide: Text.ElideMiddle;
           anchors.fill: parent
           anchors.verticalCenter: parent.verticalCenter
-          anchors.leftMargin: 10
+          anchors.leftMargin: 30
+          anchors.rightMargin: 10
           verticalAlignment: Text.AlignVCenter
           MouseArea {
             anchors.fill: parent
             onClicked: {
               if (foldermodel.isFolder(index)) {
-                foldermodel.folder = "file://" + filePath;
+                var fixedPath = "";
+                if (filePath === "/..") {
+                  fixedPath = "/";
+                } else if (filePath.substring(filePath.length - 3) === "/..") {
+                  var parts = filePath.split("/");
+                  fixedPath = "";
+                  for (var i = 1; i < parts.length - 2; ++i) {
+                    fixedPath += "/" + parts[i];
+                  }
+                  if (fixedPath === "") {
+                    fixedPath = "/";
+                  }
+                } else {
+                  fixedPath = filePath;
+                }
+                foldermodel.folder = "file://" + fixedPath;
               }
               else {
                 fileSelected("file://" + filePath, fileName)
@@ -56,19 +79,18 @@ Rectangle {
     model: foldermodel
     delegate: filedelegate
     header: Rectangle {
-      height: 40
-
-      gradient: Gradient {
-        GradientStop { position: 0.0; color: "#fff" }
-        GradientStop { position: 1.0; color: "#eee" }
-      }
-
+      height: 40;
+      width: 200;
+      color: "#444";
       UIText {
         text: foldermodel.folder.toString().substring(7)
         anchors.fill: parent
+        elide: Text.ElideMiddle;
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 10
+        anchors.rightMargin: 10
         verticalAlignment: Text.AlignVCenter
+        color: "white";
       }
     }
   }
