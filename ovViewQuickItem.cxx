@@ -27,6 +27,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTableReader.h"
 
 #include <QOpenGLContext>
 #include <QQuickCanvas>
@@ -84,34 +85,45 @@ void ovViewQuickItem::setUrl(QUrl &url)
 {
   this->m_viewLock.lock();
   this->m_url = url;
-  vtkNew<vtkDelimitedTextReader> reader;
   QString fileName = url.toLocalFile();
-  reader->SetFileName(fileName.toAscii());
-  reader->SetHaveHeaders(true);
-  if (fileName.endsWith(".tab"))
+  vtkSmartPointer<vtkTable> table;
+  if (fileName.endsWith(".vtk"))
     {
-    reader->SetFieldDelimiterCharacters("\t");
-    }
-  reader->Update();
-  vtkTable *table = reader->GetOutput();
-
-  // Figure out if it really has headers
-  // Are the column names contained in their own columns?
-  int matchCount = 0;
-  for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
-    {
-    vtkAbstractArray *column = table->GetColumn(col);
-    vtkVariant name(column->GetName());
-    if (column->LookupValue(name) >= 0)
-      {
-      ++matchCount;
-      }
-    }
-  if (matchCount > 0)
-    {
-    reader->SetHaveHeaders(false);
+    vtkNew<vtkTableReader> reader;
+    reader->SetFileName(fileName.toAscii());
     reader->Update();
     table = reader->GetOutput();
+    }
+  else // delimited text
+    {
+    vtkNew<vtkDelimitedTextReader> reader;
+    reader->SetFileName(fileName.toAscii());
+    reader->SetHaveHeaders(true);
+    if (fileName.endsWith(".tab") || fileName.endsWith(".tsv"))
+      {
+      reader->SetFieldDelimiterCharacters("\t");
+      }
+    reader->Update();
+    table = reader->GetOutput();
+
+    // Figure out if it really has headers
+    // Are the column names contained in their own columns?
+    int matchCount = 0;
+    for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
+      {
+      vtkAbstractArray *column = table->GetColumn(col);
+      vtkVariant name(column->GetName());
+      if (column->LookupValue(name) >= 0)
+        {
+        ++matchCount;
+        }
+      }
+    if (matchCount > 0)
+      {
+      reader->SetHaveHeaders(false);
+      reader->Update();
+      table = reader->GetOutput();
+      }
     }
   this->setTable(table);
   this->m_viewLock.unlock();
