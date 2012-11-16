@@ -31,14 +31,11 @@ Row {
   Item {
     width: parent.width
     height: parent.height
-    //color: "#ffa"
-    //opacity: 1
 
     Grid {
       anchors.fill: parent
       columns: 2
       spacing: 0
-      //opacity: 1
 
       // ------------------------------------------------------------------
       // Button to add data
@@ -46,7 +43,7 @@ Row {
         id: addData;
         width: 200;
         height: 40;
-        //color: Qt.rgba(0, 136/255, 204/255, 1);
+
         gradient: Gradient {
           GradientStop { id: addDataStop1; position: 0.0; color: Qt.rgba(0, 136/255, 204/255, 1) }
           GradientStop { id: addDataStop2; position: 1.0; color: Qt.rgba(0, 68/255, 204/255, 1) }
@@ -58,21 +55,6 @@ Row {
           text: "\u2190 ADD DATA";
           color: "#fff";
         }
-/*
-        Rectangle {
-          width: 1;
-          height: parent.height;
-          x: parent.width - 2;
-          color: "#555";
-        }
-
-        Rectangle {
-          width: 1;
-          height: parent.height;
-          x: parent.width - 1;
-          color: "#888";
-        }
-*/
 
         MouseArea {
           anchors.fill: parent
@@ -80,11 +62,9 @@ Row {
             if (openDataDialog.width > 0) {
               addDataStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
               openDataDialog.width = 0
-              //addDataShadow.visible = false;
             } else {
               addDataStop1.color = Qt.rgba(0, 68/255, 204/255, 1);
               openDataDialog.width = 200
-              //addDataShadow.visible = true;
             }
           }
         }
@@ -111,22 +91,6 @@ Row {
               verticalAlignment: Text.AlignVCenter;
               horizontalAlignment: Text.AlignHCenter;
             }
-/*
-            Rectangle {
-              width: 1;
-              height: parent.height;
-              x: parent.width - 1;
-              color: "#333";
-            }
-            Rectangle {
-              width: 1;
-              height: parent.height;
-              x: 0;
-              color: "#777";
-              opacity: 0.5;
-              visible: !viewItem.ListView.isCurrentItem;
-            }
-*/
           }
         }
 
@@ -305,12 +269,6 @@ Row {
             color: "#555"
             id: attributeList
             z: 5
-            //Behavior on height {
-            //  NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
-            //}
-            //Behavior on opacity {
-            //  NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
-            //}
 
             Component {
               id: attributeItemDelegate

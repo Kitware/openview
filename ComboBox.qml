@@ -10,7 +10,7 @@ import QtQuick 2.0
 
 Rectangle {
   id: comboBox
-  property variant items: ListModel{ ListElement{name: "hi"} }
+  property variant items: ListModel{ }
   property alias selectedItem: chosenItemText.text
   property alias selectedIndex: listView.currentIndex
   property string label: "Name"
@@ -61,8 +61,6 @@ Rectangle {
     visible: false
     anchors.top: chosenItem.bottom;
     anchors.topMargin: 5;
-    //color: "white";
-    //border.color: "#aaa";
 
     ListView {
       id:listView
@@ -89,7 +87,6 @@ Rectangle {
           hoverEnabled: true;
 
           onClicked: {
-            console.log(listView.currentIndex);
             comboBox.state = ""
             var prevSelection = chosenItemText.text
             chosenItemText.text = name;
@@ -114,10 +111,6 @@ Rectangle {
 
   states: State {
     name: "dropDown";
-    PropertyChanges { target: dropDown; visible: true /*height:40*comboBox.items.count*/ }
+    PropertyChanges { target: dropDown; visible: true }
   }
-
-  //transitions: Transition {
-  //  NumberAnimation { target: dropDown; properties: "height"; duration: 250 }
-  //}
 }
