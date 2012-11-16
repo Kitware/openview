@@ -43,29 +43,48 @@ Row {
       // ------------------------------------------------------------------
       // Button to add data
       Rectangle {
+        id: addData;
         width: 200;
         height: 40;
+        //color: Qt.rgba(0, 136/255, 204/255, 1);
         gradient: Gradient {
-          GradientStop { position: 0.0; color: "#fdd" }
-          GradientStop { position: 1.0; color: "#faa" }
+          GradientStop { id: addDataStop1; position: 0.0; color: Qt.rgba(0, 136/255, 204/255, 1) }
+          GradientStop { id: addDataStop2; position: 1.0; color: Qt.rgba(0, 68/255, 204/255, 1) }
         }
 
-        Text {
+        UIText {
           anchors.horizontalCenter: parent.horizontalCenter;
           anchors.verticalCenter: parent.verticalCenter;
-          text: "< ADD DATA";
-          font.family: "Helvetica";
-          font.pointSize: 12;
-          font.weight: Font.Bold
+          text: "\u2190 ADD DATA";
+          color: "#fff";
         }
+/*
+        Rectangle {
+          width: 1;
+          height: parent.height;
+          x: parent.width - 2;
+          color: "#555";
+        }
+
+        Rectangle {
+          width: 1;
+          height: parent.height;
+          x: parent.width - 1;
+          color: "#888";
+        }
+*/
 
         MouseArea {
           anchors.fill: parent
           onClicked: {
             if (openDataDialog.width > 0) {
+              addDataStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
               openDataDialog.width = 0
+              //addDataShadow.visible = false;
             } else {
+              addDataStop1.color = Qt.rgba(0, 68/255, 204/255, 1);
               openDataDialog.width = 200
+              //addDataShadow.visible = true;
             }
           }
         }
@@ -77,23 +96,37 @@ Row {
       Rectangle {
         width: parent.width - 200;
         height: 40;
-        color: "#f5f5f5"
-        z: 5
+        color: "#555"
 
         Component {
           id: viewItemDelegate
           Item {
             width: 120
             height: parent.height
-            Text {
+            id: viewItem;
+            UIText {
               text: name;
-              anchors.fill: parent
-              verticalAlignment: Text.AlignVCenter
-              horizontalAlignment: Text.AlignHCenter
-              font.family: "Helvetica"
-              font.pointSize: 12
-              font.weight: Font.Bold
+              color: viewItem.ListView.isCurrentItem ? "white" : "#ccc";
+              anchors.fill: parent;
+              verticalAlignment: Text.AlignVCenter;
+              horizontalAlignment: Text.AlignHCenter;
             }
+/*
+            Rectangle {
+              width: 1;
+              height: parent.height;
+              x: parent.width - 1;
+              color: "#333";
+            }
+            Rectangle {
+              width: 1;
+              height: parent.height;
+              x: 0;
+              color: "#777";
+              opacity: 0.5;
+              visible: !viewItem.ListView.isCurrentItem;
+            }
+*/
           }
         }
 
@@ -106,9 +139,39 @@ Row {
           highlight: Rectangle {
             height: parent.height;
             width: 120
-            gradient: Gradient {
-              GradientStop { position: 0.0; color: "#eee" }
-              GradientStop { position: 1.0; color: "#ddd" }
+
+            color: "#444";
+
+            Rectangle {
+              height: 6;
+              width: parent.height;
+              x: height;
+              transformOrigin: Item.TopLeft;
+              rotation: 90;
+              gradient: Gradient {
+                GradientStop { position: 0.0; color: "#444" }
+                GradientStop { position: 1.0; color: "#333" }
+              }
+            }
+
+            Rectangle {
+              height: 6;
+              width: parent.height;
+              x: parent.width - 1;
+              transformOrigin: Item.TopLeft;
+              rotation: 90;
+              gradient: Gradient {
+                GradientStop { position: 0.0; color: "#333" }
+                GradientStop { position: 1.0; color: "#444" }
+              }
+            }
+
+            Rectangle {
+              width: 1;
+              height: parent.height;
+              x: parent.width - 1;
+              color: "#888";
+              opacity: 0.5;
             }
           }
 
@@ -176,21 +239,19 @@ Row {
         height: parent.height - 40
         id: dataListRect
         color: "#f5f5f5"
+        z: 5;
 
         Component {
           id: dataItemDelegate
           Item {
             width: parent.width
             height: 40
-            Text {
+            UIText {
               text: name;
               anchors.fill: parent
               anchors.verticalCenter: parent.verticalCenter
               anchors.leftMargin: 10
               verticalAlignment: Text.AlignVCenter
-              font.family: "Helvetica"
-              font.pointSize: 12
-              font.weight: Font.Bold
             }
           }
         }
@@ -241,9 +302,9 @@ Row {
             width: parent.width
             height: 0
             opacity: 0
-            color: "#ddd"
-            z: 5
+            color: "#555"
             id: attributeList
+            z: 5
             //Behavior on height {
             //  NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
             //}
@@ -329,12 +390,10 @@ Row {
                         }
                       }
 
-                      Text {
+                      UIText {
                         text: rowIndex === 0 ? view.tableColumnName(index) : view.tableData(rowIndex-1, index)
                         anchors.fill: parent
                         verticalAlignment: Text.AlignVCenter
-                        font.family: "Helvetica"
-                        font.pointSize: 12
                         font.weight: rowIndex === 0 ? Font.Bold : Font.Normal
                       }
 

@@ -23,31 +23,26 @@ Rectangle {
     id: chosenItem
     width: parent.width
     height: comboBox.height
-    color: "#ddd"
+    color: "#444"
     smooth: true
     Column {
       anchors.fill: parent
-      Text {
+      UIText {
         height: 20
         width: parent.width
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         text: name
-        font.family: "Helvetica"
-        font.bold: true
-        font.pointSize: 12
-        smooth:true
+        color: "#ccc"
       }
-      Text {
+      UIText {
         height: 15
         width: parent.width
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         id: chosenItemText
         text: selectedIndex >= 0 ? comboBox.items.get(selectedIndex).name : "";
-        font.family: "Helvetica"
-        font.pointSize: 12
-        smooth:true
+        color: "#aaa"
       }
     }
 
@@ -63,34 +58,41 @@ Rectangle {
     id: dropDown
     width: comboBox.width
     height: 0
-    clip: true
-    anchors.top: chosenItem.bottom
-    color: "#ddd"
+    visible: false
+    anchors.top: chosenItem.bottom;
+    anchors.topMargin: 5;
+    //color: "white";
+    //border.color: "#aaa";
 
     ListView {
       id:listView
       height: 500
       model: comboBox.items
       currentIndex: 0
-      delegate: Item {
+      delegate: Rectangle {
         width: comboBox.width
-        height: comboBox.height
+        height: 30
+        color: comboItemArea.containsMouse ? "#0088cc" : "white";
+        border.color: "#aaa";
 
-        Text {
-          height: 40
+        UIText {
+          height: 30
           width: parent.width
           verticalAlignment: Text.AlignVCenter
           horizontalAlignment: Text.AlignHCenter
-          font.family: "Helvetica"
-          font.pointSize: 12
           text: name
+          color: comboItemArea.containsMouse ? "white" : "#333";
         }
         MouseArea {
+          id: comboItemArea;
           anchors.fill: parent;
+          hoverEnabled: true;
+
           onClicked: {
+            console.log(listView.currentIndex);
             comboBox.state = ""
             var prevSelection = chosenItemText.text
-            chosenItemText.text = name
+            chosenItemText.text = name;
             if(chosenItemText.text != prevSelection){
               comboBox.comboClicked();
             }
@@ -112,7 +114,7 @@ Rectangle {
 
   states: State {
     name: "dropDown";
-    PropertyChanges { target: dropDown; height:40*comboBox.items.count }
+    PropertyChanges { target: dropDown; visible: true /*height:40*comboBox.items.count*/ }
   }
 
   //transitions: Transition {

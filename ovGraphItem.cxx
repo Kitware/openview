@@ -240,7 +240,7 @@ void ovGraphItem::PaintBuffers(vtkContext2D *painter)
   std::vector<bool> buffer(w*h, false);
   painter->GetTextProp()->SetColor(0, 0, 0);
   painter->GetTextProp()->SetJustificationToCentered();
-  painter->GetTextProp()->BoldOn();
+  painter->GetTextProp()->BoldOff();
   int numRendered = 0;
   for (vtkIdType i = 0; i < this->NumberOfVertices(); ++i)
     {

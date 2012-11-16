@@ -229,7 +229,7 @@ void ovTreemapItem::PlaceTooltip(vtkIdType v, const vtkVector2f &pos)
 bool ovTreemapItem::Paint(vtkContext2D *painter)
 {
   vtkFloatArray *area = vtkFloatArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray("area"));
-  if (!area)
+  if (this->Tree->GetNumberOfVertices() == 0 || !area)
     {
     return false;
     }

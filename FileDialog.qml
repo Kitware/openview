@@ -32,14 +32,12 @@ Rectangle {
           GradientStop { position: 1.0; color: "#eee" }
         }
 
-        Text {
+        UIText {
           text: fileName
           anchors.fill: parent
           anchors.verticalCenter: parent.verticalCenter
           anchors.leftMargin: 10
           verticalAlignment: Text.AlignVCenter
-          font.family: "Helvetica"
-          font.pointSize: 12
           MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -66,15 +64,12 @@ Rectangle {
         GradientStop { position: 1.0; color: "#eee" }
       }
 
-      Text {
+      UIText {
         text: foldermodel.folder.toString().substring(7)
         anchors.fill: parent
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 10
         verticalAlignment: Text.AlignVCenter
-        font.family: "Helvetica"
-        font.pointSize: 12
-        font.weight: Font.Bold
       }
     }
   }
