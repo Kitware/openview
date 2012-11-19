@@ -231,6 +231,15 @@ void QVTKQuickItem::mouseReleaseEvent(QMouseEvent* e)
   update();
 }
 
+void QVTKQuickItem::mouseDoubleClickEvent(QMouseEvent* e)
+{
+  e->accept();
+  this->m_viewLock.lock();
+  m_interactorAdapter->ProcessEvent(e, m_interactor);
+  this->m_viewLock.unlock();
+  update();
+}
+
 void QVTKQuickItem::mouseMoveEvent(QMouseEvent* e)
 {
   e->accept();

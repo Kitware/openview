@@ -23,6 +23,7 @@
 
 class vtkContextView;
 class vtkTable;
+class vtkTree;
 
 enum {
   CONTINUOUS,
@@ -76,12 +77,14 @@ protected:
   virtual void prepareForRender();
 
   void setTable(vtkTable *data);
+  void setTree(vtkTree *data);
   void setupView();
 
   QUrl m_url;
   QString m_viewType;
   vtkNew<vtkContextView> m_view;
   vtkSmartPointer<vtkTable> m_table;
+  vtkSmartPointer<vtkTree> m_tree;
   std::map<QString, ovView*> m_views;
 };
 

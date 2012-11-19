@@ -13,6 +13,7 @@
 #include "ovScatterPlot3DView.h"
 #include "ovTreemapView.h"
 #include "ovTreeringView.h"
+#include "ovTreeView.h"
 
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -23,11 +24,13 @@
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkNewickTreeReader.h"
 #include "vtkPoints.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTableReader.h"
+#include "vtkTree.h"
 
 #include <QOpenGLContext>
 #include <QQuickCanvas>
@@ -41,6 +44,7 @@ ovViewQuickItem::ovViewQuickItem()
   this->m_views["GRAPH"] = new ovGraphView(this);
   this->m_views["SCATTER"] = new ovScatterPlotView(this);
   this->m_views["3D SCATTER"] = new ovScatterPlot3DView(this);
+  this->m_views["TREE"] = new ovTreeView(this);
   this->m_views["TREEMAP"] = new ovTreemapView(this);
   this->m_views["TREERING"] = new ovTreeringView(this);
   this->m_table = vtkSmartPointer<vtkTable>::New();
@@ -87,12 +91,20 @@ void ovViewQuickItem::setUrl(QUrl &url)
   this->m_url = url;
   QString fileName = url.toLocalFile();
   vtkSmartPointer<vtkTable> table;
+  vtkSmartPointer<vtkTree> tree;
   if (fileName.endsWith(".vtk"))
     {
     vtkNew<vtkTableReader> reader;
     reader->SetFileName(fileName.toAscii());
     reader->Update();
     table = reader->GetOutput();
+    }
+  else if (fileName.endsWith(".tre"))
+    {
+    vtkNew<vtkNewickTreeReader> reader;
+    reader->SetFileName(fileName.toAscii());
+    reader->Update();
+    tree = reader->GetOutput();
     }
   else // delimited text
     {
@@ -125,7 +137,14 @@ void ovViewQuickItem::setUrl(QUrl &url)
       table = reader->GetOutput();
       }
     }
-  this->setTable(table);
+  if (tree.GetPointer())
+    {
+    this->setTree(tree);
+    }
+  else
+    {
+    this->setTable(table);
+    }
   this->m_viewLock.unlock();
 }
 
@@ -365,6 +384,12 @@ void ovViewQuickItem::setTable(vtkTable *table)
   this->setupView();
 }
 
+void ovViewQuickItem::setTree(vtkTree *tree)
+{
+  this->m_tree = tree;
+  this->setupView();
+}
+
 void ovViewQuickItem::setViewType(QString &viewType)
 {
   this->m_viewLock.lock();
@@ -379,7 +404,14 @@ void ovViewQuickItem::setViewType(QString &viewType)
 void ovViewQuickItem::setupView()
 {
   this->m_view->GetScene()->ClearItems();
-  this->m_views[this->m_viewType]->setTable(this->m_table.GetPointer(), this->m_view.GetPointer());
+  if (this->m_tree.GetPointer())
+    {
+    this->m_views[this->m_viewType]->setTree(this->m_tree.GetPointer(), this->m_view.GetPointer());
+    }
+  else
+    {
+    this->m_views[this->m_viewType]->setTable(this->m_table.GetPointer(), this->m_view.GetPointer());
+    }
 }
 
 void ovViewQuickItem::animate()

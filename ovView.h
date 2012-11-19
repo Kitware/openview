@@ -16,6 +16,7 @@
 
 class vtkContextView;
 class vtkTable;
+class vtkTree;
 
 class ovView : public QObject
 {
@@ -27,6 +28,7 @@ public:
   ~ovView();
 
   virtual void setTable(vtkTable *data, vtkContextView *view) = 0;
+  virtual void setTree(vtkTree *data, vtkContextView *view) { }
   virtual QString name() = 0;
   virtual QStringList attributes() { return QStringList(); }
   virtual void prepareForRender() { }

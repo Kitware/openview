@@ -80,6 +80,7 @@ protected:
   // handle item mouse events
   virtual void mousePressEvent(QMouseEvent* e);
   virtual void mouseReleaseEvent(QMouseEvent* e);
+  virtual void mouseDoubleClickEvent(QMouseEvent* e);
   virtual void mouseMoveEvent(QMouseEvent* e);
   virtual void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry);
   virtual void wheelEvent(QWheelEvent* e);
