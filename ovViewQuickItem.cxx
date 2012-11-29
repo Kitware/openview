@@ -44,10 +44,11 @@ ovViewQuickItem::ovViewQuickItem()
   this->m_views["GRAPH"] = new ovGraphView(this);
   this->m_views["SCATTER"] = new ovScatterPlotView(this);
   this->m_views["3D SCATTER"] = new ovScatterPlot3DView(this);
-  this->m_views["TREE"] = new ovTreeView(this);
   this->m_views["TREEMAP"] = new ovTreemapView(this);
   this->m_views["TREERING"] = new ovTreeringView(this);
+  this->m_views["PHYLOTREE"] = new ovTreeView(this);
   this->m_table = vtkSmartPointer<vtkTable>::New();
+  this->m_tree = NULL;
 }
 
 ovViewQuickItem::~ovViewQuickItem()
@@ -87,7 +88,13 @@ void ovViewQuickItem::prepareForRender()
 
 void ovViewQuickItem::setUrl(QUrl &url)
 {
+  if (url == this->m_url)
+    {
+    return;
+    }
   this->m_viewLock.lock();
+  this->m_table = NULL;
+  this->m_tree = NULL;
   this->m_url = url;
   QString fileName = url.toLocalFile();
   vtkSmartPointer<vtkTable> table;
@@ -150,17 +157,17 @@ void ovViewQuickItem::setUrl(QUrl &url)
 
 int ovViewQuickItem::tableRows()
 {
-  return m_table->GetNumberOfRows();
+  return m_table.GetPointer() ? m_table->GetNumberOfRows() : 0;
 }
 
 int ovViewQuickItem::tableColumns()
 {
-  return m_table->GetNumberOfColumns();
+  return m_table.GetPointer() ? m_table->GetNumberOfColumns() : 0;
 }
 
 QString ovViewQuickItem::tableColumnName(int col)
 {
-  if (col >= 0 && col < m_table->GetNumberOfColumns())
+  if (m_table.GetPointer() && col >= 0 && col < m_table->GetNumberOfColumns())
     {
     return QString(m_table->GetColumnName(col));
     }
@@ -169,7 +176,7 @@ QString ovViewQuickItem::tableColumnName(int col)
 
 QString ovViewQuickItem::tableData(int row, int col)
 {
-  if (row >= 0 && row < m_table->GetNumberOfRows() && col >= 0 && col < m_table->GetNumberOfColumns())
+  if (m_table.GetPointer() && row >= 0 && row < m_table->GetNumberOfRows() && col >= 0 && col < m_table->GetNumberOfColumns())
     {
     return QString::fromStdString(m_table->GetValue(row, col).ToString());
     }
@@ -406,11 +413,11 @@ void ovViewQuickItem::setupView()
   this->m_view->GetScene()->ClearItems();
   if (this->m_tree.GetPointer())
     {
-    this->m_views[this->m_viewType]->setTree(this->m_tree.GetPointer(), this->m_view.GetPointer());
+    this->m_views[this->m_viewType]->setData(this->m_tree.GetPointer(), this->m_view.GetPointer());
     }
   else
     {
-    this->m_views[this->m_viewType]->setTable(this->m_table.GetPointer(), this->m_view.GetPointer());
+    this->m_views[this->m_viewType]->setData(this->m_table.GetPointer(), this->m_view.GetPointer());
     }
 }
 

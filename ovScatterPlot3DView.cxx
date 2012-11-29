@@ -47,8 +47,18 @@ ovScatterPlot3DView::~ovScatterPlot3DView()
 {
 }
 
-void ovScatterPlot3DView::setTable(vtkTable *table, vtkContextView *view)
+bool ovScatterPlot3DView::acceptsType(const QString &type)
 {
+  return (type == "vtkTable");
+}
+
+void ovScatterPlot3DView::setData(vtkDataObject *data, vtkContextView *view)
+{
+  vtkTable *table = vtkTable::SafeDownCast(data);
+  if (!table)
+    {
+    return;
+    }
   if (table != this->m_table.GetPointer())
     {
     // Find best pair of columns for x/y

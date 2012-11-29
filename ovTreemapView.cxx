@@ -42,8 +42,18 @@ ovTreemapView::~ovTreemapView()
 {
 }
 
-void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
+bool ovTreemapView::acceptsType(const QString &type)
 {
+  return (type == "vtkTable");
+}
+
+void ovTreemapView::setData(vtkDataObject *data, vtkContextView *view)
+{
+  vtkTable *table = vtkTable::SafeDownCast(data);
+  if (!table)
+    {
+    return;
+    }
   if (table != this->m_table.GetPointer())
     {
     std::vector<std::set<std::string> > domains = ovViewQuickItem::columnDomains(table);
@@ -79,10 +89,7 @@ void ovTreemapView::setTable(vtkTable *table, vtkContextView *view)
         }
       }
 
-    if (level2 == "")
-      {
-      level2 = level1;
-      }
+    level2 = level1;
     if (hover == "")
       {
       hover = level2;

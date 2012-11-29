@@ -27,6 +27,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTableToTreeFilter.h"
+#include "vtkTransform2D.h"
 #include "vtkTreeFieldAggregator.h"
 #include "vtkTreeHeatmapItem.h"
 #include "vtkAreaLayout.h"
@@ -40,6 +41,25 @@ ovTreeView::ovTreeView(QObject *parent) : ovView(parent)
 
 ovTreeView::~ovTreeView()
 {
+}
+
+bool ovTreeView::acceptsType(const QString &type)
+{
+  return (type == "vtkTable" || type == "vtkTree");
+}
+
+void ovTreeView::setData(vtkDataObject *data, vtkContextView *view)
+{
+  vtkTable *table = vtkTable::SafeDownCast(data);
+  if (table)
+    {
+    this->setTable(table, view);
+    }
+  vtkTree *tree = vtkTree::SafeDownCast(data);
+  if (tree)
+    {
+    this->setTree(tree, view);
+    }
 }
 
 void ovTreeView::setTable(vtkTable *table, vtkContextView *view)
@@ -117,6 +137,9 @@ void ovTreeView::setTable(vtkTable *table, vtkContextView *view)
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
+  // TODO: center the data the right way
+  trans->GetTransform()->Translate(view->GetScene()->GetSceneWidth()/2 - 100, view->GetScene()->GetSceneHeight()/2 - 200);
+  trans->GetTransform()->Scale(0.005, 0.005);
   view->GetScene()->AddItem(trans.GetPointer());
 
   trans->AddItem(this->m_item.GetPointer());
@@ -143,6 +166,9 @@ void ovTreeView::setTree(vtkTree *tree, vtkContextView *view)
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
+  // TODO: center the data the right way
+  trans->GetTransform()->Translate(view->GetScene()->GetSceneWidth()/2 - 100, view->GetScene()->GetSceneHeight()/2 - 200);
+  trans->GetTransform()->Scale(0.005, 0.005);
   view->GetScene()->AddItem(trans.GetPointer());
 
   trans->AddItem(this->m_item.GetPointer());

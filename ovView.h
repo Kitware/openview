@@ -15,8 +15,7 @@
 #include <vector>
 
 class vtkContextView;
-class vtkTable;
-class vtkTree;
+class vtkDataObject;
 
 class ovView : public QObject
 {
@@ -27,8 +26,8 @@ public:
   ovView(QObject *parent);
   ~ovView();
 
-  virtual void setTable(vtkTable *data, vtkContextView *view) = 0;
-  virtual void setTree(vtkTree *data, vtkContextView *view) { }
+  virtual bool acceptsType(const QString &type) { return false; }
+  virtual void setData(vtkDataObject *data, vtkContextView *view) = 0;
   virtual QString name() = 0;
   virtual QStringList attributes() { return QStringList(); }
   virtual void prepareForRender() { }

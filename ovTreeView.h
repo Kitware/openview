@@ -25,6 +25,8 @@ public:
   ovTreeView(QObject *parent);
   ~ovTreeView();
 
+  virtual bool acceptsType(const QString &type);
+  virtual void setData(vtkDataObject *data, vtkContextView *view);
   virtual void setTable(vtkTable *data, vtkContextView *view);
   virtual void setTree(vtkTree *data, vtkContextView *view);
   virtual QString name();

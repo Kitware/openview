@@ -25,7 +25,8 @@ public:
   ovScatterPlot3DView(QObject *parent);
   ~ovScatterPlot3DView();
 
-  virtual void setTable(vtkTable *data, vtkContextView *view);
+  virtual bool acceptsType(const QString &type);
+  virtual void setData(vtkDataObject *data, vtkContextView *view);
   virtual QString name();
 
   virtual QStringList attributes();

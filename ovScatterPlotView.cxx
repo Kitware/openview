@@ -51,8 +51,18 @@ ovScatterPlotView::~ovScatterPlotView()
 {
 }
 
-void ovScatterPlotView::setTable(vtkTable *table, vtkContextView *view)
+bool ovScatterPlotView::acceptsType(const QString &type)
 {
+  return (type == "vtkTable");
+}
+
+void ovScatterPlotView::setData(vtkDataObject *data, vtkContextView *view)
+{
+  vtkTable *table = vtkTable::SafeDownCast(data);
+  if (!table)
+    {
+    return;
+    }
   if (table != this->m_table.GetPointer())
     {
     std::vector<std::set<std::string> > domains = ovViewQuickItem::columnDomains(table);

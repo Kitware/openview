@@ -40,8 +40,18 @@ ovGraphView::~ovGraphView()
 {
 }
 
-void ovGraphView::setTable(vtkTable *table, vtkContextView *view)
+bool ovGraphView::acceptsType(const QString &type)
 {
+  return (type == "vtkTable");
+}
+
+void ovGraphView::setData(vtkDataObject *data, vtkContextView *view)
+{
+  vtkTable *table = vtkTable::SafeDownCast(data);
+  if (!table)
+    {
+    return;
+    }
   if (table != this->m_table.GetPointer())
     {
     std::vector<std::set<std::string> > domains = ovViewQuickItem::columnDomains(table);

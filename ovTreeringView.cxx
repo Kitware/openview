@@ -41,8 +41,18 @@ ovTreeringView::~ovTreeringView()
 {
 }
 
-void ovTreeringView::setTable(vtkTable *table, vtkContextView *view)
+bool ovTreeringView::acceptsType(const QString &type)
 {
+  return (type == "vtkTable");
+}
+
+void ovTreeringView::setData(vtkDataObject *data, vtkContextView *view)
+{
+  vtkTable *table = vtkTable::SafeDownCast(data);
+  if (!table)
+    {
+    return;
+    }
   if (table != this->m_table.GetPointer())
     {
     std::vector<std::set<std::string> > domains = ovViewQuickItem::columnDomains(table);
@@ -78,10 +88,7 @@ void ovTreeringView::setTable(vtkTable *table, vtkContextView *view)
         }
       }
 
-    if (level2 == "")
-      {
-      level2 = level1;
-      }
+    level2 = level1;
     if (hover == "")
       {
       hover = level2;
@@ -101,6 +108,8 @@ void ovTreeringView::setTable(vtkTable *table, vtkContextView *view)
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
+  trans->GetTransform()->Translate(view->GetScene()->GetSceneWidth()/2, view->GetScene()->GetSceneHeight()/2);
+  trans->GetTransform()->Scale(0.5, 0.5);
   view->GetScene()->AddItem(trans.GetPointer());
 
   trans->AddItem(this->m_item.GetPointer());
