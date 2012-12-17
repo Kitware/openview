@@ -1,0 +1,51 @@
+[
+{
+  "name": "Visomics",
+  "url": "http://www.visomics.org",
+  "thumbnail": "images/visomics.png",
+  "description": "Visomics is an open-source tool for the exploration of biological omics data with a focus on genomics, proteomics, transcriptomics, and metabolomics.",
+  "tags": ["bioinformatics", "open-source platforms"]
+},
+{
+  "name": "OpenView",
+  "url": "http://openview.kitware.com",
+  "thumbnail": "images/openview.png",
+  "description": "OpenView is an open-source application for exploring tabular data in a variety of advanced visualizations. It demonstrates the types of visualization that can be done with the Visualization Toolkit and can be used for educational purposes.",
+  "tags": ["open-source platforms"]
+},
+{
+  "name": "Metagenomics",
+  "url": "http://jeffbaumes.github.com/examples/kbase/index.html",
+  "thumbnail": "images/metagenomics.png",
+  "description": "Metagenomics is the study of genetic material in the environment. This demonstration shows the diversity of a microbial community.",
+  "tags": ["bioinformatics", "web visualization"]
+},
+{
+  "name": "ENCODE Genome",
+  "url": "http://jeffbaumes.github.com/examples/genome/index.html",
+  "thumbnail": "images/encode.png",
+  "description": "An example web visualization of the all 167 thousand detected annotations on the human genome from the ENCODE genome project.",
+  "tags": ["bioinformatics", "web visualization"]
+},
+{
+  "name": "Titan",
+  "url": "http://titan.sandia.gov",
+  "thumbnail": "images/titan.png",
+  "description": "A collaboration with Sandia National Labs, Titan is an open-source library for scalable text and clustering analytics.",
+  "tags": ["document analytics"]
+},
+{
+  "name": "Nonproliferation",
+  "url": "http://www.kitware.com/blog/home/post/139",
+  "thumbnail": "images/nonproliferation.png",
+  "description": "This web application explores news articles about illegal nuclear proliferation events by crawling the web and using named entity recognition, topic modeling, and visualization to enable navigation.",
+  "tags": ["document analytics", "geoinformatics", "web visualization"]
+},
+{
+  "name": "What do you work for?",
+  "url": "http://datavizchallenge.org/viz/73",
+  "thumbnail": "images/dataviz.png",
+  "description": "Kitware was selected as a finalist in the Data Viz Challenge, which called on designers to develop new ways to demonstrate how tax money is spent.",
+  "tags": ["financial analysis", "web visualization"]
+}
+]
