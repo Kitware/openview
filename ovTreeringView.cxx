@@ -137,23 +137,23 @@ void ovTreeringView::generateTreering()
 
   vtkNew<vtkGroupLeafVertices> group1;
   group1->SetInputConnection(ttt->GetOutputPort());
-  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toAscii().data());
+  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toUtf8().data());
   group1->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkGroupLeafVertices> group2;
   group2->SetInputConnection(group1->GetOutputPort());
-  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toAscii().data());
+  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toUtf8().data());
   group2->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkTreeFieldAggregator> agg;
   agg->SetInputConnection(group1->GetOutputPort());
   agg->SetLeafVertexUnitSize(false);
-  agg->SetField(m_size.toAscii());
+  agg->SetField(m_size.toUtf8());
 
   vtkNew<vtkTreeFieldAggregator> agg2;
   agg2->SetInputConnection(agg->GetOutputPort());
   agg2->SetLeafVertexUnitSize(false);
-  agg2->SetField(m_color.toAscii());
+  agg2->SetField(m_color.toUtf8());
 
   vtkNew<vtkStackedTreeLayoutStrategy> stacked;
   stacked->SetShrinkPercentage(0.0);
@@ -165,7 +165,7 @@ void ovTreeringView::generateTreering()
   vtkNew<vtkAreaLayout> layout;
   layout->SetInputConnection(m_size != m_color ? agg2->GetOutputPort() : agg->GetOutputPort());
   layout->SetLayoutStrategy(stacked.GetPointer());
-  layout->SetSizeArrayName(m_size.toAscii());
+  layout->SetSizeArrayName(m_size.toUtf8());
   layout->Update();
 
   m_item->SetTree(layout->GetOutput());

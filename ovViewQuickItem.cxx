@@ -32,10 +32,6 @@
 #include "vtkTableReader.h"
 #include "vtkTree.h"
 
-#include <QOpenGLContext>
-#include <QQuickCanvas>
-#include <QThread>
-
 #include <set>
 #include <algorithm>
 
@@ -102,21 +98,21 @@ void ovViewQuickItem::setUrl(QUrl &url)
   if (fileName.endsWith(".vtk"))
     {
     vtkNew<vtkTableReader> reader;
-    reader->SetFileName(fileName.toAscii());
+    reader->SetFileName(fileName.toUtf8());
     reader->Update();
     table = reader->GetOutput();
     }
   else if (fileName.endsWith(".tre"))
     {
     vtkNew<vtkNewickTreeReader> reader;
-    reader->SetFileName(fileName.toAscii());
+    reader->SetFileName(fileName.toUtf8());
     reader->Update();
     tree = reader->GetOutput();
     }
   else // delimited text
     {
     vtkNew<vtkDelimitedTextReader> reader;
-    reader->SetFileName(fileName.toAscii());
+    reader->SetFileName(fileName.toUtf8());
     reader->SetHaveHeaders(true);
     if (fileName.endsWith(".tab") || fileName.endsWith(".tsv"))
       {

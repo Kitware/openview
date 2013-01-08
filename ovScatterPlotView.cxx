@@ -133,7 +133,7 @@ void ovScatterPlotView::generatePlot()
   m_plot->SetLookupTable(m_lookup.GetPointer());
   m_plot->SetScalarVisibility(m_color != "(none)");
   m_plot->SelectColorArray(m_color.toStdString());
-  vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(m_color.toAscii()));
+  vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(m_color.toUtf8()));
   if (arr)
     {
     m_lookup->SetRange(arr->GetRange());

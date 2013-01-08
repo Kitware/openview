@@ -178,15 +178,15 @@ void ovGraphView::generateGraph()
   if (m_sharedDomain)
     {
     QString combined = m_source + " / " + m_target;
-    ttg->AddLinkVertex(m_source.toAscii(), combined.toAscii());
-    ttg->AddLinkVertex(m_target.toAscii(), combined.toAscii());
+    ttg->AddLinkVertex(m_source.toUtf8(), combined.toUtf8());
+    ttg->AddLinkVertex(m_target.toUtf8(), combined.toUtf8());
     }
   else
     {
-    ttg->AddLinkVertex(m_source.toAscii(), m_source.toAscii());
-    ttg->AddLinkVertex(m_target.toAscii(), m_target.toAscii());
+    ttg->AddLinkVertex(m_source.toUtf8(), m_source.toUtf8());
+    ttg->AddLinkVertex(m_target.toUtf8(), m_target.toUtf8());
     }
-  ttg->AddLinkEdge(m_source.toAscii(), m_target.toAscii());
+  ttg->AddLinkEdge(m_source.toUtf8(), m_target.toUtf8());
   ttg->SetDirected(true);
 
   vtkNew<vtkVertexDegree> degree;

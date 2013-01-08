@@ -10,7 +10,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
-#include <QQuickCanvas>
+#include <QQuickWindow>
 #include <QThread>
 
 #include "QVTKInteractor.h"
@@ -94,7 +94,7 @@ void QVTKQuickItem::itemChange(ItemChange change, const ItemChangeData &)
 {
   // The ItemSceneChange event is sent when we are first attached to a canvas.
   if (change == ItemSceneChange) {
-    QQuickCanvas *c = canvas();
+    QQuickWindow *c = window();
     if (!c)
       {
       return;
@@ -113,19 +113,19 @@ void QVTKQuickItem::itemChange(ItemChange change, const ItemChangeData &)
 
 void QVTKQuickItem::MakeCurrent()
 {
-  if (!this->canvas())
+  if (!this->window())
     {
     m_win->SetAbortRender(1);
     cerr << "Could not make current since there is no canvas!" << endl;
     return;
     }
-  if (QThread::currentThread() != this->canvas()->openglContext()->thread())
+  if (QThread::currentThread() != this->window()->openglContext()->thread())
     {
     m_win->SetAbortRender(1);
     cerr << "Could not make current since we are on the wrong thread!" << endl;
     return;
     }
-  this->canvas()->openglContext()->makeCurrent(this->canvas());
+  this->window()->openglContext()->makeCurrent(this->window());
 }
 
 void QVTKQuickItem::Start()
@@ -151,7 +151,7 @@ void QVTKQuickItem::End()
 void QVTKQuickItem::IsCurrent(vtkObject*, unsigned long, void*, void* call_data)
 {
   bool* ptr = reinterpret_cast<bool*>(call_data);
-  *ptr = QOpenGLContext::currentContext() == this->canvas()->openglContext();
+  *ptr = QOpenGLContext::currentContext() == this->window()->openglContext();
 }
 
 void QVTKQuickItem::IsDirect(vtkObject*, unsigned long, void*, void* call_data)
@@ -182,10 +182,10 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
   if(m_win.GetPointer())
     {
     this->m_viewLock.lock();
-    m_win->SetSize(canvas()->width(), canvas()->height());
+    m_win->SetSize(window()->width(), window()->height());
     QPointF origin = mapToScene(QPointF(0, 0));
-    QPointF minPt(origin.x()/canvas()->width(), (canvas()->height() - origin.y() - height())/canvas()->height());
-    QPointF maxPt(minPt.x() + width()/canvas()->width(), minPt.y() + height()/canvas()->height());
+    QPointF minPt(origin.x()/window()->width(), (window()->height() - origin.y() - height())/window()->height());
+    QPointF maxPt(minPt.x() + width()/window()->width(), minPt.y() + height()/window()->height());
     if (m_win->GetRenderers()->GetFirstRenderer())
       {
       m_win->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());
@@ -331,10 +331,10 @@ void QVTKQuickItem::paint()
   // Make sure viewport is up to date.
   // This is needed because geometryChanged() is not called when parent geometry changes, so we miss when widths/heights
   // of surrounding elements change.
-  m_win->SetSize(canvas()->width(), canvas()->height());
+  m_win->SetSize(window()->width(), window()->height());
   QPointF origin = mapToScene(QPointF(0, 0));
-  QPointF minPt(origin.x()/canvas()->width(), (canvas()->height() - origin.y() - height())/canvas()->height());
-  QPointF maxPt(minPt.x() + width()/canvas()->width(), minPt.y() + height()/canvas()->height());
+  QPointF minPt(origin.x()/window()->width(), (window()->height() - origin.y() - height())/window()->height());
+  QPointF maxPt(minPt.x() + width()/window()->width(), minPt.y() + height()/window()->height());
   if (m_win->GetRenderers()->GetFirstRenderer())
     {
     m_win->GetRenderers()->GetFirstRenderer()->SetViewport(minPt.x(), minPt.y(), maxPt.x(), maxPt.y());

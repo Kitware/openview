@@ -123,7 +123,7 @@ void ovScatterPlot3DView::setData(vtkDataObject *data, vtkContextView *view)
 
 void ovScatterPlot3DView::generatePlot()
 {
-  if (m_table->GetColumnByName(m_color.toAscii().data()))
+  if (m_table->GetColumnByName(m_color.toUtf8().data()))
     {
     m_plot->SetInputData(m_table.GetPointer(), m_x.toStdString(), m_y.toStdString(), m_z.toStdString(), m_color.toStdString());
     }
@@ -134,7 +134,7 @@ void ovScatterPlot3DView::generatePlot()
   m_chart->RecalculateBounds();
   m_chart->RecalculateTransform();
 
-  vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(m_color.toAscii()));
+  vtkDataArray *arr = vtkDataArray::SafeDownCast(m_table->GetColumnByName(m_color.toUtf8()));
   if (arr)
     {
     m_lookup->SetRange(arr->GetRange());

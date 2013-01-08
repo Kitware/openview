@@ -133,20 +133,20 @@ void ovTreemapView::generateTreemap()
 
   vtkNew<vtkGroupLeafVertices> group1;
   group1->SetInputConnection(ttt->GetOutputPort());
-  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toAscii().data());
+  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toUtf8().data());
   group1->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkGroupLeafVertices> group2;
   group2->SetInputConnection(group1->GetOutputPort());
-  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toAscii().data());
+  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toUtf8().data());
   group2->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkTreeFieldAggregator> agg;
-  if (!m_table->GetColumnByName(m_level1.toAscii().data()))
+  if (!m_table->GetColumnByName(m_level1.toUtf8().data()))
     {
     agg->SetInputConnection(ttt->GetOutputPort());
     }
-  else if (!m_table->GetColumnByName(m_level2.toAscii().data()))
+  else if (!m_table->GetColumnByName(m_level2.toUtf8().data()))
     {
     agg->SetInputConnection(group1->GetOutputPort());
     }
@@ -155,7 +155,7 @@ void ovTreemapView::generateTreemap()
     agg->SetInputConnection(group2->GetOutputPort());
     }
   agg->SetLeafVertexUnitSize(false);
-  agg->SetField(m_size.toAscii());
+  agg->SetField(m_size.toUtf8());
 
   vtkNew<vtkSquarifyLayoutStrategy> squarify;
   squarify->SetShrinkPercentage(0.0);
@@ -173,7 +173,7 @@ void ovTreemapView::generateTreemap()
     {
     layout->SetLayoutStrategy(slice.GetPointer());
     }
-  layout->SetSizeArrayName(m_size.toAscii());
+  layout->SetSizeArrayName(m_size.toUtf8());
   layout->Update();
 
   m_item->SetTree(layout->GetOutput());

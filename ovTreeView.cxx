@@ -197,12 +197,12 @@ void ovTreeView::generateTree()
 
   vtkNew<vtkGroupLeafVertices> group1;
   group1->SetInputConnection(ttt->GetOutputPort());
-  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toAscii().data());
+  group1->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level1.toUtf8().data());
   group1->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
 
   vtkNew<vtkGroupLeafVertices> group2;
   group2->SetInputConnection(group1->GetOutputPort());
-  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toAscii().data());
+  group2->SetInputArrayToProcess(0, 0, 0, vtkDataObject::VERTEX, m_level2.toUtf8().data());
   group2->SetInputArrayToProcess(1, 0, 0, vtkDataObject::VERTEX, "name");
   group2->Update();
 
@@ -214,7 +214,7 @@ void ovTreeView::generateView()
   vtkNew<vtkTreeFieldAggregator> agg;
   agg->SetInputData(this->m_tree);
   agg->SetLeafVertexUnitSize(false);
-  agg->SetField(m_depth.toAscii());
+  agg->SetField(m_depth.toUtf8());
   agg->Update();
 
   this->m_item->SetTree(agg->GetOutput());
