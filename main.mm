@@ -21,7 +21,6 @@ int main(int argc, char **argv)
   qmlRegisterType<ovViewQuickItem>("OVView", 1, 0, "OVView");
 
   view.setResizeMode(QQuickView::SizeRootObjectToView);
-  //view.setSource(QUrl::fromLocalFile("main.qml"));
   view.setSource(QUrl("qrc:/main.qml"));
   view.show();
 
