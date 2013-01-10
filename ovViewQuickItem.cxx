@@ -14,6 +14,7 @@
 #include "ovTreemapView.h"
 #include "ovTreeringView.h"
 #include "ovTreeView.h"
+#include "ovWorkflowView.h"
 
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -43,6 +44,7 @@ ovViewQuickItem::ovViewQuickItem()
   this->m_views["TREEMAP"] = new ovTreemapView(this);
   this->m_views["TREERING"] = new ovTreeringView(this);
   this->m_views["PHYLOTREE"] = new ovTreeView(this);
+  this->m_views["WORKFLOW"] = new ovWorkflowView(this);
   this->m_table = vtkSmartPointer<vtkTable>::New();
   this->m_tree = NULL;
 }

@@ -36,7 +36,8 @@ qt5_wrap_cpp( OPENVIEW_MOC_FILES
   ovTreeView.h
   ovViewPlugin.h
   ovViewQuickItem.h
-  ovView.h )
+  ovView.h
+  ovWorkflowView.h )
 
 qt5_add_resources( OPENVIEW_RESOURCES
   resources.qrc )
@@ -47,6 +48,7 @@ set( OPENVIEW_SRCS
   QVTKInteractorAdapter.cxx
   QVTKQuickItem.cxx
   vtkQtConnection.cxx
+  ovAlgorithmItem.cxx
   ovContextInteractorStyle.cxx
   ovGraphItem.cxx
   ovGraphView.cxx
@@ -59,6 +61,8 @@ set( OPENVIEW_SRCS
   ovTreeView.cxx
   ovViewQuickItem.cxx
   ovView.cxx
+  ovWorkflowItem.cxx
+  ovWorkflowView.cxx
   ${OPENVIEW_MOC_FILES}
   ${OPENVIEW_RESOURCES} )
 
