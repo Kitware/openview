@@ -7,6 +7,7 @@
  ========================================================================*/
 import QtQuick 2.0
 import OVView 1.0
+import OVWorkflow 1.0
 
 Row {
   width: 1000;
@@ -30,6 +31,147 @@ Row {
     }
   }
 
+  // ------------------------------------------------------------------
+  // Module list
+  Rectangle {
+    id: modules
+    width: 0
+    height: parent.height
+    color: "#555"
+    clip: true
+
+    Component {
+      id: moduleItemDelegate
+      Rectangle {
+        id: moduleItem
+        width: parent.width
+        height: 40
+        gradient: Gradient {
+          GradientStop { position: 0.0; color: "#fff" }
+          GradientStop { position: 1.0; color: "#eee" }
+        }
+        UIText {
+          text: name;
+          anchors.fill: parent
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.leftMargin: 10
+          verticalAlignment: Text.AlignVCenter
+          color: "#000";
+        }
+        MouseArea {
+          anchors.fill: parent
+          onClicked: {
+            workflow.addModule(modulesModel.get(index).name);
+          }
+        }
+      }
+    }
+
+    ListView {
+      anchors.fill: parent
+      model: ListModel{ id: modulesModel; ListElement{name: "Geiger Fitting"} ListElement{name: "Geiger Something Else"} ListElement{name: "Some Other Thing"} }
+      id: moduleListView
+      delegate: moduleItemDelegate
+
+      header: Rectangle {
+        height: 40;
+        width: parent.width;
+        color: "#444";
+        UIText {
+          text: "MODULES"
+          anchors.fill: parent
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.leftMargin: 10
+          anchors.rightMargin: 10
+          verticalAlignment: Text.AlignVCenter
+          color: "white";
+        }
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Data list
+  Rectangle {
+    id: data
+    width: 200
+    height: parent.height
+    color: "#555"
+    clip: true
+    z: 5;
+
+    Component {
+      id: dataItemDelegate
+      Item {
+        id: dataItem
+        width: parent.width
+        height: 40
+        UIText {
+          text: name;
+          anchors.fill: parent
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.leftMargin: 10
+          verticalAlignment: Text.AlignVCenter
+          color: dataItem.ListView.isCurrentItem ? "white" : "#ccc";
+        }
+      }
+    }
+
+    ListView {
+      anchors.fill: parent
+      model: ListModel {}
+      id: dataListView
+      delegate: dataItemDelegate
+      highlight: Rectangle {
+        width: parent.width
+        color: "#444";
+
+        Rectangle {
+          height: 6;
+          width: parent.width;
+          gradient: Gradient {
+            GradientStop { position: 1.0; color: "#444" }
+            GradientStop { position: 0.0; color: "#333" }
+          }
+        }
+
+        Rectangle {
+          height: 6;
+          width: parent.width;
+          y: parent.height - 6;
+          gradient: Gradient {
+            GradientStop { position: 1.0; color: "#333" }
+            GradientStop { position: 0.0; color: "#444" }
+          }
+        }
+
+        Rectangle {
+          height: 1;
+          width: parent.width;
+          y: parent.height - 1;
+          color: "#888";
+        }
+      }
+
+      onCurrentIndexChanged: {
+        view.url = model.get(currentIndex).path;
+        tableView.update();
+        viewList.updateViewAttributes();
+      }
+
+      MouseArea {
+        anchors.fill: parent
+        onClicked: {
+          parent.focus = true;
+          var indexedItem = parent.indexAt(mouseX, mouseY);
+          if (indexedItem !== -1) {
+            parent.currentIndex = indexedItem;
+          }
+        }
+      }
+    }
+  }
+
   Item {
     width: parent.width
     height: parent.height
@@ -40,33 +182,70 @@ Row {
       spacing: 0
 
       // ------------------------------------------------------------------
-      // Button to add data
-      Rectangle {
-        id: addData;
-        width: 200;
+      // Menu
+      Row {
+        width: 800;
         height: 40;
+        id: menu;
 
-        gradient: Gradient {
-          GradientStop { id: addDataStop1; position: 0.0; color: Qt.rgba(0, 136/255, 204/255, 1) }
-          GradientStop { id: addDataStop2; position: 1.0; color: Qt.rgba(0, 68/255, 204/255, 1) }
+        Rectangle {
+          width: parent.width / 2;
+          height: parent.height;
+          id: addData;
+
+          gradient: Gradient {
+            GradientStop { id: addDataStop1; position: 0.0; color: Qt.rgba(0, 136/255, 204/255, 1) }
+            GradientStop { id: addDataStop2; position: 1.0; color: Qt.rgba(0, 68/255, 204/255, 1) }
+          }
+
+          UIText {
+            anchors.horizontalCenter: parent.horizontalCenter;
+            anchors.verticalCenter: parent.verticalCenter;
+            text: "\u2190 ADD DATA";
+            color: "#fff";
+          }
+
+          MouseArea {
+            anchors.fill: parent
+            onClicked: {
+              if (openDataDialog.width > 0) {
+                addDataStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
+                openDataDialog.width = 0
+              } else {
+                addDataStop1.color = Qt.rgba(0, 68/255, 204/255, 1);
+                openDataDialog.width = 200
+              }
+            }
+          }
         }
 
-        UIText {
-          anchors.horizontalCenter: parent.horizontalCenter;
-          anchors.verticalCenter: parent.verticalCenter;
-          text: "\u2190 ADD DATA";
-          color: "#fff";
-        }
+        Rectangle {
+          width: parent.width / 2;
+          height: parent.height;
+          id: addModules;
 
-        MouseArea {
-          anchors.fill: parent
-          onClicked: {
-            if (openDataDialog.width > 0) {
-              addDataStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
-              openDataDialog.width = 0
-            } else {
-              addDataStop1.color = Qt.rgba(0, 68/255, 204/255, 1);
-              openDataDialog.width = 200
+          gradient: Gradient {
+            GradientStop { id: addModulesStop1; position: 0.0; color: Qt.rgba(0, 136/255, 204/255, 1) }
+            GradientStop { id: addModulesStop2; position: 1.0; color: Qt.rgba(0, 68/255, 204/255, 1) }
+          }
+
+          UIText {
+            anchors.horizontalCenter: parent.horizontalCenter;
+            anchors.verticalCenter: parent.verticalCenter;
+            text: "\u2190 MODULES";
+            color: "#fff";
+          }
+
+          MouseArea {
+            anchors.fill: parent
+            onClicked: {
+              if (modules.width > 0) {
+                addModulesStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
+                modules.width = 0
+              } else {
+                addModulesStop1.color = Qt.rgba(0, 68/255, 204/255, 1);
+                modules.width = 200
+              }
             }
           }
         }
@@ -76,7 +255,7 @@ Row {
       // ------------------------------------------------------------------
       // View list
       Rectangle {
-        width: parent.width - 200;
+        width: parent.width - menu.width;
         height: 40;
         color: "#555"
         z: 5;
@@ -200,88 +379,18 @@ Row {
       }
 
       // ------------------------------------------------------------------
-      // Data list
-      Rectangle {
-        width: 200
+      // Workflow
+      OVWorkflow {
+        id: workflow
+        width: menu.width
         height: parent.height - 40
-        id: dataListRect
-        color: "#555"
-        z: 5;
-
-        Component {
-          id: dataItemDelegate
-          Item {
-            id: dataItem
-            width: parent.width
-            height: 40
-            UIText {
-              text: name;
-              anchors.fill: parent
-              anchors.verticalCenter: parent.verticalCenter
-              anchors.leftMargin: 10
-              verticalAlignment: Text.AlignVCenter
-              color: dataItem.ListView.isCurrentItem ? "white" : "#ccc";
-            }
-          }
-        }
-
-        ListView {
-          anchors.fill: parent
-          model: ListModel {}
-          id: dataListView
-          delegate: dataItemDelegate
-          highlight: Rectangle {
-            width: parent.width
-            color: "#444";
-
-            Rectangle {
-              height: 6;
-              width: parent.width;
-              gradient: Gradient {
-                GradientStop { position: 1.0; color: "#444" }
-                GradientStop { position: 0.0; color: "#333" }
-              }
-            }
-
-            Rectangle {
-              height: 6;
-              width: parent.width;
-              y: parent.height - 6;
-              gradient: Gradient {
-                GradientStop { position: 1.0; color: "#333" }
-                GradientStop { position: 0.0; color: "#444" }
-              }
-            }
-
-            Rectangle {
-              height: 1;
-              width: parent.width;
-              y: parent.height - 1;
-              color: "#888";
-            }
-          }
-
-          onCurrentIndexChanged: {
-            view.url = model.get(currentIndex).path;
-            tableView.update();
-            viewList.updateViewAttributes();
-          }
-
-          MouseArea {
-            anchors.fill: parent
-            onClicked: {
-              parent.focus = true;
-              var indexedItem = parent.indexAt(mouseX, mouseY);
-              if (indexedItem !== -1) {
-                parent.currentIndex = indexedItem;
-              }
-            }
-          }
-        }
       }
 
+      /*
+      */
+
       Item {
-        width: parent.width - 200;
+        width: parent.width - menu.width;
         height: parent.height - 40;
 
         Column {

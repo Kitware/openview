@@ -19,6 +19,7 @@ vtkCxxSetObjectMacro(ovAlgorithmItem, Algorithm, vtkAlgorithm);
 
 ovAlgorithmItem::ovAlgorithmItem()
 {
+  this->Name = "Module";
   this->Algorithm = NULL;
   this->Pen->SetColor(0, 0, 0);
   this->Pen->SetWidth(1);
@@ -27,6 +28,10 @@ ovAlgorithmItem::ovAlgorithmItem()
   this->Position = vtkVector2f(0, 0);
   this->Size[0] = 150;
   this->Size[1] = 100;
+  this->TextProperty->SetFontSize(12);
+  this->TextProperty->SetJustificationToCentered();
+  this->TextProperty->SetVerticalJustificationToCentered();
+  this->TextProperty->SetColor(1, 1, 1);
 }
 
 ovAlgorithmItem::~ovAlgorithmItem()
@@ -100,6 +105,10 @@ bool ovAlgorithmItem::Paint(vtkContext2D *painter)
   painter->ApplyPen(this->Pen.GetPointer());
   painter->ApplyBrush(this->Brush.GetPointer());
   painter->DrawRect(this->Position[0], this->Position[1], this->Size[0], this->Size[1]);
+
+  painter->ApplyTextProp(this->TextProperty.GetPointer());
+  painter->DrawString(this->Position[0] + this->Size[0]/2, this->Position[1] + this->Size[1]/2, this->Name.c_str());
+
   painter->ApplyBrush(this->PortBrush.GetPointer());
   if (this->Algorithm)
     {

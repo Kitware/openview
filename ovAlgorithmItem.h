@@ -12,6 +12,8 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkVector.h"
+#include "vtkStdString.h"
+#include "vtkTextProperty.h"
 
 class vtkAlgorithm;
 class vtkBrush;
@@ -38,6 +40,9 @@ public:
   virtual vtkVector2f GetInputPortPosition(int i);
   virtual vtkVector2f GetOutputPortPosition(int i);
 
+  virtual void SetName(const vtkStdString& name) { this->Name = name; }
+  virtual vtkStdString GetName() { return this->Name; }
+
 protected:
   ovAlgorithmItem();
   ~ovAlgorithmItem();
@@ -48,6 +53,8 @@ protected:
   vtkNew<vtkBrush> Brush;
   vtkNew<vtkPen> Pen;
   vtkNew<vtkBrush> PortBrush;
+  vtkNew<vtkTextProperty> TextProperty;
+  vtkStdString Name;
 
 private:
   ovAlgorithmItem(const ovAlgorithmItem&); // Not implemented

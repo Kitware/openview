@@ -29,10 +29,11 @@ ovWorkflowItem::ovWorkflowItem()
   this->Dragging = false;
 }
 
-void ovWorkflowItem::AddAlgorithm(vtkAlgorithm *algorithm)
+void ovWorkflowItem::AddAlgorithm(vtkAlgorithm *algorithm, const vtkStdString& name)
 {
   vtkNew<ovAlgorithmItem> item;
   item->SetAlgorithm(algorithm);
+  item->SetName(name);
   this->AddItem(item.GetPointer());
   this->Algorithms.push_back(item.GetPointer());
 }

@@ -25,7 +25,7 @@ public:
   static ovWorkflowItem *New();
   vtkTypeMacro(ovWorkflowItem, vtkContextItem);
 
-  virtual void AddAlgorithm(vtkAlgorithm *algorithm);
+  virtual void AddAlgorithm(vtkAlgorithm *algorithm, const vtkStdString& name);
   virtual void RemoveAlgorithm(vtkAlgorithm *algorithm);
 
   virtual bool Paint(vtkContext2D *painter);

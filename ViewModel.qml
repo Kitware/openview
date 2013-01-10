@@ -15,5 +15,4 @@ ListModel {
   ListElement { name: "TREERING" }
   ListElement { name: "PHYLOTREE" }
   ListElement { name: "TABLE" }
-  ListElement { name: "WORKFLOW" }
 }

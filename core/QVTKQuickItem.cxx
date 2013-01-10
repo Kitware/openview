@@ -18,9 +18,6 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
 #include "vtkgl.h"
-#include "vtkContextScene.h"
-#include "vtkContextView.h"
-#include "vtkBlockItem.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
@@ -290,11 +287,6 @@ void QVTKQuickItem::hoverMoveEvent(QHoverEvent* e)
 
 void QVTKQuickItem::init()
 {
-  vtkNew<vtkContextView> view;
-  view->SetRenderWindow(m_win);
-  vtkNew<vtkBlockItem> block;
-  block->SetDimensions(0, 0, 100, 100);
-  view->GetScene()->AddItem(block.GetPointer());
 }
 
 void QVTKQuickItem::prepareForRender()
