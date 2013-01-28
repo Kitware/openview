@@ -9,6 +9,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
@@ -115,7 +116,17 @@ bool ovWorkflowItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
     int outPort = this->HitOutputPort;
     int alg = this->HitAlgorithm;
     this->UpdateHitAlgorithm(event);
-    if (inPort >= 0)
+    if (inPort == this->HitInputPort && outPort == this->HitOutputPort && alg == this->HitAlgorithm)
+      {
+      if (alg >= 0 && (inPort >= 0 || outPort >= 0))
+        {
+        vtkAlgorithm *algorithm = this->Algorithms[alg]->GetAlgorithm();
+        vtkDataObject *data = (inPort >= 0 ? algorithm->GetInputDataObject(inPort, 0) : algorithm->GetOutputDataObject(outPort));
+        cerr << "invoking selection event" << endl;
+        this->InvokeEvent(vtkCommand::SelectionChangedEvent, data);
+        }
+      }
+    else if (inPort >= 0)
       {
       if (this->HitOutputPort >= 0)
         {
@@ -123,7 +134,7 @@ bool ovWorkflowItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
         this->Algorithms[alg]->GetAlgorithm()->SetInputConnection(inPort, this->Algorithms[this->HitAlgorithm]->GetAlgorithm()->GetOutputPort(this->HitOutputPort));
         }
       }
-    if (outPort >= 0)
+    else if (outPort >= 0)
       {
       if (this->HitInputPort >= 0)
         {

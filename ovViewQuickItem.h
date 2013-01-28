@@ -57,6 +57,8 @@ public:
   QUrl url() { return this->m_url; }
   void setUrl(QUrl &url);
 
+  void setData(vtkDataObject *data);
+
   QString viewType() { return this->m_viewType; }
   void setViewType(QString &viewType);
 

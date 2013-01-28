@@ -26,8 +26,9 @@ Row {
     onFileSelected: {
       addDataStop1.color = Qt.rgba(0, 136/255, 204/255, 1);
       width = 0;
-      dataListView.model.append({name: fileName, path: filePath});
-      dataListView.currentIndex = dataListView.model.count - 1;
+      workflow.openFile(filePath);
+      //dataListView.model.append({name: fileName, path: filePath});
+      //dataListView.currentIndex = dataListView.model.count - 1;
     }
   }
 
@@ -94,7 +95,7 @@ Row {
   // Data list
   Rectangle {
     id: data
-    width: 200
+    width: 0
     height: parent.height
     color: "#555"
     clip: true
@@ -384,6 +385,7 @@ Row {
         id: workflow
         width: menu.width
         height: parent.height - 40
+        viewItem: view
       }
 
       /*

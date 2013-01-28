@@ -151,6 +151,22 @@ void ovViewQuickItem::setUrl(QUrl &url)
   this->m_viewLock.unlock();
 }
 
+void ovViewQuickItem::setData(vtkDataObject *data)
+{
+  cerr << "in setdata" << endl;
+  data->Print(cerr);
+  if (vtkTable::SafeDownCast(data))
+    {
+    cerr << "calling settable" << endl;
+    this->setTable(vtkTable::SafeDownCast(data));
+    }
+  else if (vtkTree::SafeDownCast(data))
+    {
+    cerr << "calling settree" << endl;
+    this->setTree(vtkTree::SafeDownCast(data));
+    }
+}
+
 int ovViewQuickItem::tableRows()
 {
   return m_table.GetPointer() ? m_table->GetNumberOfRows() : 0;
