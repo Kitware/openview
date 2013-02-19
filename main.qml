@@ -41,6 +41,10 @@ Row {
     color: "#555"
     clip: true
 
+    Behavior on width {
+      NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+    }
+
     Component {
       id: moduleItemDelegate
       Rectangle {
@@ -185,7 +189,7 @@ Row {
       // ------------------------------------------------------------------
       // Menu
       Row {
-        width: 800;
+        width: 400;
         height: 40;
         id: menu;
 
