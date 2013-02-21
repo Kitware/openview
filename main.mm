@@ -10,7 +10,6 @@
 #include <QApplication>
 
 #include "ovViewQuickItem.h"
-#include "ovWorkflowQuickItem.h"
 
 #include <Cocoa/Cocoa.h>
 
@@ -20,7 +19,6 @@ int main(int argc, char **argv)
   QQuickView view;
 
   qmlRegisterType<ovViewQuickItem>("OVView", 1, 0, "OVView");
-  qmlRegisterType<ovWorkflowQuickItem>("OVWorkflow", 1, 0, "OVWorkflow");
 
   view.setResizeMode(QQuickView::SizeRootObjectToView);
   view.setSource(QUrl("qrc:/main.qml"));

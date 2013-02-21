@@ -40,8 +40,7 @@ qt5_wrap_cpp( OPENVIEW_MOC_FILES
   ovTreeView.h
   ovViewPlugin.h
   ovViewQuickItem.h
-  ovView.h
-  ovWorkflowQuickItem.h )
+  ovView.h )
 
 qt5_add_resources( OPENVIEW_RESOURCES
   resources.qrc )
@@ -60,8 +59,6 @@ set( OPENVIEW_SRCS
   ovTreeView.cxx
   ovViewQuickItem.cxx
   ovView.cxx
-  ovWorkflowItem.cxx
-  ovWorkflowQuickItem.cxx
   ${OPENVIEW_MOC_FILES}
   ${OPENVIEW_RESOURCES} )
 
