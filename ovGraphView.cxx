@@ -32,7 +32,6 @@ ovGraphView::ovGraphView(QObject *parent) : ovView(parent)
   m_animate = true;
   m_sharedDomain = false;
   m_table = vtkSmartPointer<vtkTable>::New();
-  m_filter = false;
   m_bundle = false;
 }
 
@@ -196,34 +195,6 @@ void ovGraphView::generateGraph()
   degree->Update();
   vtkSmartPointer<vtkGraph> graph = degree->GetOutput();
 
-  if (m_filter)
-    {
-    for (int i = 0; i < 2; ++i)
-      {
-      vtkNew<vtkSelection> sel;
-      vtkNew<vtkSelectionNode> selNode;
-      selNode->SetContentType(vtkSelectionNode::THRESHOLDS);
-      selNode->SetFieldType(vtkSelectionNode::VERTEX);
-      vtkNew<vtkDoubleArray> threshold;
-      threshold->SetNumberOfComponents(2);
-      threshold->SetName("connections");
-      threshold->InsertNextValue(1.5);
-      threshold->InsertNextValue(VTK_DOUBLE_MAX);
-      selNode->SetSelectionList(threshold.GetPointer());
-      sel->AddNode(selNode.GetPointer());
-      vtkNew<vtkExtractSelectedGraph> extract;
-      extract->SetInputData(0, graph);
-      extract->SetInputData(1, sel.GetPointer());
-
-      vtkNew<vtkVertexDegree> deg;
-      deg->SetInputConnection(extract->GetOutputPort());
-      deg->SetOutputArrayName("connections");
-
-      deg->Update();
-      graph->ShallowCopy(deg->GetOutput());
-      }
-    }
-
   vtkNew<vtkPoints> points;
   vtkIdType numVert = graph->GetNumberOfVertices();
   for (vtkIdType i = 0; i < numVert; ++i)
@@ -259,7 +230,7 @@ QString ovGraphView::name()
 
 QStringList ovGraphView::attributes()
 {
-  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Animate" << "Filter" << "Bundle";
+  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Animate" << "Bundle";
 }
 
 QStringList ovGraphView::attributeOptions(QString attribute)
@@ -281,10 +252,6 @@ QStringList ovGraphView::attributeOptions(QString attribute)
     {
     return QStringList() << "on" << "off";
     }
-  if (attribute == "Filter")
-    {
-    return QStringList() << "all" << "2+ connections";
-    }
   return QStringList();
 }
 
@@ -294,40 +261,28 @@ void ovGraphView::setAttribute(QString attribute, QString value)
     {
     m_source = value;
     generateGraph();
-    return;
     }
-  if (attribute == "Target")
+  else if (attribute == "Target")
     {
     m_target = value;
     generateGraph();
-    return;
     }
-  if (attribute == "Color")
+  else if (attribute == "Color")
     {
     m_item->SetColorArray(value.toStdString());
-    return;
     }
-  if (attribute == "Label")
+  else if (attribute == "Label")
     {
     m_item->SetLabelArray(value.toStdString());
-    return;
     }
-  if (attribute == "Animate")
+  else if (attribute == "Animate")
     {
     m_animate = (value == "on");
-    return;
     }
-  if (attribute == "Bundle")
+  else if (attribute == "Bundle")
     {
     m_bundle = (value == "on");
     generateGraph();
-    return;
-    }
-  if (attribute == "Filter")
-    {
-    m_filter = (value != "all");
-    generateGraph();
-    return;
     }
 }
 
@@ -356,10 +311,6 @@ QString ovGraphView::getAttribute(QString attribute)
   if (attribute == "Bundle")
     {
     return this->m_bundle ? "on" : "off";
-    }
-  if (attribute == "Filter")
-    {
-    return this->m_filter ? "2+ connections" : "all";
     }
   return QString();
 }

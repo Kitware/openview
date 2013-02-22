@@ -42,7 +42,6 @@ protected:
   bool m_sharedDomain;
   vtkNew<ovGraphItem> m_item;
   vtkSmartPointer<vtkTable> m_table;
-  bool m_filter;
   bool m_bundle;
 };
 
