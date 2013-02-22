@@ -44,9 +44,15 @@ void ovTreemapItem::InitializeColorLookup()
     this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
     this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
     this->ColorLookup->IndexedLookupOn();
+    vtkIdType c = 0;
     for (vtkIdType i = 0; i < this->Tree->GetNumberOfVertices(); ++i)
       {
-      this->ColorLookup->SetAnnotation(this->Tree->GetParent(i), "");
+      vtkVariant value = this->Tree->GetParent(i);
+      if (this->ColorIndexMap.count(value) == 0)
+        {
+        this->ColorIndexMap[value] = c;
+        c = (c + 1) % this->ColorSeries->GetNumberOfColors();
+        }
       }
     }
   vtkAbstractArray *arr = this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str());
@@ -56,7 +62,6 @@ void ovTreemapItem::InitializeColorLookup()
       {
       vtkDataArray *darr = vtkDataArray::SafeDownCast(arr);
       this->ColorLookup->SetNumberOfTableValues(6);
-      //this->ColorLookup->SetScaleToLog10();
       unsigned char colors[] = {
           //247,252,253,
           //229,245,249,
@@ -92,9 +97,15 @@ void ovTreemapItem::InitializeColorLookup()
       this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
       this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
       this->ColorLookup->IndexedLookupOn();
+      vtkIdType c = 0;
       for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); ++i)
         {
-        this->ColorLookup->SetAnnotation(arr->GetVariantValue(i), "");
+        vtkVariant value = arr->GetVariantValue(i);
+        if (this->ColorIndexMap.count(value) == 0)
+          {
+          this->ColorIndexMap[value] = c;
+          c = (c + 1) % this->ColorSeries->GetNumberOfColors();
+          }
         }
       }
     }
@@ -239,7 +250,9 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
 
   painter->PushMatrix();
   vtkNew<vtkTransform2D> transform;
-  transform->Scale(this->GetScene()->GetSceneWidth(), this->GetScene()->GetSceneHeight());
+  float sceneWidth = this->GetScene()->GetSceneWidth();
+  float sceneHeight = this->GetScene()->GetSceneHeight();
+  transform->Scale(sceneWidth, sceneHeight);
   painter->AppendTransform(transform.GetPointer());
 
   float *targetRect = area->GetPointer(4*this->TargetVertex);
@@ -279,15 +292,9 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
 
   vtkNew<vtkTreeDFSIterator> it;
   it->SetTree(this->Tree.GetPointer());
-  it->SetMode(vtkTreeDFSIterator::FINISH);
+  it->SetMode(vtkTreeDFSIterator::DISCOVER);
   it->SetStartVertex(this->Tree->GetRoot());
   vtkDataArray *arr = vtkDataArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(this->ColorArray.c_str()));
-  vtkAbstractArray *labelArr = this->Tree->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
-  painter->GetTextProp()->SetFontSize(20);
-  painter->GetTextProp()->SetOpacity(0.5);
-  painter->GetTextProp()->SetColor(0, 0, 0);
-  painter->GetTextProp()->SetBold(true);
-  int numLabels = 0;
   while (it->HasNext())
     {
     vtkIdType i = it->Next();
@@ -295,27 +302,15 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
     if (!this->Tree->IsLeaf(i))
       {
       painter->GetBrush()->SetOpacityF(0.0f);
-      float width = std::max(2.0f, 6.0f - 2.0f*this->Tree->GetLevel(i));
+      float width = std::max(2.0f, 6.0f - 2.0f * this->Tree->GetLevel(i));
       painter->GetPen()->SetWidth(width);
       painter->GetPen()->SetOpacityF(1.0f);
-      if (labelArr)
-        {
-        vtkStdString label = labelArr->GetVariantValue(i).ToString();
-        float bounds[4];
-        painter->ComputeStringBounds(label, bounds);
-        if (numLabels < 100 && bounds[2] > 0.0f && bounds[3] > 0.0f)
-          {
-          float center[2] = {(pt[0]+pt[1])/2 - bounds[2]/2, (pt[2]+pt[3])/2 - bounds[3]/2};
-          painter->DrawString(center[0], center[1], label);
-          ++numLabels;
-          }
-        }
       }
     else
       {
       if (this->ColorArray == "parent")
         {
-        vtkIdType index = this->ColorLookup->GetAnnotatedValueIndex(this->Tree->GetParent(i));
+        vtkIdType index = this->ColorIndexMap[this->Tree->GetParent(i)];
         double rgba[4];
         this->ColorLookup->GetTableValue(index, rgba);
         painter->GetBrush()->SetColorF(rgba);
@@ -329,8 +324,96 @@ bool ovTreemapItem::Paint(vtkContext2D *painter)
       painter->GetPen()->SetOpacityF(0.5f);
       painter->GetBrush()->SetOpacityF(1.0f);
       }
-    painter->DrawRect(pt[0], pt[2], (pt[1]-pt[0]), (pt[3]-pt[2]));
+    painter->DrawRect(pt[0], pt[2], (pt[1] - pt[0]), (pt[3] - pt[2]));
     }
+
+  vtkAbstractArray *labelArr = this->Tree->GetVertexData()->GetAbstractArray(this->LabelArray.c_str());
+  if (labelArr)
+    {
+    int minFontSize = 10;
+    painter->GetTextProp()->SetOpacity(0.5);
+    painter->GetTextProp()->SetColor(0, 0, 0);
+    painter->GetTextProp()->SetBold(true);
+    it->Restart();
+    vtkTransform2D *fullTransform = painter->GetTransform();
+    float fullScreenArea = sceneWidth * sceneHeight;
+    while (it->HasNext())
+      {
+      vtkIdType i = it->Next();
+      float *pt = area->GetPointer(4*i);
+      float bottomLeft[2] = {pt[0], pt[2]};
+      float topRight[2] = {pt[1], pt[3]};
+      float boxWidth = topRight[0] - bottomLeft[0];
+
+      float screenBottomLeft[2];
+      float screenTopRight[2];
+      fullTransform->TransformPoints(bottomLeft, screenBottomLeft, 1);
+      fullTransform->TransformPoints(topRight, screenTopRight, 1);
+      float screenCenter[2] = {(screenBottomLeft[0] + screenTopRight[0]) / 2, (screenBottomLeft[1] + screenTopRight[1]) / 2};
+      bool onScreenX = screenCenter[0] > 0 && screenCenter[0] < sceneWidth;
+      bool onScreenY = screenCenter[1] > 0 && screenCenter[1] < sceneHeight;
+      float screenBoxWidth = screenTopRight[0] - screenBottomLeft[0];
+      float screenBoxHeight = screenTopRight[1] - screenBottomLeft[1];
+      float screenArea = screenBoxWidth * screenBoxHeight;
+
+      int maxFontSize = this->Tree->GetLevel(i) <= 1 ? 32 : 15;
+
+      // Determine if this node is a descendent of the currently
+      // focused (i.e. zoomed-in-on) node.
+      bool focused = false;
+      vtkIdType curNode = i;
+      while (curNode >= 0)
+        {
+        if (curNode == this->TargetVertex)
+          {
+          focused = true;
+          break;
+          }
+        curNode = this->Tree->GetParent(curNode);
+        }
+
+      // Increase performance by checking if focused, onscreen, and a decent screen area.
+      if (focused && onScreenX && onScreenY && screenArea / fullScreenArea > 0.01)
+        {
+        vtkStdString label = labelArr->GetVariantValue(i).ToString();
+
+        // Check min font size before full search for performance
+        float bounds[4];
+        painter->GetTextProp()->SetFontSize(minFontSize);
+        painter->ComputeStringBounds(label, bounds);
+        if (bounds[2] > boxWidth)
+          {
+          continue;
+          }
+
+        // Do a binary search for the best font size
+        int font = 16;
+        for (int delta = 8; delta >= 1; delta /= 2)
+          {
+          painter->GetTextProp()->SetFontSize(font);
+          painter->ComputeStringBounds(label, bounds);
+          font += (bounds[2] > boxWidth ? -1 : 1) * delta;
+          }
+
+        // The loop will get us to an odd number between 1 and 31.
+        // Do one more check to see if we switch to an even number,
+        // then set the final size and bounds.
+        painter->GetTextProp()->SetFontSize(font);
+        painter->ComputeStringBounds(label, bounds);
+        font += (bounds[2] > boxWidth) ? -1 : 0;
+        font = std::min(font, maxFontSize);
+        painter->GetTextProp()->SetFontSize(font);
+        painter->ComputeStringBounds(label, bounds);
+
+        if (font >= minFontSize)
+          {
+          float center[2] = {(bottomLeft[0] + topRight[0]) / 2 - bounds[2] / 2, (bottomLeft[1] + topRight[1]) / 2 - bounds[3] / 2};
+          painter->DrawString(center[0], center[1], label);
+          }
+        }
+      }
+    }
+
   painter->PopMatrix();
   this->PaintChildren(painter);
   return true;

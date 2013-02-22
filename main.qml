@@ -12,6 +12,11 @@ Row {
     width: 1000;
     height: 800;
 
+    Component.onCompleted: {
+        dataListView.model.append({name: "classes.csv", path: "file:///code/openview/data/classes.csv"});
+        dataListView.currentIndex = dataListView.model.count - 1;
+    }
+
     // ------------------------------------------------------------------
     // File open dialog
     FileDialog {

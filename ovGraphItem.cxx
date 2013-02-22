@@ -67,9 +67,15 @@ void ovGraphItem::InitializeColorLookup()
       this->ColorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
       this->ColorSeries->BuildLookupTable(this->ColorLookup.GetPointer());
       this->ColorLookup->IndexedLookupOn();
+      vtkIdType c = 0;
       for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); ++i)
         {
-        this->ColorLookup->SetAnnotation(arr->GetVariantValue(i), "");
+        vtkVariant value = arr->GetVariantValue(i);
+        if (this->ColorIndexMap.count(value) == 0)
+          {
+          this->ColorIndexMap[value] = c;
+          c = (c + 1) % this->ColorSeries->GetNumberOfColors();
+          }
         }
       }
     }
@@ -89,7 +95,7 @@ void ovGraphItem::SetColorArray(const std::string &name)
 
 vtkColor4ub ovGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType vtkNotUsed(point))
 {
-  return vtkColor4ub(0, 0, 0, 64);
+  return vtkColor4ub(128, 128, 128, 128);
 }
 
 float ovGraphItem::EdgeWidth(vtkIdType edgeIdx, vtkIdType point)
@@ -125,7 +131,7 @@ vtkColor4ub ovGraphItem::VertexColor(vtkIdType vertex)
     {
     if (this->ColorLookup->GetIndexedLookup())
       {
-      vtkIdType index = this->ColorLookup->GetAnnotatedValueIndex(arr->GetVariantValue(vertex));
+      vtkIdType index = this->ColorIndexMap[arr->GetVariantValue(vertex)];
       double rgba[4];
       this->ColorLookup->GetTableValue(index, rgba);
       return vtkColor4ub(static_cast<unsigned char>(rgba[0]*255),
@@ -218,6 +224,16 @@ vtkStdString ovGraphItem::VertexLabel(vtkIdType vertex)
 
 void ovGraphItem::PaintBuffers(vtkContext2D *painter)
 {
+  // Turn off the tooltip if the superclass turned it on.
+  this->PlaceTooltip(-1);
+
+  vtkIdType hitVertex = this->HitVertex(this->MouseLocation);
+  this->FocusedVertices->Initialize();
+  if (hitVertex >= 0)
+    {
+    this->FocusedVertices->InsertNextValue(hitVertex);
+    }
+
   this->Superclass::PaintBuffers(painter);
 
   this->GetLayout()->SetGravityPoint(vtkVector2f(this->GetScene()->GetSceneWidth()/2, this->GetScene()->GetSceneHeight()/2));
@@ -293,27 +309,23 @@ void ovGraphItem::PaintBuffers(vtkContext2D *painter)
         }
       }
     }
-  //cerr << "number of labels rendered: " << numRendered << endl;
+}
+
+bool ovGraphItem::Hit(const vtkContextMouseEvent &event)
+{
+  return true;
+}
+
+bool ovGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
+{
+  this->MouseLocation = event.GetPos();
+
+  this->Superclass::MouseMoveEvent(event);
+  return (this->HitVertex(event.GetPos()) >= 0) || (this->GetLayout()->GetFixed() >= 0);
 }
 
 bool ovGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &event)
 {
   this->Superclass::MouseButtonPressEvent(event);
-  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
-    {
-    vtkIdType hitVertex = this->HitVertex(event.GetPos());
-    vtkIdType hitIndex = this->FocusedVertices->LookupValue(hitVertex);
-    if (hitIndex < 0)
-      {
-      this->FocusedVertices->InsertNextValue(hitVertex);
-      }
-    else
-      {
-      vtkIdType numTuples = this->FocusedVertices->GetNumberOfTuples();
-      this->FocusedVertices->SetValue(hitIndex, this->FocusedVertices->GetValue(numTuples - 1));
-      this->FocusedVertices->SetNumberOfTuples(numTuples - 1);
-      }
-    return true;
-    }
-  return false;
+  return this->HitVertex(event.GetPos()) >= 0;
 }

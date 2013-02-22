@@ -259,7 +259,7 @@ QString ovGraphView::name()
 
 QStringList ovGraphView::attributes()
 {
-  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Hover" << "Animate" << "Filter" << "Bundle";
+  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Animate" << "Filter" << "Bundle";
 }
 
 QStringList ovGraphView::attributeOptions(QString attribute)
@@ -312,11 +312,6 @@ void ovGraphView::setAttribute(QString attribute, QString value)
     m_item->SetLabelArray(value.toStdString());
     return;
     }
-  if (attribute == "Hover")
-    {
-    m_item->SetTooltipArray(value.toStdString());
-    return;
-    }
   if (attribute == "Animate")
     {
     m_animate = (value == "on");
@@ -353,10 +348,6 @@ QString ovGraphView::getAttribute(QString attribute)
   if (attribute == "Label")
     {
     return QString::fromStdString(this->m_item->GetLabelArray());
-    }
-  if (attribute == "Hover")
-    {
-    return QString::fromStdString(this->m_item->GetTooltipArray());
     }
   if (attribute == "Animate")
     {

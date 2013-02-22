@@ -71,10 +71,6 @@ void ovViewQuickItem::init()
   style->SetScene(this->m_view->GetScene());
   this->m_view->GetInteractor()->SetInteractorStyle(style.GetPointer());
   this->m_viewType = "GRAPH";
-  //QUrl url("file:///code/opendemo/data/domains.csv");
-  //QUrl url("file:///code/opendemo/data/classes.csv");
-  //QUrl url("file:///code/opendemo/data/kcore_edges.csv");
-  //this->setUrl(url);
 }
 
 void ovViewQuickItem::prepareForRender()

@@ -15,6 +15,8 @@
 #include "vtkLookupTable.h"
 #include "vtkTransform2D.h"
 
+#include <map>
+
 class vtkTooltipItem;
 class vtkTree;
 
@@ -75,6 +77,7 @@ protected:
   vtkNew<vtkLookupTable> ColorLookup;
   vtkNew<vtkTree> Tree;
   vtkNew<vtkTooltipItem> Tooltip;
+  std::map<vtkVariant, vtkIdType> ColorIndexMap;
 
 private:
   ovTreemapItem(const ovTreemapItem&); // Not implemented

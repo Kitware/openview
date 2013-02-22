@@ -36,8 +36,7 @@ public:
 protected:
   void generateTreemap();
 
-  QString m_level1;
-  QString m_level2;
+  QString m_group;
   QString m_color;
   QString m_size;
   QString m_strategy;

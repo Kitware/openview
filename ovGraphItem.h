@@ -16,6 +16,8 @@
 #include "vtkLookupTable.h"
 #include "vtkSmartPointer.h"
 
+#include <map>
+
 class ovGraphItem : public vtkGraphItem
 {
 public:
@@ -58,7 +60,9 @@ protected:
   virtual vtkColor4ub EdgeColor(vtkIdType edgeIdx, vtkIdType point);
   virtual float EdgeWidth(vtkIdType edgeIdx, vtkIdType point);
 
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
   virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &event);
+  virtual bool Hit(const vtkContextMouseEvent &event);
 
   std::string ColorArray;
   std::string LabelArray;
@@ -68,6 +72,10 @@ protected:
   vtkNew<vtkLookupTable> ColorLookup;
 
   vtkSmartPointer<vtkIdTypeArray> FocusedVertices;
+
+  vtkVector2f MouseLocation;
+
+  std::map<vtkVariant, vtkIdType> ColorIndexMap;
 
 private:
   ovGraphItem(const ovGraphItem&); // Not implemented
