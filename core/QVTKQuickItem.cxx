@@ -18,6 +18,7 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
 #include "vtkgl.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
@@ -300,7 +301,8 @@ void QVTKQuickItem::paint()
     return;
     }
 
-  if (!m_win.GetPointer()) {
+  if (!m_win.GetPointer())
+    {
     m_interactor = vtkSmartPointer<QVTKInteractor>::New();
     m_interactorAdapter = new QVTKInteractorAdapter(NULL);
     m_interactorAdapter->moveToThread(this->thread());
@@ -310,10 +312,12 @@ void QVTKQuickItem::paint()
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     this->geometryChanged(QRectF(x(), y(), width(), height()), QRectF(0, 0, 100, 100));
     this->SetRenderWindow(win);
+    m_win->GetExtensionManager()->LoadExtension("GL_VERSION_1_4");
+    m_win->GetExtensionManager()->LoadExtension("GL_VERSION_2_0");
 
     // Let subclasses do something on initialization
     init();
-  }
+    }
 
   this->m_viewLock.lock();
 
@@ -333,11 +337,11 @@ void QVTKQuickItem::paint()
     }
 
   // Turn off any QML shader program
-  glUseProgram(0);
+  vtkgl::UseProgram(0);
 
   // Set blending correctly
   glEnable(GL_BLEND);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   m_win->Render();
 

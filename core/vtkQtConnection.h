@@ -35,6 +35,8 @@
 #include "vtkCommand.h"  // for event defines
 #include "qobject.h"
 
+#include "ovCoreModule.h"
+
 class QObject;
 class vtkCallbackCommand;
 class vtkEventQtSlotConnect;
@@ -42,7 +44,7 @@ class vtkEventQtSlotConnect;
 // class for managing a single VTK/Qt connection
 // not to be included in other projects
 // only here for moc to process for vtkEventQtSlotConnect
-class vtkQtConnection : public QObject
+class OVCORE_EXPORT vtkQtConnection : public QObject
 {
   Q_OBJECT
 

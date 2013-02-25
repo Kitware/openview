@@ -44,12 +44,14 @@
 #include "vtkCommand.h"  // for event defines
 #include <QtCore/QObject>          // for version info
 
+#include "ovCoreModule.h"
+
 class QObject;
 class vtkQtConnections;
 class vtkQtConnection;
 
 // manage connections between VTK object events and Qt slots
-class vtkEventQtSlotConnect : public vtkObject
+class OVCORE_EXPORT vtkEventQtSlotConnect : public vtkObject
 {
   public:
     static vtkEventQtSlotConnect* New();

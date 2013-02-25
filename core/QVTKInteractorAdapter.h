@@ -38,6 +38,8 @@
 
 #include <QtCore/QObject>
 
+#include "ovCoreModule.h"
+
 class vtkRenderWindowInteractor;
 class QEvent;
 
@@ -45,7 +47,7 @@ class QEvent;
 // .SECTION Description
 // QVTKInteractorAdapter translates QEvents and send them to a
 // vtkRenderWindowInteractor.
-class QVTKInteractorAdapter : public QObject
+class OVCORE_EXPORT QVTKInteractorAdapter : public QObject
 {
   Q_OBJECT
 public:

@@ -52,6 +52,7 @@ class vtkTDxDevice;
 class vtkTDxUnixDevice;
 #endif
 
+#include "ovCoreModule.h"
 
 class QVTKInteractorInternal;
 
@@ -59,7 +60,7 @@ class QVTKInteractorInternal;
 // .SECTION Description
 // QVTKInteractor is an interactor for a QVTKWiget.
 
-class QVTKInteractor : public vtkRenderWindowInteractor
+class OVCORE_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
 {
 public:
   static QVTKInteractor* New();

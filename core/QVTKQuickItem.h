@@ -17,6 +17,8 @@
 
 #include <QMutex>
 
+#include "ovCoreModule.h"
+
 class QOpenGLContext;
 class QOpenGLFramebufferObject;
 class QVTKInteractorAdapter;
@@ -26,7 +28,7 @@ class vtkGenericOpenGLRenderWindow;
 class vtkObject;
 class vtkContextView;
 
-class QVTKQuickItem : public QQuickItem
+class OVCORE_EXPORT QVTKQuickItem : public QQuickItem
 {
   Q_OBJECT
 public:

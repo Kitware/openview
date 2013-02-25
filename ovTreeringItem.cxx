@@ -25,6 +25,8 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(ovTreeringItem);
 
 ovTreeringItem::ovTreeringItem()
@@ -330,7 +332,7 @@ bool ovTreeringItem::Paint(vtkContext2D *painter)
     }
   std::sort(indices.begin(), indices.end(), SortOrder(this->Tree.GetPointer()));
 
-  for (vtkIdType ind = 0; ind < indices.size(); ++ind)
+  for (size_t ind = 0; ind < indices.size(); ++ind)
     {
     vtkIdType i = indices[ind];
     float *pt = area->GetPointer(4*i);
