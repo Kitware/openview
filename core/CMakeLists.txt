@@ -37,4 +37,9 @@ if(APPLE)
 
   list(APPEND libs_and_execs "${CMAKE_INSTALL_PREFIX}/OpenView.app/Contents/Libraries/libovCore.dylib")
   set(libs_and_execs ${libs_and_execs} PARENT_SCOPE)
+else()
+  install(TARGETS ovCore
+    RUNTIME DESTINATION "bin"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib")
 endif()

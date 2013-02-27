@@ -72,14 +72,14 @@ set( OPENVIEW_LIBS
   vtkRenderingVolumeOpenGL
   vtkViewsContext2D
   vtkViewsInfovis
-  vtkInfovisBoostGraphAlgorithms
+  Qt5::WinMain
   ${Qt5Widgets_LIBRARIES}
   ${Qt5Quick_LIBRARIES} )
 
 if(APPLE)
   add_executable(OpenView ${OPENVIEW_SRCS} main.mm)
 else()
-  add_executable(OpenView ${OPENVIEW_SRCS} main.cxx)
+  add_executable(OpenView WIN32 ${OPENVIEW_SRCS} main.cxx openview.rc)
 endif()
 target_link_libraries(OpenView ${OPENVIEW_LIBS})
 
@@ -87,6 +87,8 @@ if(APPLE)
   install(TARGETS OpenView RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/OpenView.app/Contents/MacOS/")
   set(executable_path "${CMAKE_INSTALL_PREFIX}/OpenView.app/Contents/MacOS/OpenView")
   list(APPEND libs_and_execs ${executable_path})
-endif(APPLE)
+else()
+  install(TARGETS OpenView RUNTIME DESTINATION "bin")
+endif()
 
 add_subdirectory(install)
