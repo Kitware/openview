@@ -11,7 +11,6 @@
 #include "ovViewQuickItem.h"
 
 #include "vtkAbstractArray.h"
-#include "vtkBoostDividedEdgeBundling.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
@@ -32,7 +31,6 @@ ovGraphView::ovGraphView(QObject *parent) : ovView(parent)
   m_animate = true;
   m_sharedDomain = false;
   m_table = vtkSmartPointer<vtkTable>::New();
-  m_bundle = false;
 }
 
 ovGraphView::~ovGraphView()
@@ -204,23 +202,7 @@ void ovGraphView::generateGraph()
     }
   graph->SetPoints(points.GetPointer());
   m_item->SetGraph(graph);
-  //m_item->GetLayout()->SetStrength(1.0f);
-  //m_item->GetLayout()->SetDistance(50.0f);
-  //m_item->GetLayout()->SetCharge(-5.0f);
   m_item->GetLayout()->SetAlpha(0.1f);
-
-  if (m_bundle)
-    {
-    m_item->GetLayout()->SetAlpha(0.3f);
-    for (int i = 0; i < 100; ++i)
-      {
-      m_item->UpdateLayout();
-      }
-    vtkNew<vtkBoostDividedEdgeBundling> bundle;
-    bundle->SetInputData(graph);
-    bundle->Update();
-    m_item->SetGraph(bundle->GetOutput());
-    }
 }
 
 QString ovGraphView::name()
@@ -230,7 +212,7 @@ QString ovGraphView::name()
 
 QStringList ovGraphView::attributes()
 {
-  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Animate" << "Bundle";
+  return QStringList() << "Source" << "Target" << "Color" << "Label" << "Animate";
 }
 
 QStringList ovGraphView::attributeOptions(QString attribute)
@@ -248,7 +230,7 @@ QStringList ovGraphView::attributeOptions(QString attribute)
     {
     return QStringList() << "(none)" << "domain" << "label" << "connections";
     }
-  if (attribute == "Animate" || attribute == "Bundle")
+  if (attribute == "Animate")
     {
     return QStringList() << "on" << "off";
     }
@@ -279,11 +261,6 @@ void ovGraphView::setAttribute(QString attribute, QString value)
     {
     m_animate = (value == "on");
     }
-  else if (attribute == "Bundle")
-    {
-    m_bundle = (value == "on");
-    generateGraph();
-    }
 }
 
 QString ovGraphView::getAttribute(QString attribute)
@@ -308,16 +285,12 @@ QString ovGraphView::getAttribute(QString attribute)
     {
     return this->m_animate ? "on" : "off";
     }
-  if (attribute == "Bundle")
-    {
-    return this->m_bundle ? "on" : "off";
-    }
   return QString();
 }
 
 void ovGraphView::prepareForRender()
 {
-  if (this->m_animate && !this->m_bundle)
+  if (this->m_animate)
     {
     this->m_item->UpdateLayout();
     }
