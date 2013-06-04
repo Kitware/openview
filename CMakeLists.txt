@@ -104,6 +104,6 @@ else()
 endif()
 
 # Install only currently works on Mac
-if(APPLE)
+if(APPLE OR WIN32)
   add_subdirectory(install)
 endif()
