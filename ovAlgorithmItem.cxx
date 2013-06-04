@@ -11,6 +11,7 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkAlgorithm.h"
 #include "vtkBrush.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkVectorOperators.h"
 

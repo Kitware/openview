@@ -17,6 +17,7 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints.h"
 #include "vtkTextProperty.h"

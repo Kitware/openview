@@ -2,6 +2,8 @@
 #ifndef OVCORE_EXPORT_H
 #define OVCORE_EXPORT_H
 
+#define OVCORE_EXPORT
+
 #ifdef OVCORE_STATIC_DEFINE
 #  define OVCORE_EXPORT
 #  define OVCORE_NO_EXPORT
