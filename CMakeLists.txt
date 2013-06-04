@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(OpenView)
 
+include(GenerateExportHeader)
+
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(VTK REQUIRED)
@@ -14,7 +16,8 @@ endif()
 include_directories(
   ${Qt5Widgets_INCLUDE_DIRS}
   ${Qt5Quick_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/core )
+  ${CMAKE_CURRENT_SOURCE_DIR}/core
+  ${CMAKE_CURRENT_BINARY_DIR}/core )
 
 add_definitions(
   ${Qt5Widgets_DEFINITIONS}
