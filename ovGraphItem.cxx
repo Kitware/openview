@@ -17,6 +17,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkIncrementalForceLayout.h"
 #include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 

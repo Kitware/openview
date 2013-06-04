@@ -22,6 +22,9 @@ set( ovCore_libs
 add_library(ovCore SHARED ${ovCore_srcs})
 target_link_libraries(ovCore ${ovCore_libs})
 
+# Generate export header.
+generate_export_header("ovCore" EXPORT_FILE_NAME "ovCoreModule.h")
+
 if(APPLE)
   install(TARGETS ovCore LIBRARY DESTINATION "OpenView.app/Contents/Libraries")
   install(CODE "execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -id  @executable_path/../Libraries/libovCore.dylib ${CMAKE_INSTALL_PREFIX}/OpenView.app/Contents/Libraries/libovCore.dylib)")

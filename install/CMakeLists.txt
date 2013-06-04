@@ -45,6 +45,8 @@ else()
   endforeach()
 endif()
 
+include(InstallRequiredSystemLibraries)
+
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenView information visualization application.")
 set(CPACK_PACKAGE_VENDOR "Kitware, Inc.")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README")

@@ -13,6 +13,7 @@
 
 #include "vtkColorSeries.h"
 #include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
 #include "vtkTransform2D.h"
 
 #include <map>
