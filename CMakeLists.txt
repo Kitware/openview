@@ -23,13 +23,6 @@ add_definitions(
   ${Qt5Widgets_DEFINITIONS}
   ${Qt5Quick_DEFINITIONS} )
 
-# Special case for 64-bit Linux: -fPIC required
-if(UNIX AND NOT APPLE AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
-endif()
-
 if(APPLE)
   set(install_name_changes "")
   set(libs_and_execs "")
@@ -94,6 +87,8 @@ else()
 endif()
 
 target_link_libraries(OpenView ${OPENVIEW_LIBS})
+set_target_properties(OpenView PROPERTIES
+  COMPILE_FLAGS ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
 
 if(APPLE)
   install(TARGETS OpenView RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/OpenView.app/Contents/MacOS/")
@@ -103,7 +98,7 @@ else()
   install(TARGETS OpenView RUNTIME DESTINATION "bin")
 endif()
 
-# Install only currently works on Mac
+# Install only currently works on Mac or Windows
 if(APPLE OR WIN32)
   add_subdirectory(install)
 endif()
