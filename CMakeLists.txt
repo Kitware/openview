@@ -88,7 +88,7 @@ endif()
 
 target_link_libraries(OpenView ${OPENVIEW_LIBS})
 set_target_properties(OpenView PROPERTIES
-  COMPILE_FLAGS ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
+  COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 if(APPLE)
   install(TARGETS OpenView RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/OpenView.app/Contents/MacOS/")
