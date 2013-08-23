@@ -32,7 +32,7 @@ class OVCORE_EXPORT QVTKQuickItem : public QQuickItem
 {
   Q_OBJECT
 public:
-  QVTKQuickItem();
+  QVTKQuickItem(QQuickItem* parent = 0);
 
   // Description:
   // destructor
@@ -89,6 +89,8 @@ protected:
   virtual void hoverEnterEvent(QHoverEvent* e);
   virtual void hoverLeaveEvent(QHoverEvent* e);
   virtual void hoverMoveEvent(QHoverEvent* e);
+
+  virtual QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* updatePaintNodeData);
 
   QMutex m_viewLock;
 

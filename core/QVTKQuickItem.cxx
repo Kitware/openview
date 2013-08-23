@@ -12,6 +12,7 @@
 #include <QOpenGLShaderProgram>
 #include <QQuickWindow>
 #include <QThread>
+#include <QSGSimpleRectNode>
 
 #include "QVTKInteractor.h"
 #include "QVTKInteractorAdapter.h"
@@ -29,7 +30,8 @@
 
 #include <iostream>
 
-QVTKQuickItem::QVTKQuickItem()
+QVTKQuickItem::QVTKQuickItem(QQuickItem* parent)
+:QQuickItem(parent)
 {
   setFlag(ItemHasContents);
   setAcceptHoverEvents(true);
@@ -293,6 +295,17 @@ void QVTKQuickItem::init()
 void QVTKQuickItem::prepareForRender()
 {
 }
+  
+QSGNode* QVTKQuickItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
+{
+  QSGSimpleRectNode *n = static_cast<QSGSimpleRectNode *>(oldNode);
+  if (!n) {
+    n = new QSGSimpleRectNode();
+  }
+  n->markDirty(QSGNode::DirtyForceUpdate);
+  return n;
+}
+
 
 void QVTKQuickItem::paint()
 {
