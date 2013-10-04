@@ -297,6 +297,10 @@ void QVTKQuickItem::init()
 void QVTKQuickItem::prepareForRender()
 {
 }
+
+void QVTKQuickItem::cleanupAfterRender()
+{
+}
   
 QSGNode* QVTKQuickItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 {
@@ -362,6 +366,8 @@ void QVTKQuickItem::paint()
 
   // Disable alpha test for QML
   glDisable(GL_ALPHA_TEST);
+
+  cleanupAfterRender();
 
   this->m_viewLock.unlock();
 }

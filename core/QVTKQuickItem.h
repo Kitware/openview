@@ -74,6 +74,7 @@ protected:
 
   virtual void init();
   virtual void prepareForRender();
+  virtual void cleanupAfterRender();
 
   // handle item key events
   virtual void keyPressEvent(QKeyEvent* e);
