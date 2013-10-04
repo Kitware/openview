@@ -74,9 +74,11 @@ void QVTKQuickItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     //m_connect->Connect(m_win, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     //m_connect->Connect(m_win, vtkCommand::EndEvent, this, SLOT(End()));
     //m_connect->Connect(m_win, vtkCommand::WindowFrameEvent, this, SLOT(Update()));
-    m_connect->Connect(m_win, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
-    m_connect->Connect(m_win, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)));
-    m_connect->Connect(m_win, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
+    // Qt::DirectConnection in order to execute callback immediately.
+    // This avoids an error when vtkTexture attempts to query driver features and it is unable to determine "IsCurrent"
+    m_connect->Connect(m_win, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)), NULL, 0.0, Qt::DirectConnection);
+    m_connect->Connect(m_win, vtkCommand::WindowIsDirectEvent, this, SLOT(IsDirect(vtkObject*, unsigned long, void*, void*)), NULL, 0.0, Qt::DirectConnection);
+    m_connect->Connect(m_win, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)), NULL, 0.0, Qt::DirectConnection);
     }
 }
 
