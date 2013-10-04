@@ -101,6 +101,8 @@ private:
   vtkSmartPointer<QVTKInteractor> m_interactor;
   QVTKInteractorAdapter* m_interactorAdapter;
   vtkSmartPointer<vtkEventQtSlotConnect> m_connect;
+
+  bool m_InitCalledOnce;
 };
 
 #endif

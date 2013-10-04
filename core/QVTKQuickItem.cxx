@@ -32,10 +32,21 @@
 
 QVTKQuickItem::QVTKQuickItem(QQuickItem* parent)
 :QQuickItem(parent)
+,m_InitCalledOnce(false)
 {
   setFlag(ItemHasContents);
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::LeftButton | Qt::MiddleButton | Qt::RightButton);
+
+  m_interactor = vtkSmartPointer<QVTKInteractor>::New();
+  m_interactorAdapter = new QVTKInteractorAdapter(NULL);
+  m_interactorAdapter->moveToThread(this->thread());
+  m_interactorAdapter->setParent(this);
+  m_connect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  //m_connect->Connect(m_interactor, vtkCommand::RenderEvent, this, SLOT(paint()));
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+  this->SetRenderWindow(win);
+  this->geometryChanged(QRectF(x(), y(), width(), height()), QRectF(0, 0, 100, 100));
 }
 
 QVTKQuickItem::~QVTKQuickItem()
@@ -181,7 +192,7 @@ void QVTKQuickItem::geometryChanged(const QRectF & newGeometry, const QRectF & o
     m_interactorAdapter->ProcessEvent(&e, m_interactor);
     this->m_viewLock.unlock();
     }
-  if(m_win.GetPointer())
+  if(m_win.GetPointer() && window())
     {
     this->m_viewLock.lock();
     m_win->SetSize(window()->width(), window()->height());
@@ -320,22 +331,14 @@ void QVTKQuickItem::paint()
     return;
     }
 
-  if (!m_win.GetPointer())
+    if (!this->m_InitCalledOnce)
     {
-    m_interactor = vtkSmartPointer<QVTKInteractor>::New();
-    m_interactorAdapter = new QVTKInteractorAdapter(NULL);
-    m_interactorAdapter->moveToThread(this->thread());
-    m_interactorAdapter->setParent(this);
-    m_connect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-    //m_connect->Connect(m_interactor, vtkCommand::RenderEvent, this, SLOT(paint()));
-    vtkSmartPointer<vtkGenericOpenGLRenderWindow> win = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    this->geometryChanged(QRectF(x(), y(), width(), height()), QRectF(0, 0, 100, 100));
-    this->SetRenderWindow(win);
-    m_win->GetExtensionManager()->LoadExtension("GL_VERSION_1_4");
-    m_win->GetExtensionManager()->LoadExtension("GL_VERSION_2_0");
+      m_win->GetExtensionManager()->LoadExtension("GL_VERSION_1_4");
+      m_win->GetExtensionManager()->LoadExtension("GL_VERSION_2_0");
 
-    // Let subclasses do something on initialization
-    init();
+      init();
+
+      this->m_InitCalledOnce = true;
     }
 
   this->m_viewLock.lock();
